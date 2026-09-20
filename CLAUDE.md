@@ -44,13 +44,29 @@ Each is commented at its call site. Do not "fix" these back.
 
 ## Design constraints
 
-- Two colours only: `--cold` to `--hot`. There is no third accent. Platform
-  badges and verdicts are set in type, never carried by colour alone.
-- Newsreader for problem titles and quotes; Public Sans for everything else.
-  Tabular figures on every number.
+- One anchor hue, 45, in OKLCH. Every neutral is tinted toward it — no
+  zero-chroma greys — and `--color-accent` is the only saturated colour, spent
+  on the heat ramp (`--heat-0..4`) and almost nothing else. It covers 1.6% of
+  the homepage fold; treat 5% as the ceiling. Platform badges and verdicts are
+  set in type, never carried by colour alone.
+- Geist for everything, Newsreader for reviewers' quotes only, Geist Mono for
+  the scoring equation. Roman throughout — no italic display type. Tabular
+  figures on every number.
+- Measures are in `rem` or `em`, never `ch`. Geist's digits are wide relative
+  to its average advance, so a `ch` measure reflowed every page the moment the
+  web font arrived. `"Geist Fallback"` carries a measured `size-adjust` for
+  the same reason. Together they are what holds CLS at zero.
+- Six moments move, and they are listed at the top of `global.css`. Adding a
+  seventh is a decision, not a detail.
 - Every animation lives inside `@media (prefers-reduced-motion: no-preference)`
   so it does not exist under a reduced-motion preference. There is deliberately
-  no blanket `animation: none` reset.
+  no blanket `animation: none` reset; the one `animation: none` present is
+  scoped to Astro's `::view-transition-*` pseudo-elements.
+- The Friction Field (`src/scripts/field.ts`) is the homepage's WebGL
+  topography. It never loads under 768px or without WebGL, it cancels its
+  frame loop offscreen, and it reads its palette from CSS tokens — which is
+  why the theme toggle has to tell it when they change. `src/lib/ramp.ts`
+  exists so the client never reaches `lib/data.ts`, which imports `node:fs`.
 - Avoid the generated-page tells named in the spec: tracked-out all-caps
   eyebrows, middle-dot metadata, arrows after link text, identical rounded cards
   with soft grey shadows, 01/02/03 markers, gradient washes.
