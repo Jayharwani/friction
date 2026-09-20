@@ -2,7 +2,23 @@
   "runs": [
     {
       "date": "2026-09-20",
-      "brief": "Friction — Redesign Pass 2",
+      "brief": "Friction \u2014 Redesign Pass 3",
+      "macrostructure": "Map / Diagram",
+      "nav": "N9",
+      "footer": "Ft5",
+      "theme": "custom, OKLCH anchor hue 45",
+      "knobs": {
+        "field": "webgl-terrain, camera 20deg, FogExp2, tapered apron",
+        "charts": "hand-drawn SVG kit of six, build-time",
+        "apps": "card grid with client-side sort/filter and FLIP",
+        "methodology": "live calculator importing the real scoring functions",
+        "search": "command palette on the native dialog"
+      },
+      "note": "Same system as pass 2 by instruction \u2014 this pass extends it rather than rotating it."
+    },
+    {
+      "date": "2026-09-20",
+      "brief": "Friction \u2014 Redesign Pass 2",
       "macrostructure": "Map / Diagram",
       "nav": "N9",
       "footer": "Ft5",

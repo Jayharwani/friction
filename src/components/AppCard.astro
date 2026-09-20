@@ -133,11 +133,24 @@ const platforms = [...new Set(evidence.map((e) => e.platform))];
     text-decoration: none;
   }
 
-  /* The whole card is the target, with one link in the tree. */
+  /*
+   * The whole card is the target, with one link in the tree.
+   *
+   * On a touch screen the overlay is raised above the card's own content,
+   * because without that the charts below it paint over the hit area and the
+   * real target shrinks to the title text — measured at 22px. On a mouse it
+   * stays below, so the charts keep their per-segment tooltips.
+   */
   h2 a::after {
     content: '';
     position: absolute;
     inset: 0;
+  }
+
+  @media (pointer: coarse) {
+    h2 a::after {
+      z-index: 1;
+    }
   }
 
   .card:has(a) {

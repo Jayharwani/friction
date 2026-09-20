@@ -136,6 +136,23 @@ function step(count: number): number {
     border-radius: 1px;
   }
 
+  /*
+   * Taller rows on a touch screen, so the problem links clear the 24px
+   * minimum target. Not 44: this is a dense summary grid, and eight rows at
+   * 44px stops being a heat map and becomes a list — which is what the full
+   * list below it already is.
+   */
+  @media (pointer: coarse) {
+    .cell {
+      height: 1.6rem;
+    }
+
+    /* The label is the link; it takes the row's full height as its target. */
+    .lbl a {
+      padding-block: var(--space-2xs);
+    }
+  }
+
   [data-heat='0'] { background: var(--heat-0); }
   [data-heat='1'] { background: var(--heat-1); }
   [data-heat='2'] { background: var(--heat-2); }

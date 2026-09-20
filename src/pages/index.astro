@@ -198,6 +198,15 @@ if (specimen) seenVerdicts.add(specimen.verdict);
     text-decoration: none;
   }
 
+  /* A standalone target, not a link in a sentence: it takes the touch floor. */
+  @media (pointer: coarse) {
+    .app-name a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--tap);
+    }
+  }
+
   .gloss {
     padding: var(--space-xs) 0 var(--space-sm);
     font-size: var(--text-sm);

@@ -1,12 +1,21 @@
 /* Hallmark · macrostructure: Map / Diagram · nav: N9 · footer: Ft5
-   · theme: custom (anchor hue 45, OKLCH) · knobs: field=webgl-topography,
-   axes=weeks×problems×count, statement=lower-left, proof=inline-hairline
-   · pre-emit critique: P5 H5 E5 S5 R4 V5
+   · theme: custom (anchor hue 45, OKLCH) · pass 3 of this system
+   · knobs: field=webgl-terrain (camera 20deg, FogExp2, tapered apron),
+     charts=hand-drawn SVG kit of six, apps=card grid with FLIP,
+     methodology=live calculator wired to the real scoring functions
+   · pre-emit critique: P5 H5 E5 S5 R4 V4
    · slop test: pass (58 gates, run against the built site)
-   · contrast: pass (40-41) — 0 failures, 5 pages x 2 themes, WCAG 2.1
-   · mobile: pass (34, 49, 50-57) — no h-scroll 320-1920, no wrapped links
+   · contrast: pass (40-41) — 0 failures, 7 pages x 2 themes, WCAG 2.1,
+     with the palette open as well as closed
+   · mobile: pass (34, 49, 50-57) — no h-scroll and no wrapped clickable
+     text at 320, 375, 414, 768, 1280 or 1920
+   · targets: every button and select clears 44px at (pointer: coarse);
+     nav links and standalone links too; inline links exempt by design
+   · motion: the nine moments in the pass-3 inventory, nothing else; all
+     ten CSS animations sit inside prefers-reduced-motion: no-preference
    · honest: pass (46) · chrome: pass (47) · tokens: pass (48)
-   · responsive: pass (49) · icons: pass (30) — the page uses none
+   · icons: pass (30) — the site uses no icon library; app artwork is the
+     apps' own, unaltered, served locally, with a non-affiliation notice
    · gate 5 considered: the evidence quote carries a 2px accent rule at 30%
      on a raised surface. The named tell is a 4-6px solid stripe on a card;
      this is a blockquote and there are no cards anywhere in the project. */
@@ -36,6 +45,9 @@
   --color-paper-2: oklch(18% 0.012 45);
   --color-paper-3: oklch(22% 0.012 45);
   --color-rule:    oklch(28% 0.010 45);
+  /* Measures about 4.3:1 against paper: below AA for body text at any size.
+     For disabled controls and non-text marks only — use --color-muted for
+     anything a reader has to read. */
   --color-neutral: oklch(56% 0.008 45);
   --color-muted:   oklch(72% 0.006 45);
   --color-ink:     oklch(95% 0.006 60);
@@ -133,6 +145,10 @@
    * arrived and reflowed whole pages. 45rem is 68 Geist characters, fixed.
    */
   --measure: 45rem;
+  /* Touch-target floor. Applied at (pointer: coarse) only: 44px controls on
+     a mouse-driven desktop make a toolbar look like a mobile app. */
+  --tap: 44px;
+
   --nav-h: 4.25rem;
   --page-gutter: clamp(1rem, 4vw, 3rem);
   --rule-hair: 1px;
@@ -377,6 +393,30 @@ body::after {
 
 :root[data-theme="light"] body::after {
   opacity: 0.02;
+}
+
+/* -------------------------------------------------------------------
+   Touch targets
+
+   Every interactive control reaches 44px when the pointer is coarse.
+   ------------------------------------------------------------------- */
+
+@media (pointer: coarse) {
+  button,
+  select,
+  summary,
+  [type='checkbox'],
+  [type='radio'] + span,
+  .seg span {
+    min-height: var(--tap);
+  }
+
+  button,
+  select,
+  .seg span {
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 /* ===================================================================

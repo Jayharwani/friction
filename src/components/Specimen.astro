@@ -195,6 +195,16 @@ const COUNTRY: Record<string, string> = {
     color: var(--color-muted);
   }
 
+  /* Standalone targets, not links in a sentence. */
+  @media (pointer: coarse) {
+    .app a,
+    .more a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--tap);
+    }
+  }
+
   .more {
     margin-top: var(--space-md);
     font-size: var(--text-sm);

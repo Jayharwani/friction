@@ -228,7 +228,13 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     background: none;
     border: var(--rule-hair) solid var(--color-rule);
     border-radius: 999px;
-    padding: var(--space-3xs) var(--space-xs);
+    /* Matches the theme control beside it: same padding, same line-height. */
+    padding: var(--space-2xs) var(--space-xs);
+    line-height: 1.4;
+    /* One explicit height shared with the theme control beside it. The two
+       are bordered differently — one per button, one on the wrapper — so
+       matching their padding was never going to match their boxes. */
+    height: 1.875rem;
     cursor: pointer;
   }
 
@@ -247,7 +253,8 @@ const here = Astro.url.pathname.replace(/\/$/, '');
 
   .find kbd {
     font-family: var(--font-mono);
-    color: var(--color-neutral);
+    /* --color-neutral measures 4.27:1 at this size; muted clears 4.5. */
+    color: var(--color-muted);
   }
 
   @media (max-width: 34rem) {
@@ -293,6 +300,20 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     color: var(--color-muted);
     text-decoration: none;
     padding-block: var(--space-3xs);
+  }
+
+  /*
+   * Nav links are standalone targets, so they take the touch floor. Links
+   * inside a sentence do not, and should not — WCAG exempts inline links
+   * precisely because padding them out breaks the line they sit in.
+   */
+  @media (pointer: coarse) {
+    nav a,
+    .wordmark {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--tap);
+    }
   }
 
   nav a:hover {
