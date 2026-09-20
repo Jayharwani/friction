@@ -99,6 +99,7 @@
   --text-display: clamp(2.4rem, 1.4rem + 4.4vw, 4.25rem);
 
   --measure: 68ch;
+  --nav-h: 4.25rem;
   --page-gutter: clamp(1rem, 4vw, 3rem);
   --rule-hair: 1px;
 }
@@ -230,6 +231,16 @@ hr {
    tables switch to the full track. No negative margins, no transforms,
    nothing that breaks `position: sticky` further down the tree.
    =================================================================== */
+
+/* The header is fixed, so every page clears it — except the homepage,
+   where the field deliberately runs underneath the transparent nav. */
+main {
+  padding-top: var(--nav-h);
+}
+
+main:has(.runs-under-nav) {
+  padding-top: 0;
+}
 
 .shell {
   display: grid;

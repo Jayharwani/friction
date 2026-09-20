@@ -1,9 +1,11 @@
 ---
 /**
- * Site footer.
+ * Ft5 · Statement.
  *
- * Carries the last-scan date and a link to the exact commit this build was
- * made from. That link is a small but real trust signal: the numbers on screen
+ * One display sentence closing the argument the page makes, then the
+ * provenance line beneath it. No link columns, no sitemap.
+ *
+ * The commit link is a small but real trust signal: the numbers on screen
  * trace to a specific revision, not to "trust us".
  */
 import { formatDate, getDataCommit, getLatestRun } from '../lib/data';
@@ -12,14 +14,14 @@ const run = getLatestRun();
 const commit = getDataCommit();
 ---
 
-<footer class="site-footer">
-  <div class="shell">
-    <div class="inner measure">
-      <p>
-        Friction is non-commercial and has no ads, accounts or payments. It reads publicly visible
-        app store reviews. It is not affiliated with any of the apps it tracks.
-      </p>
+<footer class="foot">
+  <div class="foot-inner">
+    <p class="line">
+      A complaint is only worth acting on once it has happened to enough people, enough times, for
+      long enough.
+    </p>
 
+    <div class="meta">
       <p class="num">
         {
           run && (
@@ -31,30 +33,49 @@ const commit = getDataCommit();
         Built from{' '}
         <a href={commit.url} rel="noopener noreferrer">
           {commit.sha ? `commit ${commit.sha}` : 'the data history'}
-        </a>
-        .
+        </a>.
       </p>
 
       <p>
-        <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">
-          Source and data on GitHub
-        </a>
+        Non-commercial. No ads, accounts or payments. Not affiliated with any app it tracks.{' '}
+        <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">Source</a>.
       </p>
     </div>
   </div>
 </footer>
 
 <style>
-  .site-footer {
+  .foot {
     margin-top: var(--section-gap);
-    border-top: 1px solid var(--color-rule);
-    padding-block: var(--space-xl) var(--space-3xl);
-    color: var(--color-muted);
-    font-size: var(--text-sm);
+    border-top: var(--rule-hair) solid var(--color-rule);
   }
 
-  .inner {
+  .foot-inner {
+    padding: var(--space-3xl) var(--page-gutter) var(--space-2xl);
     display: grid;
-    gap: var(--space-sm);
+    gap: var(--space-xl);
+  }
+
+  /* The closing sentence, at display size. Roman, never italic. */
+  .line {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.75rem);
+    line-height: 1.06;
+    letter-spacing: -0.028em;
+    font-weight: 500;
+    max-width: 26ch;
+    text-wrap: balance;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-sm) var(--space-xl);
+    align-items: baseline;
+    padding-top: var(--space-md);
+    border-top: var(--rule-hair) solid var(--color-rule);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
   }
 </style>

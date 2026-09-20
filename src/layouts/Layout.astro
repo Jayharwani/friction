@@ -79,9 +79,8 @@ const here = Astro.url.pathname.replace(/\/$/, '');
   <body>
     <a class="skip" href="#main">Skip to content</a>
 
-    <header class="site-header">
-      <div class="shell">
-        <div class="header-inner">
+    <header class="site-header" data-nav>
+      <div class="header-inner">
           <a class="wordmark" href={url('/')}>Friction</a>
 
           <nav aria-label="Primary">
@@ -103,7 +102,6 @@ const here = Astro.url.pathname.replace(/\/$/, '');
           </nav>
 
           <ThemeToggle />
-        </div>
       </div>
     </header>
 
@@ -112,6 +110,30 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     </main>
 
     <SiteFooter />
+
+    <script>
+      // The nav backdrop engages past 64px. IntersectionObserver on a
+      // zero-height sentinel rather than a scroll listener, so this costs
+      // nothing on the main thread while scrolling.
+      function watchScroll(): void {
+        const header = document.querySelector('[data-nav]');
+        if (!header) return;
+
+        const sentinel = document.createElement('div');
+        sentinel.style.cssText = 'position:absolute;top:64px;height:1px;width:1px;pointer-events:none';
+        document.body.prepend(sentinel);
+
+        new IntersectionObserver(
+          ([entry]) => {
+            if (entry?.isIntersecting) header.removeAttribute('data-scrolled');
+            else header.setAttribute('data-scrolled', '');
+          },
+          { threshold: 0 },
+        ).observe(sentinel);
+      }
+
+      document.addEventListener('astro:page-load', watchScroll);
+    </script>
   </body>
 </html>
 
@@ -132,8 +154,25 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     top: var(--space-xs);
   }
 
+  /* N9 · edge-aligned. Wordmark hard left at the viewport edge, controls
+     hard right, nothing in the middle. The empty span is the design.
+     Fixed and transparent so the field runs underneath it. */
   .site-header {
-    border-bottom: 1px solid var(--color-rule);
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 5;
+    border-bottom: var(--rule-hair) solid transparent;
+    transition:
+      background-color var(--dur-short) var(--ease-out),
+      border-color var(--dur-short) var(--ease-out),
+      backdrop-filter var(--dur-short) var(--ease-out);
+  }
+
+  /* Engages past 64px of scroll — one of the six sanctioned moments. */
+  .site-header[data-scrolled] {
+    background: color-mix(in oklch, var(--color-paper) 72%, transparent);
+    backdrop-filter: blur(14px) saturate(120%);
+    border-bottom-color: var(--color-rule);
   }
 
   .header-inner {
@@ -141,7 +180,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     flex-wrap: wrap;
     align-items: center;
     gap: var(--space-sm) var(--space-lg);
-    padding-block: var(--space-md);
+    padding: var(--space-md) var(--page-gutter);
   }
 
   .wordmark {
