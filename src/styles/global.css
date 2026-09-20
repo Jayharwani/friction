@@ -1,72 +1,215 @@
 @import "tailwindcss";
 
-/* ---------------------------------------------------------------
-   Friction design tokens (spec 6.2)
+/* ===================================================================
+   Friction — design tokens (spec 6.2)
 
-   Two-temperature scale only: --cold to --hot. There is deliberately
-   no third accent. Platform badges are set in type, not colour.
-   --------------------------------------------------------------- */
+   The subject is friction: the same small abrasion, repeated across
+   versions and platforms, until it wears through. The page should read
+   like a well-kept defect ledger that someone actually uses. Boldness is
+   spent on exactly two things — the recurrence grid and the score
+   disclosure. Everything else stays quiet.
+   =================================================================== */
 
 :root {
+  /* Surfaces and text */
   --paper: #FAFAF7;   /* page, slightly warm white, not cream */
   --ink:   #182028;   /* text, cool slate, not tinted black */
   --rule:  #DDE0DD;   /* hairlines and grid gaps */
   --muted: #6B7680;   /* secondary text and metadata */
+
+  /* The only colour system in the product. There is no third accent. */
   --cold:  #4C6E8F;   /* low evidence volume, dormant */
   --hot:   #A32B5B;   /* high evidence volume, growing */
 
-  /* derived: empty heat cell, sits between paper and rule */
-  --cell-empty: #ECEEEA;
+  /* An empty heat cell. Reads as absence, not as a low value. */
+  --cell-empty: #ECEDE9;
+
+  /* A tint of --ink for surfaces that must separate from --paper
+     without introducing a colour. Used sparingly. */
+  --sunken: #F2F1EC;
 
   --font-sans:  "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
+
+  /* Prose measure. Nothing textual exceeds this except the grid. */
+  --measure: 68ch;
 }
 
-/* Same hues at adjusted lightness, per spec 6.2 */
+/* Same hues at adjusted lightness — not a different palette. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #14181C;
-    --ink:   #E6E9E6;
-    --rule:  #2C3339;
-    --muted: #97A1AA;
-    --cold:  #7EA3C4;
-    --hot:   #D9638F;
+    --paper: #12161A;
+    --ink:   #E4E8E6;
+    --rule:  #2A3138;
+    --muted: #949DA6;
 
-    --cell-empty: #1E242A;
+    /* Lifted for contrast against a dark ground, same hue family. */
+    --cold:  #7FA4C6;
+    --hot:   #E0728F;
+
+    --cell-empty: #1C2228;
+    --sunken: #181D22;
   }
 }
 
-/* `inline` keeps the generated utilities pointing at the custom property,
-   so the dark-scheme overrides above apply without a second utility set. */
+/* `inline` keeps generated utilities pointing at the custom property, so the
+   dark-scheme block above applies without emitting a second set of utilities. */
 @theme inline {
-  --color-paper: var(--paper);
-  --color-ink:   var(--ink);
-  --color-rule:  var(--rule);
-  --color-muted: var(--muted);
-  --color-cold:  var(--cold);
-  --color-hot:   var(--hot);
+  --color-paper:  var(--paper);
+  --color-ink:    var(--ink);
+  --color-rule:   var(--rule);
+  --color-muted:  var(--muted);
+  --color-cold:   var(--cold);
+  --color-hot:    var(--hot);
+  --color-sunken: var(--sunken);
 
   --font-sans:  var(--font-sans);
   --font-serif: var(--font-serif);
 }
 
+/* Type scale: 1.25 ratio off a 17px body (spec 6.2). */
+@theme {
+  --text-xs:   0.706rem;  /* 12px */
+  --text-sm:   0.824rem;  /* 14px */
+  --text-base: 1rem;      /* 17px */
+  --text-lg:   1.25rem;   /* 21px */
+  --text-xl:   1.588rem;  /* 27px */
+  --text-2xl:  1.941rem;  /* 33px */
+  --text-3xl:  2.471rem;  /* 42px */
+}
+
+/* ===================================================================
+   Base
+   =================================================================== */
+
 html {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
-  /* 17px body, 1.25 ratio scale (spec 6.2) */
   font-size: 17px;
   -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
 }
 
 body {
   margin: 0;
   line-height: 1.55;
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Visible keyboard focus on every interactive element. Quality floor, 6.2. */
+/* Every figure in this product is compared against another figure —
+   scores, counts, versions, dates. They must not shift horizontally. */
+:where(time, .num, td, th, .score, .version, .count) {
+  font-variant-numeric: tabular-nums;
+}
+
+h1, h2, h3 {
+  line-height: 1.2;
+  text-wrap: balance;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.011em;
+}
+
+p { margin: 0; }
+
+a {
+  color: inherit;
+  text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: from-font;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Visible focus on every interactive element. Quality floor, spec 6.2. */
 :focus-visible {
   outline: 2px solid var(--hot);
   outline-offset: 2px;
-  border-radius: 1px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--hot) 22%, transparent);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+
+/* ===================================================================
+   Components
+   =================================================================== */
+
+@layer components {
+  /* The single content column. The recurrence grid is allowed out of it. */
+  .measure {
+    max-width: var(--measure);
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    /* 16px gutter holds the layout together down to 360px. */
+    padding-inline: 1rem;
+  }
+
+  @media (min-width: 48rem) {
+    .shell { padding-inline: 2rem; }
+  }
+
+  /* Metadata reads as prose, comma separated. Deliberately not middle dots —
+     spec 6.2 names those as a generated-page tell. */
+  .meta {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
+  /* People's words get the serif, and more line-height than the sans body. */
+  .quote {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: -0.003em;
+  }
+
+  /* A verdict is always a word. Colour never carries it alone. */
+  .verdict {
+    font-weight: 600;
+    letter-spacing: -0.006em;
+  }
+
+  /* Hairline separation instead of a floating card with a grey shadow. */
+  .ledger-row {
+    border-top: 1px solid var(--rule);
+  }
+}
+
+/* ===================================================================
+   Motion
+
+   Exactly one non-interactive moment in the product: the recurrence grid
+   fills column by column on first load. Everything else responds to an
+   action.
+
+   Every animation in this codebase is declared inside
+   `@media (prefers-reduced-motion: no-preference)`, so under a reduced-motion
+   preference the animation does not exist rather than being overridden. That
+   is why there is no blanket `* { animation: none }` reset here: opting in is
+   a stronger guarantee than fighting specificity after the fact.
+   =================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

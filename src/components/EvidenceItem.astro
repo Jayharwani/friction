@@ -1,0 +1,117 @@
+---
+/**
+ * One piece of evidence in the stream.
+ *
+ * The quote is set in the serif — people's words get the serif. The metadata
+ * line is comma-separated prose rather than middle-dot separated, which spec
+ * 6.2 names as a generated-page tell.
+ *
+ * The link goes to the app's review listing, never to an invented per-review
+ * URL: store reviews have no stable public permalink (spec 1.2).
+ */
+import type { Evidence } from '../../scripts/validate';
+import { formatDate, platformLabel, storeListingUrl, storeName } from '../lib/data';
+
+interface Props {
+  evidence: Evidence;
+}
+
+const { evidence } = Astro.props;
+
+const listing = storeListingUrl(evidence.platform, evidence.productSlug, evidence.country);
+
+const COUNTRY_NAMES: Record<string, string> = {
+  us: 'United States',
+  gb: 'United Kingdom',
+  ca: 'Canada',
+  au: 'Australia',
+};
+
+const country = COUNTRY_NAMES[evidence.country] ?? evidence.country.toUpperCase();
+const stars = `${evidence.rating} ${evidence.rating === 1 ? 'star' : 'stars'}`;
+const version = evidence.version ? `version ${evidence.version}` : 'version not reported';
+
+// Which of the five signals this review carried, as words.
+const signalLabels: [keyof Evidence['signals'], string][] = [
+  ['churnIntent', 'said they were leaving'],
+  ['competitorNamed', 'named a competitor'],
+  ['billingComplaint', 'about billing'],
+  ['regressionClaim', 'worked before an update'],
+  ['workaroundDescribed', 'described a workaround'],
+];
+const signals = signalLabels.filter(([key]) => evidence.signals[key]).map(([, label]) => label);
+---
+
+<article class="evidence">
+  <blockquote class="quote">{evidence.quote}</blockquote>
+
+  <p class="meta">
+    {platformLabel(evidence.platform)}, {version}, {stars}, {country},{' '}
+    <time datetime={evidence.reviewedAt}>{formatDate(evidence.reviewedAt)}</time>
+  </p>
+
+  {
+    signals.length > 0 && (
+      <ul class="signals">
+        {signals.map((s) => (
+          <li>{s}</li>
+        ))}
+      </ul>
+    )
+  }
+
+  <p class="capture">
+    Captured on <time datetime={evidence.capturedAt}>{formatDate(evidence.capturedAt)}</time>.{' '}
+    {
+      listing && (
+        <a href={listing} target="_blank" rel="noopener noreferrer">
+          See reviews on {storeName(evidence.platform)}
+        </a>
+      )
+    }
+  </p>
+</article>
+
+<style>
+  .evidence {
+    border-top: 1px solid var(--rule);
+    padding-block: 1.5rem;
+  }
+
+  blockquote {
+    margin: 0;
+    /* A quiet vertical rule marks quoted material without a card or a shadow. */
+    border-left: 2px solid var(--rule);
+    padding-left: 1rem;
+  }
+
+  .meta {
+    margin-top: 0.7rem;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .signals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    list-style: none;
+    margin: 0.5rem 0 0;
+    padding: 0;
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  /* Signals are set in type, with a hairline, never as coloured pills. */
+  .signals li {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.1rem;
+  }
+
+  .capture {
+    margin-top: 0.7rem;
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+</style>

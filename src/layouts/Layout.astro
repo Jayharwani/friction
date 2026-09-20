@@ -1,12 +1,33 @@
 ---
 import '../styles/global.css';
+import { url } from '../lib/url';
 
 interface Props {
   title: string;
   description?: string;
+  /** Page heading used for the document title; omit to use `title` alone. */
+  pageTitle?: string;
 }
 
-const { title, description = 'A free, auditable index of recurring complaints in widely-used mobile apps, built from public app store reviews.' } = Astro.props;
+const {
+  title,
+  description = 'A free, auditable index of recurring complaints in widely used mobile apps, built from public app store reviews.',
+} = Astro.props;
+
+const documentTitle = title === 'Friction' ? 'Friction' : `${title} — Friction`;
+
+// Astro.site is set in astro.config.mjs, so this resolves to an absolute URL.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+
+const nav = [
+  { href: '/', label: 'Today' },
+  { href: '/methodology', label: 'Methodology' },
+  { href: '/archive', label: 'Archive' },
+  { href: '/about', label: 'About' },
+];
+
+// Normalise for comparison: the base path is already applied to both sides.
+const here = Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <!doctype html>
@@ -15,10 +36,154 @@ const { title, description = 'A free, auditable index of recurring complaints in
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
+
+    <title>{documentTitle}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={documentTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Friction" />
+    <meta name="twitter:card" content="summary" />
+
+    <!-- The two-temperature scale doubles as the browser UI colour. -->
+    <meta name="theme-color" content="#FAFAF7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12161A" media="(prefers-color-scheme: dark)" />
+
+    <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Friction" href={url('/rss.xml')} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..600&family=Public+Sans:wght@400..600&display=swap"
+    />
   </head>
+
   <body>
-    <slot />
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="wordmark" href={url('/')}>Friction</a>
+        <nav aria-label="Primary">
+          <ul>
+            {
+              nav.map((item) => {
+                const target = url(item.href).replace(/\/$/, '');
+                const current = here === target;
+                return (
+                  <li>
+                    <a href={url(item.href)} aria-current={current ? 'page' : undefined}>
+                      {item.label}
+                    </a>
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell">
+        <p class="measure">
+          Friction is non-commercial and has no ads, accounts or payments. It reads publicly
+          visible app store reviews. It is not affiliated with any of the apps it tracks.
+        </p>
+        <p class="measure">
+          <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">
+            Source and data on GitHub
+          </a>
+        </p>
+      </div>
+    </footer>
   </body>
 </html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 0.7rem 1rem;
+    z-index: 10;
+    border: 1px solid var(--ink);
+  }
+
+  /* The skip link is the first thing a keyboard user meets. */
+  .skip:focus {
+    left: 0.5rem;
+    top: 0.5rem;
+  }
+
+  .site-header {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .header-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 2rem;
+    padding-block: 1.25rem;
+  }
+
+  .wordmark {
+    font-weight: 600;
+    font-size: var(--text-lg);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+
+  nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding-block: 0.15rem;
+  }
+
+  nav a:hover {
+    color: var(--ink);
+  }
+
+  /* The current page is marked with weight and an underline, not colour alone. */
+  nav a[aria-current='page'] {
+    color: var(--ink);
+    font-weight: 500;
+    box-shadow: inset 0 -1px 0 0 var(--ink);
+  }
+
+  .site-footer {
+    margin-top: 5rem;
+    border-top: 1px solid var(--rule);
+    padding-block: 2rem 3rem;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  .site-footer p + p {
+    margin-top: 0.6rem;
+  }
+</style>

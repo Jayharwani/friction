@@ -7,6 +7,9 @@
  *
  * The CLI gate itself lives at the bottom of this file.
  */
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 
 /* ------------------------------------------------------------------ */
@@ -255,6 +258,28 @@ export const ComponentsSchema = z.object({
 });
 export type Components = z.infer<typeof ComponentsSchema>;
 
+/**
+ * The raw counts each component was computed from, stated so the score
+ * disclosure can show "9 distinct reviewers, of 12 needed for full marks".
+ *
+ * Extends the shape in spec 4.4, deliberately. These could be recomputed from
+ * `evidence` at page-build time, but the 180-day window moves, so a rebuild
+ * days after a scan would render bars that disagree with the stored `score`.
+ * Storing them keeps the page a pure render of one scoring run, which is the
+ * property that makes the number auditable.
+ */
+export const ComponentInputsSchema = z.object({
+  uniqueReviewers: z.number().int(),
+  weeksWithEvidence: z.number().int(),
+  daysSinceLastSeen: z.number().int(),
+  meanRating: z.number(),
+  churnReviewers: z.number().int(),
+  distinctVersions: z.number().int(),
+  platforms: z.array(PlatformSchema),
+  evidenceInWindow: z.number().int(),
+});
+export type ComponentInputs = z.infer<typeof ComponentInputsSchema>;
+
 export const ProblemSchema = z.object({
   id: z.string().min(1),
   slug: z.string().min(1),
@@ -278,6 +303,10 @@ export const ProblemSchema = z.object({
   ),
   score: z.number(),
   components: ComponentsSchema,
+  /** What each component was computed from, for the score disclosure. */
+  inputs: ComponentInputsSchema,
+  /** The threshold in force when this verdict was decided, so the page can explain it. */
+  buildThreshold: z.number(),
   verdict: VerdictSchema,
   status: z.enum(['active', 'stale']),
 });
@@ -332,3 +361,190 @@ export const RunsFileSchema = z.array(RunSchema);
  */
 export const SeenFileSchema = z.record(z.string(), isoDate);
 export type Seen = z.infer<typeof SeenFileSchema>;
+
+/* ------------------------------------------------------------------ */
+/* The CLI gate (spec 5.5)                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Normalise for the verbatim-quote check.
+ *
+ * The spec calls for case-insensitive, whitespace-normalised comparison. This
+ * also folds typographic punctuation onto its ASCII equivalent, because a
+ * curly apostrophe and a straight one are the same character differently
+ * encoded, not a change to the words. Nothing here can make a fabricated quote
+ * match a review it did not come from.
+ */
+export function normaliseForQuoteCheck(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[‘’‛ʼ]/g, "'")
+    .replace(/[“”‟]/g, '"')
+    .replace(/[–—−]/g, '-')
+    .replace(/…/g, '...')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export interface ValidationProblem {
+  index: number;
+  productSlug: string;
+  message: string;
+}
+
+/**
+ * Cross-check extracted problems against the candidates they claim to quote.
+ * Returns every failure rather than the first, so one run surfaces all of them.
+ */
+export function crossCheckExtracted(
+  extracted: ExtractedProblem[],
+  candidates: Candidate[],
+): ValidationProblem[] {
+  const byId = new Map(candidates.map((c) => [c.id, c]));
+  const failures: ValidationProblem[] = [];
+
+  extracted.forEach((problem, index) => {
+    const fail = (message: string) =>
+      failures.push({ index, productSlug: problem.productSlug, message });
+
+    for (const e of problem.evidence) {
+      const candidate = byId.get(e.reviewId);
+
+      // Every reviewId must resolve to a candidate in this run.
+      if (!candidate) {
+        fail(`evidence references unknown reviewId "${e.reviewId}"`);
+        continue;
+      }
+
+      // Evidence must belong to the product it is filed under.
+      if (candidate.productSlug !== problem.productSlug) {
+        fail(
+          `evidence "${e.reviewId}" belongs to ${candidate.productSlug}, not ${problem.productSlug}`,
+        );
+      }
+
+      // The quote must be verbatim from that review's title or body.
+      const haystack = normaliseForQuoteCheck(`${candidate.title} ${candidate.body}`);
+      const needle = normaliseForQuoteCheck(e.quote);
+      if (!needle || !haystack.includes(needle)) {
+        fail(`quote is not verbatim in review "${e.reviewId}": ${JSON.stringify(e.quote.slice(0, 80))}`);
+      }
+
+      // Redundant with the schema, asserted again because it is a privacy cap.
+      if (wordCount(e.quote) > 25) {
+        fail(`quote on "${e.reviewId}" is ${wordCount(e.quote)} words, cap is 25`);
+      }
+
+      // Nothing carrying crisis language may ever reach storage.
+      if (containsCrisisLanguage(e.quote)) {
+        fail(`quote on "${e.reviewId}" matches the crisis language screen`);
+      }
+    }
+
+    // Spec 5.4: a problem needs at least three supporting reviews.
+    const distinctReviews = new Set(problem.evidence.map((e) => e.reviewId)).size;
+    if (distinctReviews < 3) {
+      fail(`only ${distinctReviews} supporting review(s), minimum is 3`);
+    }
+  });
+
+  return failures;
+}
+
+/* ------------------------------------------------------------------ */
+/* CLI                                                                 */
+/* ------------------------------------------------------------------ */
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const DATA = join(HERE, '..', 'data');
+
+/** Newest YYYY-MM-DD.json in a directory, or null when there is none. */
+export function newestDated(dir: string): string | null {
+  if (!existsSync(dir)) return null;
+  const files = readdirSync(dir)
+    .filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort();
+  return files.at(-1) ?? null;
+}
+
+function argValue(name: string): string | undefined {
+  const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
+  return hit?.split('=').slice(1).join('=');
+}
+
+function main(): void {
+  const dateArg = argValue('date');
+  const extractedOverride = argValue('file');
+
+  const extractedDir = join(DATA, 'extracted');
+  const candidatesDir = join(DATA, 'candidates');
+
+  const extractedName = dateArg ? `${dateArg}.json` : newestDated(extractedDir);
+  const extractedPath = extractedOverride
+    ? resolve(extractedOverride)
+    : extractedName
+      ? join(extractedDir, extractedName)
+      : null;
+
+  if (!extractedPath || !existsSync(extractedPath)) {
+    console.error('No extracted file to validate.');
+    console.error(`Looked in ${extractedDir}${dateArg ? ` for ${dateArg}.json` : ' for the newest dated file'}.`);
+    process.exit(1);
+  }
+
+  // The candidates file is chosen by the extracted file's own date, so a stale
+  // or mismatched pair can never validate against the wrong run.
+  const runDate = (extractedName ?? extractedPath.split(/[\/]/).pop() ?? '').replace(/\.json$/, '');
+  const candidatesPath = join(candidatesDir, `${runDate}.json`);
+
+  if (!existsSync(candidatesPath)) {
+    console.error(`No candidates file for run ${runDate} at ${candidatesPath}.`);
+    console.error('Every reviewId must resolve to a candidate in this run, so validation cannot proceed.');
+    process.exit(1);
+  }
+
+  console.log(`Validating ${extractedPath}`);
+  console.log(`  against  ${candidatesPath}\n`);
+
+  /* ---- shape ---- */
+  let rawExtracted: unknown;
+  try {
+    rawExtracted = JSON.parse(readFileSync(extractedPath, 'utf8'));
+  } catch (err) {
+    console.error(`FAIL: extracted file is not valid JSON.\n${(err as Error).message}`);
+    process.exit(1);
+  }
+
+  const parsed = ExtractedFileSchema.safeParse(rawExtracted);
+  if (!parsed.success) {
+    console.error('FAIL: extracted file does not match the schema.\n');
+    console.error(z.prettifyError(parsed.error));
+    process.exit(1);
+  }
+
+  const candidates = CandidatesFileSchema.parse(JSON.parse(readFileSync(candidatesPath, 'utf8')));
+
+  /* ---- cross-checks ---- */
+  const failures = crossCheckExtracted(parsed.data, candidates);
+
+  if (failures.length > 0) {
+    console.error(`FAIL: ${failures.length} problem(s) found.\n`);
+    for (const f of failures) {
+      console.error(`  [${f.index}] ${f.productSlug}: ${f.message}`);
+    }
+    console.error('\nNothing downstream will run. Previous data is untouched.');
+    process.exit(1);
+  }
+
+  /* ---- report ---- */
+  const evidenceCount = parsed.data.reduce((n, p) => n + p.evidence.length, 0);
+  const products = new Set(parsed.data.map((p) => p.productSlug));
+  console.log(`OK: ${parsed.data.length} problems across ${products.size} products`);
+  console.log(`    ${evidenceCount} pieces of evidence, all verbatim and within the 25-word cap`);
+}
+
+const isMain =
+  process.argv[1] !== undefined &&
+  resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
+
+if (isMain) main();

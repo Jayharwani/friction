@@ -1,0 +1,251 @@
+---
+/**
+ * The score, the verdict, and the full derivation.
+ *
+ * Spec 6.1 calls this the single most important interaction in the product, so
+ * it is built on a native <details>: keyboard-operable with no JavaScript, and
+ * it animates only its own opening.
+ *
+ * Every row states its raw input in words and its weight, and the rows sum to
+ * the published score — so a reader can check the arithmetic on the page
+ * rather than taking the number on trust.
+ */
+import type { Problem } from '../../scripts/validate';
+import { componentRows } from '../lib/scoring';
+
+interface Props {
+  problem: Problem;
+}
+
+const { problem } = Astro.props;
+const rows = componentRows(problem.components, problem.inputs);
+const total = rows.reduce((sum, r) => sum + r.contribution, 0);
+
+/** Position on the single cold-to-hot scale. No third colour exists. */
+const mix = (value: number) => `color-mix(in oklab, var(--hot) ${Math.round(value * 100)}%, var(--cold))`;
+
+const verdictNote: Record<string, string> = {
+  'Worth building': `scored at or above the current threshold of ${problem.buildThreshold.toFixed(0)}`,
+  Watch: `below the current threshold of ${problem.buildThreshold.toFixed(0)}`,
+  'Already solved': `${problem.existingSolutions.length} existing products already address this`,
+  'Too small': `only ${problem.inputs.uniqueReviewers} distinct ${problem.inputs.uniqueReviewers === 1 ? 'reviewer' : 'reviewers'}, fewer than the 4 required`,
+};
+---
+
+<section class="panel" aria-labelledby="score-heading">
+  <h2 id="score-heading" class="sr-only">Score</h2>
+
+  <p class="score">{problem.score}</p>
+  <p class="verdict">{problem.verdict}</p>
+  <p class="verdict-note">{verdictNote[problem.verdict]}</p>
+
+  <details class="disclosure">
+    <summary>
+      <span class="summary-label">How this score is calculated</span>
+    </summary>
+
+    <div class="disclosure-body">
+      <p class="preamble">
+        Seven components, each scored from 0 to 1 and multiplied by its weight. The model that
+        reads the reviews never produces a number; every figure below is computed in code.
+      </p>
+
+      <ol class="components">
+        {
+          rows.map((row) => (
+            <li>
+              <div class="row-head">
+                <span class="row-label">{row.label}</span>
+                <span class="row-weight num">weight {Math.round(row.weight * 100)}%</span>
+              </div>
+
+              <div class="track" aria-hidden="true">
+                <div class="fill" style={`width:${row.value * 100}%;background:${mix(row.value)}`} />
+              </div>
+
+              <p class="row-detail">{row.detail}</p>
+              <p class="row-math num">
+                {row.value.toFixed(2)} × {Math.round(row.weight * 100)} ={' '}
+                {row.contribution.toFixed(1)} of {Math.round(row.weight * 100)} points
+              </p>
+            </li>
+          ))
+        }
+      </ol>
+
+      <p class="total num">
+        Total {total.toFixed(1)}, rounded to <strong>{problem.score}</strong>
+      </p>
+    </div>
+  </details>
+</section>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .panel {
+    border-top: 2px solid var(--ink);
+    padding-top: 1rem;
+  }
+
+  .score {
+    font-size: var(--text-3xl);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .verdict {
+    margin-top: 0.4rem;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    letter-spacing: -0.012em;
+  }
+
+  .verdict-note {
+    margin-top: 0.15rem;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  /* ---- disclosure ---- */
+
+  .disclosure {
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  summary {
+    /* Replaced by a custom marker so the control reads as a button-like row. */
+    list-style: none;
+    cursor: pointer;
+    padding-block: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  /* A plus that becomes a minus. Not an arrow appended to link text. */
+  summary::before {
+    content: '';
+    flex: none;
+    width: 0.72rem;
+    height: 0.72rem;
+    background:
+      linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat,
+      linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+  }
+
+  .disclosure[open] summary::before {
+    background: linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat;
+  }
+
+  .summary-label {
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, currentColor 30%, transparent);
+    text-underline-offset: 0.18em;
+  }
+
+  summary:hover .summary-label {
+    text-decoration-color: currentColor;
+  }
+
+  .disclosure-body {
+    padding-bottom: 1.25rem;
+  }
+
+  /* The one animation on this component, and it animates only itself. */
+  @media (prefers-reduced-motion: no-preference) {
+    .disclosure[open] .disclosure-body {
+      animation: disclose 220ms ease-out;
+    }
+
+    @keyframes disclose {
+      from {
+        opacity: 0;
+        transform: translateY(-0.25rem);
+      }
+    }
+  }
+
+  .preamble {
+    color: var(--muted);
+    font-size: var(--text-sm);
+    margin-bottom: 1.1rem;
+  }
+
+  .components {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.1rem;
+  }
+
+  .row-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .row-label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  .row-weight {
+    font-size: var(--text-xs);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .track {
+    margin-top: 0.35rem;
+    height: 6px;
+    background: var(--cell-empty);
+  }
+
+  .fill {
+    height: 100%;
+  }
+
+  .row-detail {
+    margin-top: 0.4rem;
+    font-size: var(--text-sm);
+    color: var(--ink);
+  }
+
+  .row-math {
+    margin-top: 0.1rem;
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  .total {
+    margin-top: 1.25rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--text-sm);
+  }
+
+  .total strong {
+    font-weight: 600;
+  }
+</style>

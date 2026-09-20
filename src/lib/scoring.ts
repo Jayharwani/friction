@@ -5,7 +5,14 @@
  * Rule 0.4: the model never produces a number. Every value here is derived in
  * TypeScript from extracted fields, so any reader can reproduce it.
  */
-import type { Components, Evidence, Verdict } from '../../scripts/validate';
+import type {
+  ComponentInputs,
+  Components,
+  Evidence,
+  Verdict,
+} from '../../scripts/validate';
+
+export type { ComponentInputs };
 
 /* ------------------------------------------------------------------ */
 /* Constants                                                           */
@@ -111,18 +118,6 @@ export function recentIsoWeeks(end: Date | string, count: number): string[] {
 /* ------------------------------------------------------------------ */
 /* Components                                                          */
 /* ------------------------------------------------------------------ */
-
-/** The plain-English input behind each component, for the score disclosure. */
-export interface ComponentInputs {
-  uniqueReviewers: number;
-  weeksWithEvidence: number;
-  daysSinceLastSeen: number;
-  meanRating: number;
-  churnReviewers: number;
-  distinctVersions: number;
-  platforms: ('ios' | 'android')[];
-  evidenceInWindow: number;
-}
 
 export interface Scored {
   components: Components;

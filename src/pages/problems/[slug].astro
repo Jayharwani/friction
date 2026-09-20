@@ -1,0 +1,263 @@
+---
+/**
+ * Problem detail — the most important screen in the project (spec 6.1).
+ *
+ * Two columns at 1024px and above, single column below. The left column is the
+ * evidence stream in reverse chronological order; the right column is the
+ * computed panel, sticky on wide viewports.
+ */
+import Layout from '../../layouts/Layout.astro';
+import ScoreDisclosure from '../../components/ScoreDisclosure.astro';
+import Sparkline from '../../components/Sparkline.astro';
+import EvidenceItem from '../../components/EvidenceItem.astro';
+import { url } from '../../lib/url';
+import { formatDate, getProblems, getProduct, platformsLabel } from '../../lib/data';
+import type { Problem } from '../../../scripts/validate';
+
+export function getStaticPaths() {
+  return getProblems().map((problem) => ({
+    params: { slug: problem.slug },
+    props: { problem },
+  }));
+}
+
+interface Props {
+  problem: Problem;
+}
+
+const { problem } = Astro.props;
+const product = getProduct(problem.productSlug);
+
+// Reverse chronological: the newest report of the problem reads first.
+const evidence = [...problem.evidence].sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt));
+
+const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} from ${problem.evidence.length} app store reviews.`;
+---
+
+<Layout title={problem.title} description={description}>
+  <div class="shell">
+    <nav class="crumb" aria-label="Breadcrumb">
+      <a href={url(`/products/${problem.productSlug}`)}>{product?.name ?? problem.productSlug}</a>
+    </nav>
+
+    <div class="columns">
+      <!-- ---------- left: the evidence stream ---------- -->
+      <div class="stream">
+        <header class="intro">
+          <h1>{problem.title}</h1>
+          <p class="summary">{problem.summary}</p>
+          <p class="meta">
+            {problem.category}, {platformsLabel(problem.platforms)}, {problem.evidence.length}{' '}
+            {problem.evidence.length === 1 ? 'review' : 'reviews'}
+            {problem.status === 'stale' && <span class="stale">, no new evidence in 120 days</span>}
+          </p>
+        </header>
+
+        <h2 class="stream-heading">Evidence</h2>
+
+        <p class="standing-note">
+          Neither app store gives an individual review a permanent public link, so each entry below
+          is a snapshot taken on the date shown, and the link goes to the app's review listing
+          rather than to the review itself. The repository's git history is the audit trail.
+        </p>
+
+        {evidence.map((e) => <EvidenceItem evidence={e} />)}
+      </div>
+
+      <!-- ---------- right: the computed panel ---------- -->
+      <aside class="panel-column">
+        <div class="sticky">
+          <ScoreDisclosure problem={problem} />
+
+          <Sparkline history={problem.history} />
+
+          <section class="block">
+            <h3>App versions</h3>
+            {
+              problem.versions.length > 0 ? (
+                <ul class="versions num">
+                  {problem.versions.map((v) => (
+                    <li>{v}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="muted-note">No version was reported with these reviews.</p>
+              )
+            }
+          </section>
+
+          <section class="block">
+            <h3>Platform</h3>
+            <p>{platformsLabel(problem.platforms)}</p>
+          </section>
+
+          <section class="block">
+            <h3>What people do instead</h3>
+            {
+              problem.workarounds.length > 0 ? (
+                <ul class="listing">
+                  {problem.workarounds.map((w) => (
+                    <li>{w}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="muted-note">No workaround was described in these reviews.</p>
+              )
+            }
+          </section>
+
+          <section class="block">
+            <h3>What already exists</h3>
+            {
+              problem.existingSolutions.length > 0 ? (
+                <ul class="listing">
+                  {problem.existingSolutions.map((s) => (
+                    <li>{s}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="muted-note">No existing product was named in these reviews.</p>
+              )
+            }
+          </section>
+
+          <section class="block">
+            <h3>Seen</h3>
+            <p class="num dates">
+              First reported <time datetime={problem.firstSeen}>{formatDate(problem.firstSeen)}</time
+              >, last reported <time datetime={problem.lastSeen}>{formatDate(problem.lastSeen)}</time
+              >.
+            </p>
+          </section>
+        </div>
+      </aside>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .crumb {
+    padding-block: 1.5rem 0;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .columns {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: 1.5rem 2rem;
+  }
+
+  /* Two columns only where there is room for both to stay legible. */
+  @media (min-width: 64rem) {
+    .columns {
+      grid-template-columns: minmax(0, 1fr) 20rem;
+      gap: 4rem;
+      align-items: start;
+    }
+  }
+
+  .stream {
+    min-width: 0;
+  }
+
+  .intro {
+    max-width: var(--measure);
+  }
+
+  h1 {
+    /* Problem titles get the serif, like the quotes they summarise. */
+    font-family: var(--font-serif);
+    font-size: var(--text-2xl);
+    font-weight: 500;
+    letter-spacing: -0.014em;
+    line-height: 1.18;
+  }
+
+  .summary {
+    margin-top: 0.9rem;
+    max-width: var(--measure);
+  }
+
+  .meta {
+    margin-top: 0.8rem;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stale {
+    color: var(--muted);
+  }
+
+  .stream-heading {
+    margin-top: 2.75rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .standing-note {
+    margin-top: 0.6rem;
+    max-width: var(--measure);
+    font-size: var(--text-sm);
+    color: var(--muted);
+    background: var(--sunken);
+    padding: 0.85rem 1rem;
+  }
+
+  .stream :global(.evidence) {
+    max-width: var(--measure);
+  }
+
+  /* ---- right column ---- */
+
+  @media (min-width: 64rem) {
+    .sticky {
+      position: sticky;
+      top: 1.5rem;
+    }
+  }
+
+  .block {
+    margin-top: 1.75rem;
+  }
+
+  .block h3 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  .block p {
+    font-size: var(--text-sm);
+  }
+
+  .versions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-xs);
+  }
+
+  .versions li {
+    border: 1px solid var(--rule);
+    padding: 0.12rem 0.4rem;
+  }
+
+  .listing {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: var(--text-sm);
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .muted-note,
+  .dates {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+</style>

@@ -1,0 +1,95 @@
+---
+/**
+ * Score across scan runs, from the problem's own history.
+ *
+ * History entries are never rewritten by score.ts, so this line is the honest
+ * record of how the problem has moved. With a single run there is no trend to
+ * draw, and the component says so rather than drawing a misleading flat line.
+ */
+import type { Problem } from '../../scripts/validate';
+import { formatDate } from '../lib/data';
+
+interface Props {
+  history: Problem['history'];
+}
+
+const { history } = Astro.props;
+
+const W = 240;
+const H = 44;
+const PAD = 3;
+
+const points = history.map((h) => h.score);
+const max = Math.max(100, ...points);
+const min = Math.min(0, ...points);
+const span = max - min || 1;
+
+const coords = points.map((score, i) => {
+  const x = points.length === 1 ? W / 2 : PAD + (i / (points.length - 1)) * (W - PAD * 2);
+  const y = H - PAD - ((score - min) / span) * (H - PAD * 2);
+  return { x, y, score };
+});
+
+const path = coords.map((c, i) => `${i === 0 ? 'M' : 'L'}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+const last = coords.at(-1);
+
+const first = history[0];
+const latest = history.at(-1);
+const change = first && latest ? latest.score - first.score : 0;
+
+const summary =
+  history.length < 2
+    ? `First recorded on ${formatDate(history[0]?.date ?? new Date().toISOString())}. No trend yet.`
+    : `Score moved from ${first!.score} on ${formatDate(first!.date)} to ${latest!.score} on ${formatDate(latest!.date)} across ${history.length} scans.`;
+---
+
+<div class="sparkline">
+  <h3>Trend</h3>
+
+  {
+    history.length < 2 ? (
+      <p class="empty">{summary}</p>
+    ) : (
+      <>
+        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={summary} preserveAspectRatio="none">
+          <path d={path} fill="none" stroke="var(--cold)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+          {last && <circle cx={last.x} cy={last.y} r="2.5" fill="var(--hot)" />}
+        </svg>
+        <p class="caption num">
+          from {first!.score} to {latest!.score} over {history.length} scans
+          {change !== 0 && <span class="delta">, {change > 0 ? 'up' : 'down'} {Math.abs(change)}</span>}
+        </p>
+      </>
+    )
+  }
+</div>
+
+<style>
+  .sparkline {
+    margin-top: 1.75rem;
+  }
+
+  h3 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  svg {
+    width: 100%;
+    height: 44px;
+    display: block;
+    overflow: visible;
+  }
+
+  .caption,
+  .empty {
+    margin-top: 0.4rem;
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  .delta {
+    color: var(--muted);
+  }
+</style>
