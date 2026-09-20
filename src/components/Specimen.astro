@@ -1,0 +1,199 @@
+---
+/**
+ * One problem shown in full, on the homepage.
+ *
+ * Rather than explaining what a "problem" is, show one completely: title,
+ * summary, the counts behind it, a real quote with its provenance, and the
+ * verdict. A stranger learns the shape of the whole site from this block.
+ *
+ * Set apart by space and two hairlines. Not a card.
+ */
+import type { Problem } from '../../scripts/validate';
+import { url } from '../lib/url';
+import { formatDate, platformsLabel } from '../lib/data';
+import { VERDICT_GLOSS } from '../lib/scoring';
+
+interface Props {
+  problem: Problem;
+  productName: string;
+}
+
+const { problem, productName } = Astro.props;
+
+// The freshest evidence: this block is about what is happening now.
+const quote = [...problem.evidence].sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt))[0]!;
+
+const reviews = problem.evidence.length;
+const weeks = problem.inputs.weeksWithEvidence;
+const reviewers = problem.inputs.uniqueReviewers;
+
+const stats = [
+  `${reviewers} distinct ${reviewers === 1 ? 'reviewer' : 'reviewers'}`,
+  `${weeks} ${weeks === 1 ? 'week' : 'weeks'} running`,
+  platformsLabel(problem.platforms),
+];
+
+const COUNTRY: Record<string, string> = {
+  us: 'United States',
+  gb: 'United Kingdom',
+  ca: 'Canada',
+  au: 'Australia',
+  nz: 'New Zealand',
+  ie: 'Ireland',
+  sg: 'Singapore',
+};
+---
+
+<section class="specimen" aria-labelledby="specimen-title">
+  <p class="label">The strongest signal right now</p>
+
+  <p class="app">
+    <a href={url(`/products/${problem.productSlug}`)}>{productName}</a>
+  </p>
+
+  <h2 id="specimen-title" transition:name={`title-${problem.slug}`}>
+    <a href={url(`/problems/${problem.slug}`)}>{problem.title}</a>
+  </h2>
+
+  <p class="summary">{problem.summary}</p>
+
+  <ul class="stats num">
+    {stats.map((s) => <li>{s}</li>)}
+  </ul>
+
+  <figure class="quote-block">
+    <blockquote>{quote.quote}</blockquote>
+    <figcaption class="num">
+      {quote.platform === 'ios' ? 'iOS' : 'Android'},{' '}
+      {quote.version ? `version ${quote.version}` : 'version not reported'},{' '}
+      {quote.rating} {quote.rating === 1 ? 'star' : 'stars'},{' '}
+      {COUNTRY[quote.country] ?? quote.country.toUpperCase()},{' '}
+      <time datetime={quote.reviewedAt}>{formatDate(quote.reviewedAt)}</time>
+    </figcaption>
+  </figure>
+
+  <p class="verdict">
+    {problem.verdict}
+    <span class="gloss"> — {VERDICT_GLOSS[problem.verdict]}</span>
+  </p>
+  <p class="score num">score {problem.score} of 100</p>
+
+  <p class="more">
+    <a href={url(`/problems/${problem.slug}`)}>
+      See all {reviews} {reviews === 1 ? 'review' : 'reviews'} and how this score was calculated
+    </a>
+  </p>
+</section>
+
+<style>
+  .specimen {
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding-block: var(--space-5) var(--space-6);
+    max-width: var(--measure);
+  }
+
+  /* Sentence case, normal tracking. Not a tracked-out all-caps eyebrow. */
+  .label {
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .app {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  h2 {
+    margin-top: var(--space-1);
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+  }
+
+  h2 a {
+    text-decoration: none;
+  }
+
+  h2 a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.14em;
+  }
+
+  .summary {
+    margin-top: var(--space-3);
+    color: var(--text);
+  }
+
+  /* Plain figures separated by hairlines, not pills. */
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .stats li + li {
+    margin-left: var(--space-3);
+    padding-left: var(--space-3);
+    border-left: 1px solid var(--rule);
+  }
+
+  .quote-block {
+    margin: var(--space-5) 0 0;
+    border-left: 2px solid var(--rule);
+    padding-left: var(--space-4);
+  }
+
+  blockquote {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-lg);
+    line-height: 1.5;
+  }
+
+  figcaption {
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .verdict {
+    margin-top: var(--space-5);
+    font-size: var(--text-base);
+    font-weight: 500;
+  }
+
+  .gloss {
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  .score {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .more {
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 34rem) {
+    .specimen {
+      padding-block: var(--space-4) var(--space-5);
+    }
+
+    .app {
+      margin-top: var(--space-2);
+    }
+  }
+</style>

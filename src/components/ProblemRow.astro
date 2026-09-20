@@ -1,10 +1,14 @@
 ---
 /**
- * One problem in a list. A ledger row separated by a hairline, not a rounded
- * card with a soft grey shadow (spec 6.2 names those as a tell).
+ * One problem in a list. A ledger row separated by a hairline — no card, no
+ * border, no shadow.
  *
- * The verdict is always a word and the platform is always set in type; neither
- * is ever carried by colour alone.
+ * The verdict carries the meaning for a first-time reader and the number does
+ * not, so the word is set at body size and the score is secondary. Both are
+ * words-first: the verdict is never carried by colour.
+ *
+ * The whole row is clickable via a stretched pseudo-element on the title link,
+ * which keeps exactly one link per row in the accessibility tree.
  */
 import type { Problem } from '../../scripts/validate';
 import { url } from '../lib/url';
@@ -12,38 +16,48 @@ import { platformsLabel } from '../lib/data';
 
 interface Props {
   problem: Problem;
-  /** Hide the score when the surrounding list is already ordered by it. */
-  showScore?: boolean;
 }
 
-const { problem, showScore = true } = Astro.props;
+const { problem } = Astro.props;
+const reviews = problem.evidence.length;
 ---
 
 <article class="row">
   <div class="body">
     <h3>
-      <a href={url(`/problems/${problem.slug}`)}>{problem.title}</a>
+      <a href={url(`/problems/${problem.slug}`)} transition:name={`title-${problem.slug}`}>
+        {problem.title}
+      </a>
     </h3>
-    <p class="meta">
-      {problem.category}, {platformsLabel(problem.platforms)}, {problem.evidence.length}{' '}
-      {problem.evidence.length === 1 ? 'review' : 'reviews'}
+    <p class="meta num">
+      {problem.category}, {platformsLabel(problem.platforms)}, {reviews}{' '}
+      {reviews === 1 ? 'review' : 'reviews'}
     </p>
   </div>
 
   <div class="figures">
-    {showScore && <p class="score num">{problem.score}</p>}
     <p class="verdict">{problem.verdict}</p>
+    <p class="score num">score {problem.score}</p>
   </div>
 </article>
 
 <style>
   .row {
+    position: relative;
     border-top: 1px solid var(--rule);
-    padding-block: 0.95rem;
+    padding: var(--space-4) var(--space-3);
+    /* Cancel the gutter so text still aligns to the column edge. */
+    margin-inline: calc(var(--space-3) * -1);
     display: flex;
-    gap: 1.5rem;
+    gap: var(--space-5);
     align-items: baseline;
     justify-content: space-between;
+  }
+
+  /* A surface shift, never a transform or a shadow. */
+  .row:has(a:hover),
+  .row:has(a:focus-visible) {
+    background: color-mix(in oklch, var(--text) 5%, transparent);
   }
 
   .body {
@@ -62,16 +76,23 @@ const { problem, showScore = true } = Astro.props;
     text-decoration: none;
   }
 
+  /* Stretches the link over the whole row without nesting interactive
+     elements or duplicating the link for a screen reader. */
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
   h3 a:hover {
     text-decoration: underline;
     text-underline-offset: 0.16em;
   }
 
   .meta {
-    margin-top: 0.25rem;
+    margin-top: var(--space-1);
     color: var(--muted);
     font-size: var(--text-sm);
-    font-variant-numeric: tabular-nums;
   }
 
   .figures {
@@ -79,16 +100,35 @@ const { problem, showScore = true } = Astro.props;
     text-align: right;
   }
 
-  .score {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    line-height: 1.1;
+  /* The word first, at full opacity. */
+  .verdict {
+    font-size: var(--text-base);
+    font-weight: 500;
+    white-space: nowrap;
   }
 
-  .verdict {
+  .score {
+    margin-top: var(--space-1);
     font-size: var(--text-xs);
     color: var(--muted);
-    margin-top: 0.1rem;
     white-space: nowrap;
+  }
+
+  @media (max-width: 34rem) {
+    .row {
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .figures {
+      text-align: left;
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+    }
+
+    .score {
+      margin-top: 0;
+    }
   }
 </style>

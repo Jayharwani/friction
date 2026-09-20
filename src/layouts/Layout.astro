@@ -180,8 +180,14 @@ const here = Astro.url.pathname.replace(/\/$/, '');
   }
 
   @media (max-width: 34rem) {
-    .wordmark {
-      margin-right: 0;
+    .header-inner {
+      gap: var(--space-2) var(--space-3);
+      padding-block: var(--space-3);
+    }
+
+    /* Wordmark and theme control share the first row; nav wraps under them. */
+    nav {
+      order: 3;
       width: 100%;
     }
   }

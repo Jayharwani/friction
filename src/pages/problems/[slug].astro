@@ -46,7 +46,7 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
       the score below every quote on mobile, and put the score disclosure after
       all the evidence links in the tab order.
     -->
-    <div class="columns">
+    <div class="columns bleed">
       <header class="intro">
         <h1>{problem.title}</h1>
         <p class="summary">{problem.summary}</p>
@@ -143,15 +143,15 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
 
 <style>
   .crumb {
-    padding-block: 1.5rem 0;
+    padding-block: var(--space-5) 0;
     font-size: var(--text-sm);
     color: var(--muted);
   }
 
   .columns {
     display: grid;
-    gap: 2.5rem;
-    padding-block: 1.5rem 2rem;
+    gap: var(--space-6);
+    padding-block: var(--space-5) var(--space-6);
   }
 
   /* Two columns only where there is room for both to stay legible. Grid areas
@@ -163,7 +163,7 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
         'head  panel'
         'stream panel';
       grid-template-rows: auto 1fr;
-      column-gap: 4rem;
+      column-gap: var(--space-8);
       row-gap: 0;
       align-items: start;
     }
@@ -203,12 +203,12 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
   }
 
   .summary {
-    margin-top: 0.9rem;
+    margin-top: var(--space-4);
     max-width: var(--measure);
   }
 
   .meta {
-    margin-top: 0.8rem;
+    margin-top: var(--space-3);
     color: var(--muted);
     font-size: var(--text-sm);
     font-variant-numeric: tabular-nums;
@@ -219,18 +219,19 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
   }
 
   .stream-heading {
-    margin-top: 2.25rem;
+    margin-top: var(--space-6);
     font-size: var(--text-sm);
     font-weight: 600;
   }
 
+  /* A hairline aside, not a tinted panel: the site carries no cards. */
   .standing-note {
-    margin-top: 0.6rem;
+    margin-top: var(--space-3);
     max-width: var(--measure);
     font-size: var(--text-sm);
     color: var(--muted);
-    background: var(--surface);
-    padding: 0.85rem 1rem;
+    border-left: 2px solid var(--rule);
+    padding-left: var(--space-4);
   }
 
   .stream :global(.evidence) {
@@ -247,13 +248,13 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
   }
 
   .block {
-    margin-top: 1.75rem;
+    margin-top: var(--space-5);
   }
 
   .block h3 {
     font-size: var(--text-sm);
     font-weight: 600;
-    margin-bottom: 0.4rem;
+    margin-bottom: var(--space-2);
   }
 
   .block p {
@@ -263,24 +264,28 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
   .versions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem 0.5rem;
+    gap: var(--space-1) var(--space-2);
     list-style: none;
     margin: 0;
     padding: 0;
     font-size: var(--text-xs);
   }
 
+  /* Plain tabular text, comma separated. Bordered chips would be cards. */
   .versions li {
-    border: 1px solid var(--rule);
-    padding: 0.12rem 0.4rem;
+    color: var(--muted);
+  }
+
+  .versions li:not(:last-child)::after {
+    content: ',';
   }
 
   .listing {
     margin: 0;
-    padding-left: 1.1rem;
+    padding-left: var(--space-4);
     font-size: var(--text-sm);
     display: grid;
-    gap: 0.25rem;
+    gap: var(--space-1);
   }
 
   .muted-note,

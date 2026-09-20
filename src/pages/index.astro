@@ -1,99 +1,139 @@
 ---
 /**
- * Today (spec 6.1).
+ * Today.
  *
- * The hero is the data, not a headline: the recurrence grid comes first and a
- * reader should understand what this site does by looking at it before reading
- * a word. No signup prompt, no call to action, no hero button.
+ * Reading order is the whole point of this page: statement, proof, specimen,
+ * list, then the grid. A stranger should be able to answer "what is this",
+ * "where does it come from", "is it current" and "what does one item look
+ * like" without scrolling.
+ *
+ * No image, no button, no signup, no call to action. There is nothing to sell.
  */
 import Layout from '../layouts/Layout.astro';
 import RecurrenceGrid from '../components/RecurrenceGrid.astro';
 import ProblemRow from '../components/ProblemRow.astro';
+import Specimen from '../components/Specimen.astro';
 import { url } from '../lib/url';
 import {
   buildRecurrenceGrid,
   formatDate,
   getActiveProblems,
   getLatestRun,
-  getProblemsFromRun,
+  getProblems,
+  getProduct,
   groupByProduct,
 } from '../lib/data';
+import { VERDICT_GLOSS } from '../lib/scoring';
+import type { Verdict } from '../../scripts/validate';
 
+const all = getProblems();
 const active = getActiveProblems();
-const grid = buildRecurrenceGrid(active);
 const run = getLatestRun();
+const grid = buildRecurrenceGrid(active);
 
-const newest = run ? getProblemsFromRun(run.date) : [];
-const grouped = groupByProduct(newest);
+// Every figure in the proof strip is read from the data, never hardcoded.
+const reviewsRead = run?.funnel.fetched.total ?? 0;
+const problemsTracked = all.length;
 
-const funnel = run?.funnel;
-const hasGrid = grid.rows.length > 0;
+const specimen = active[0]; // getProblems() is sorted by score, descending
+const specimenProduct = specimen ? getProduct(specimen.productSlug) : undefined;
+
+const grouped = groupByProduct(active);
+
+// Glosses appear once per page, on each verdict's first appearance in the list.
+const seenVerdicts = new Set<Verdict>();
+if (specimen) seenVerdicts.add(specimen.verdict);
 ---
 
 <Layout title="Friction">
   <div class="shell">
-    {
-      hasGrid ? (
-        <section class="hero">
-          <RecurrenceGrid grid={grid} />
+    <!-- 1. The statement: the ten-second answer. -->
+    <section class="statement" data-enter="1">
+      <h1>
+        Friction reads app store reviews every week and finds the complaints that keep coming back.
+      </h1>
+      <p class="sub">
+        Every score here is computed in code, not written by a model. Open any score to see the
+        arithmetic.
+      </p>
+    </section>
 
-          <p class="explain measure">
-            Every cell is one week of app store reviews reporting the same problem. Darker means
-            more people hit it that week. These are the {grid.rows.length} highest-scoring problems
-            currently active across {new Set(active.map((p) => p.productSlug)).size} apps.
-          </p>
-        </section>
-      ) : (
-        <section class="hero empty">
-          <h1>Friction</h1>
-          <p class="measure">
+    <!-- 2. The proof strip: is it real, is it current. -->
+    <section class="proof" data-enter="2" aria-label="Current figures">
+      <div class="figure">
+        <p class="stat-figure">{reviewsRead.toLocaleString('en-GB')}</p>
+        <p class="stat-label">reviews read</p>
+      </div>
+      <div class="figure">
+        <p class="stat-figure">{problemsTracked}</p>
+        <p class="stat-label">problems tracked</p>
+      </div>
+      <div class="figure">
+        <p class="stat-figure">
+          {run ? <time datetime={run.date}>{formatDate(run.date)}</time> : '—'}
+        </p>
+        <p class="stat-label">last scan</p>
+      </div>
+    </section>
+
+    <!-- 3. The specimen: what one item looks like. -->
+    {
+      specimen && specimenProduct && (
+        <div data-enter="3">
+          <Specimen problem={specimen} productName={specimenProduct.name} />
+        </div>
+      )
+    }
+
+    {
+      all.length === 0 && (
+        <section class="empty">
+          <p>
             No problems have been recorded yet. The first scan has not produced data, or the
-            pipeline stopped before writing. Nothing here is a placeholder — the grid appears once
-            real reviews have been read.
+            pipeline stopped before writing. Nothing here is a placeholder.
           </p>
-          <p class="measure">
-            <a href={url('/methodology')}>How this works</a>
-          </p>
+          <p><a href={url('/methodology')}>How this works</a></p>
         </section>
       )
     }
 
-    {
-      run && funnel && (
-        <section class="run-summary">
-          <h2>Last scan</h2>
-          <p class="measure num">
-            On <time datetime={run.date}>{formatDate(run.date)}</time> this project read{' '}
-            {funnel.fetched.total.toLocaleString('en-GB')} reviews from the App Store and Google
-            Play. {funnel.screened.total.toLocaleString('en-GB')} were recent and substantial
-            enough to consider, {funnel.filtered.total.toLocaleString('en-GB')} read like
-            complaints, and the {funnel.capped.total} strongest were sent to be grouped into
-            problems.
-            {run.extractedProblems !== undefined && (
-              <> That produced {run.extractedProblems} problems, {run.problemsNew ?? 0} of them new.</>
-            )}
-          </p>
-          <p class="measure meta">
-            <a href={url('/archive')}>Every scan so far</a>
-          </p>
-        </section>
-      )
-    }
-
+    <!-- 4. The list. -->
     {
       grouped.length > 0 && (
-        <section class="latest">
-          <h2>From the latest scan</h2>
+        <section class="list">
+          <h2>Everything found in the last scan</h2>
+
           {grouped.map((group) => (
             <div class="group">
-              <h3 class="product-name">
+              <h3 class="app-name">
                 <a href={url(`/products/${group.product.slug}`)}>{group.product.name}</a>
               </h3>
-              {group.problems.map((problem) => (
-                <ProblemRow problem={problem} />
-              ))}
+              {group.problems.map((problem) => {
+                const first = !seenVerdicts.has(problem.verdict);
+                seenVerdicts.add(problem.verdict);
+                return (
+                  <>
+                    <ProblemRow problem={problem} />
+                    {first && (
+                      <p class="gloss">
+                        {problem.verdict} — {VERDICT_GLOSS[problem.verdict]}
+                      </p>
+                    )}
+                  </>
+                );
+              })}
             </div>
           ))}
+        </section>
+      )
+    }
+
+    <!-- 5. The grid, demoted to a footnote. -->
+    {
+      grid.rows.length > 0 && (
+        <section class="grid-section bleed">
+          <h2>Twelve weeks at a glance</h2>
+          <RecurrenceGrid grid={grid} />
         </section>
       )
     }
@@ -101,63 +141,157 @@ const hasGrid = grid.rows.length > 0;
 </Layout>
 
 <style>
-  .hero {
-    padding-block: 2.5rem 0;
+  .statement {
+    padding-top: var(--space-6);
   }
 
-  .hero.empty h1 {
-    font-size: var(--text-2xl);
-    margin-bottom: 0.8rem;
+  h1 {
+    font-family: var(--font-serif);
+    font-size: clamp(1.9rem, 3.6vw, 3rem);
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.018em;
+    max-width: 20ch;
   }
 
-  .hero.empty p + p {
-    margin-top: 0.8rem;
-  }
-
-  .explain {
-    margin-top: 1.5rem;
+  .sub {
+    margin-top: var(--space-4);
     color: var(--muted);
-    font-size: var(--text-sm);
+    max-width: var(--measure);
   }
 
-  .run-summary,
-  .latest {
-    margin-top: 3.25rem;
+  /* ---- proof strip ---- */
+
+  .proof {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: var(--space-5);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Separated by hairlines, never by middle dots. */
+  .figure + .figure {
+    margin-left: var(--space-5);
+    padding-left: var(--space-5);
+    border-left: 1px solid var(--rule);
+  }
+
+  .stat-figure {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .stat-label {
+    margin-top: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  /* ---- list ---- */
+
+  .list,
+  .grid-section {
+    margin-top: var(--section-gap);
   }
 
   h2 {
-    font-size: var(--text-sm);
+    font-size: var(--text-lg);
     font-weight: 600;
-    margin-bottom: 0.7rem;
-  }
-
-  .run-summary p + p {
-    margin-top: 0.6rem;
   }
 
   .group {
-    margin-top: 2rem;
+    margin-top: var(--space-6);
+    max-width: var(--measure);
   }
 
-  .product-name {
+  .app-name {
     font-size: var(--text-sm);
     font-weight: 600;
     color: var(--muted);
-    margin-bottom: 0.2rem;
+    margin-bottom: var(--space-2);
   }
 
-  .product-name a {
+  .app-name a {
     text-decoration: none;
   }
 
-  .product-name a:hover {
+  .app-name a:hover {
     text-decoration: underline;
     text-underline-offset: 0.16em;
   }
 
-  /* Lists of problems stay in the prose measure; only the grid exceeds it. */
-  .latest :global(.row),
-  .group {
+  .gloss {
+    padding: var(--space-2) 0 var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+
+  .grid-section h2 {
+    margin-bottom: var(--space-4);
+  }
+
+  .empty {
+    margin-top: var(--space-7);
     max-width: var(--measure);
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  /* ---- entry, the first of three animated moments ---- */
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (transition-behavior: allow-discrete) {
+      [data-enter] {
+        opacity: 1;
+        translate: 0 0;
+        transition:
+          opacity 320ms cubic-bezier(0.2, 0, 0, 1),
+          translate 320ms cubic-bezier(0.2, 0, 0, 1);
+      }
+
+      /* Content is fully readable if this never runs: the starting state only
+         exists for browsers that can transition out of it. */
+      @starting-style {
+        [data-enter] {
+          opacity: 0;
+          translate: 0 8px;
+        }
+      }
+
+      [data-enter='2'] {
+        transition-delay: 70ms;
+      }
+
+      [data-enter='3'] {
+        transition-delay: 140ms;
+      }
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .statement {
+      padding-top: var(--space-4);
+    }
+
+    .sub {
+      margin-top: var(--space-3);
+    }
+
+    .proof {
+      margin-top: var(--space-4);
+      padding-block: var(--space-3);
+    }
+
+    .figure + .figure {
+      margin-left: var(--space-4);
+      padding-left: var(--space-4);
+    }
+
+    .stat-figure {
+      font-size: var(--text-lg);
+    }
   }
 </style>
