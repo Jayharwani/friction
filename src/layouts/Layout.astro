@@ -117,6 +117,8 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     <SiteFooter />
 
     <script>
+      import { watchCharts, stopWatchingCharts } from '../scripts/reveal';
+
       // The nav backdrop engages past 64px. IntersectionObserver on a
       // zero-height sentinel rather than a scroll listener, so this costs
       // nothing on the main thread while scrolling.
@@ -137,7 +139,11 @@ const here = Astro.url.pathname.replace(/\/$/, '');
         ).observe(sentinel);
       }
 
-      document.addEventListener('astro:page-load', watchScroll);
+      document.addEventListener('astro:page-load', () => {
+        watchScroll();
+        watchCharts();
+      });
+      document.addEventListener('astro:before-swap', stopWatchingCharts);
     </script>
   </body>
 </html>

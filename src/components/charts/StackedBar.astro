@@ -1,0 +1,103 @@
+---
+/**
+ * One horizontal bar divided into labelled segments.
+ *
+ * Segments are separated by lightness, not by hue: the accent at full strength,
+ * then two mixes of it toward the page, then a neutral. Six colours on one bar
+ * would be a different design system, and the verdict is carried by the word
+ * beneath the bar in any case.
+ */
+import type { Segment } from '../../lib/charts';
+
+interface Props {
+  segments: Segment[];
+  /** Sentence fragment: "of Notion's problems", "of this problem's evidence". */
+  of: string;
+  /** Hidden when the bar sits under a heading that already names the parts. */
+  showKey?: boolean;
+  height?: number;
+}
+
+const { segments, of, showKey = true, height = 10 } = Astro.props;
+
+const total = segments.reduce((sum, s) => sum + s.value, 0);
+
+/*
+ * Lightness steps from the accent down toward the page, spread across however
+ * many segments there are. A fixed four-step ramp collapsed the moment a
+ * category mix had eight parts — everything past the fourth came out the same
+ * grey. Spreading the same range keeps adjacent steps apart at any count.
+ */
+const fillFor = (i: number, n: number) => {
+  const pct = n <= 1 ? 100 : Math.round(100 - (i / (n - 1)) * 82);
+  return `color-mix(in oklch, var(--color-accent) ${pct}%, var(--color-paper-2))`;
+};
+
+let x = 0;
+const parts = segments.map((s, i) => {
+  const width = total > 0 ? (s.value / total) * 100 : 0;
+  const part = { ...s, i, x, width, fill: fillFor(i, segments.length) };
+  x += width;
+  return part;
+});
+
+// Labels are used as written: lower-casing turns iOS into ios.
+const alt = `${total} in total: ${parts.map((p) => `${p.value} ${p.label}`).join(', ')}.`;
+---
+
+<div class="stack" data-chart>
+  <svg viewBox={`0 0 100 ${height}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    {
+      parts.map((p) => (
+        <rect
+          class="ch-wipe"
+          style={`--ch-i:${p.i}; fill:${p.fill}`}
+          x={p.x}
+          y="0"
+          width={p.width}
+          height={height}
+        >
+          <title>
+            {p.value} {p.label} {of}
+          </title>
+        </rect>
+      ))
+    }
+  </svg>
+
+  {
+    showKey && (
+      <ul class="ch-key">
+        {parts.map((p) => (
+          <li>
+            <span class="ch-swatch" style={`--sw:${p.fill}`} aria-hidden="true" />
+            <span>{p.label}</span>
+            <span class="ch-num">{p.value}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  <span class="sr-only">{alt}</span>
+</div>
+
+<style>
+  .stack {
+    width: 100%;
+  }
+
+  .stack svg {
+    width: 100%;
+    height: 0.625rem;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--color-paper-2);
+  }
+
+  /* A hairline between segments so two similar steps still read as two. */
+  .stack rect + rect {
+    stroke: var(--color-paper);
+    stroke-width: 0.5;
+  }
+</style>

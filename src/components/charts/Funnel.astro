@@ -1,0 +1,137 @@
+---
+/**
+ * The scan funnel as four bars of decreasing width.
+ *
+ * Linear, not logarithmic. 150 carried out of 9,994 read is one and a half per
+ * cent, and a bar that is one and a half per cent of the width is the honest
+ * picture — a log scale would flatter the pipeline by making the attrition look
+ * gentle. The count is set beside every bar, so the short ones are still
+ * readable.
+ *
+ * Not a Sankey. A Sankey with four stages and no branching is decoration.
+ */
+interface Stage {
+  label: string;
+  value: number;
+  /** One line on what the stage means. Omitted in the compact form. */
+  note?: string;
+}
+
+interface Props {
+  stages: Stage[];
+  /** Compact drops the notes and tightens the rows, for the archive. */
+  compact?: boolean;
+}
+
+const { stages, compact = false } = Astro.props;
+
+const top = Math.max(1, ...stages.map((s) => s.value));
+const rows = stages.map((s, i) => ({
+  ...s,
+  i,
+  /* A floor of 0.4% keeps the last stage visible as a mark rather than
+     vanishing entirely. Below that it would read as a rendering bug. */
+  width: Math.max(0.4, (s.value / top) * 100),
+  share: (s.value / top) * 100,
+}));
+
+const alt = `Of ${top.toLocaleString('en-GB')} reviews read, ${rows
+  .slice(1)
+  .map((r) => `${r.value.toLocaleString('en-GB')} were ${r.label.toLowerCase()}`)
+  .join(', then ')}.`;
+---
+
+<div class="funnel" data-chart data-compact={compact ? '' : undefined}>
+  <ol>
+    {
+      rows.map((r) => (
+        <li>
+          <p class="head">
+            <span class="label">{r.label}</span>
+            <span class="value num">{r.value.toLocaleString('en-GB')}</span>
+            <span class="share num">{r.share < 1 ? r.share.toFixed(1) : Math.round(r.share)}%</span>
+          </p>
+          <span
+            class="ch-wipe track"
+            style={`--ch-i:${r.i}; --ch-step:90ms; --w:${r.width}%`}
+            aria-hidden="true"
+          />
+          {!compact && r.note && <p class="note">{r.note}</p>}
+        </li>
+      ))
+    }
+  </ol>
+  <span class="sr-only">{alt}</span>
+</div>
+
+<style>
+  .funnel ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  .funnel[data-compact] ol {
+    gap: var(--space-xs);
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+  }
+
+  .label {
+    font-weight: 500;
+  }
+
+  .value {
+    margin-left: auto;
+    font-weight: 600;
+  }
+
+  .share {
+    /* em, never ch: ch is the width of the "0" glyph and moves on font swap. */
+    min-width: 2.2em;
+    text-align: right;
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+
+  /* The bar itself: a block, so its width animates by transform alone. */
+  .track {
+    display: block;
+    width: var(--w);
+    height: 0.5rem;
+    margin-top: var(--space-2xs);
+    border-radius: 2px;
+    background: var(--color-accent);
+  }
+
+  .funnel[data-compact] .track {
+    height: 0.3rem;
+  }
+
+  /* Each stage a step quieter, so the eye runs top to bottom. */
+  li:nth-child(2) .track {
+    background: color-mix(in oklch, var(--color-accent) 72%, var(--color-paper-2));
+  }
+
+  li:nth-child(3) .track {
+    background: color-mix(in oklch, var(--color-accent) 52%, var(--color-paper-2));
+  }
+
+  li:nth-child(4) .track {
+    background: color-mix(in oklch, var(--color-accent) 38%, var(--color-paper-2));
+  }
+
+  .note {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    max-width: 34em;
+  }
+</style>

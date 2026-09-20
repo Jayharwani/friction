@@ -1,0 +1,168 @@
+---
+/**
+ * Score distribution with the build threshold marked.
+ *
+ * The range comes from the data rather than from 0–100: nothing scores under
+ * 35, and a chart that spends a third of its width on an empty stretch is
+ * lying about where the population sits.
+ *
+ * Used once, on the methodology page.
+ */
+import type { Bucket } from '../../lib/charts';
+
+interface Props {
+  buckets: Bucket[];
+  threshold: number;
+  /** Drawn at a heavier weight — usually the problem being read. */
+  markScore?: number;
+}
+
+const { buckets, threshold, markScore } = Astro.props;
+
+const W = 100;
+const H = 42;
+const AXIS = H - 9;
+const GAP = 1.2;
+const BAR = (W - GAP * (buckets.length - 1)) / Math.max(1, buckets.length);
+const peak = Math.max(1, ...buckets.map((b) => b.count));
+
+const lo = buckets[0]?.from ?? 0;
+const hi = buckets.at(-1)?.to ?? 100;
+const span = Math.max(1, hi - lo);
+const xFor = (score: number) => ((score - lo) / span) * W;
+
+const bars = buckets.map((b, i) => ({
+  ...b,
+  i,
+  x: i * (BAR + GAP),
+  h: b.count === 0 ? 0 : Math.max(1.5, (b.count / peak) * (AXIS - 2)),
+  /* A bucket entirely at or above the threshold is the passing end. */
+  passing: b.from >= threshold,
+}));
+
+const passing = buckets.filter((b) => b.from >= threshold).reduce((s, b) => s + b.count, 0);
+const total = buckets.reduce((s, b) => s + b.count, 0);
+
+const alt = `${total} active problems scored between ${lo} and ${hi}. ${passing} sit at or above the threshold of ${threshold.toFixed(1)}. ${buckets
+  .map((b) => `${b.from} to ${b.to}: ${b.count}`)
+  .join('; ')}.`;
+---
+
+<figure class="hist" data-chart>
+  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    {
+      bars.map((b) =>
+        b.h > 0 ? (
+          <rect
+            class="ch-rise col"
+            data-passing={b.passing ? '' : undefined}
+            style={`--ch-i:${b.i}; --ch-step:20ms`}
+            x={b.x}
+            y={AXIS - b.h}
+            width={BAR}
+            height={b.h}
+          >
+            <title>
+              {b.count} {b.count === 1 ? 'problem' : 'problems'} scoring {b.from} to {b.to}
+            </title>
+          </rect>
+        ) : null,
+      )
+    }
+
+    <line x1="0" y1={AXIS} x2={W} y2={AXIS} class="ch-axis" shape-rendering="crispEdges" />
+
+    {/*
+      The threshold arrives after the columns have risen. It fades rather than
+      draws: a vertical rule has no left-to-right to draw along, and a
+      stroke-dashoffset would be animating something other than transform or
+      opacity.
+    */}
+    <line
+      class="ch-fade thresh-line"
+      style={`--ch-i:${bars.length}; --ch-step:20ms`}
+      x1={xFor(threshold)}
+      y1="0"
+      x2={xFor(threshold)}
+      y2={AXIS}
+    />
+
+    {
+      markScore !== undefined && (
+        <line
+          class="mark"
+          x1={xFor(markScore)}
+          y1={AXIS - 2}
+          x2={xFor(markScore)}
+          y2={AXIS + 3}
+          shape-rendering="crispEdges"
+        />
+      )
+    }
+  </svg>
+
+  <div class="scale num" aria-hidden="true">
+    <span>{lo}</span>
+    {/* Positioned under the line it names, not centred in the row. */}
+    <span class="thresh-label" style={`left:${xFor(threshold)}%`}>
+      threshold {threshold.toFixed(1)}
+    </span>
+    <span>{hi}</span>
+  </div>
+
+  <figcaption class="sr-only">{alt}</figcaption>
+</figure>
+
+<style>
+  .hist {
+    margin: var(--space-lg) 0 0;
+    width: 100%;
+  }
+
+  .hist svg {
+    width: 100%;
+    height: 10.5rem;
+  }
+
+  .col {
+    fill: color-mix(in oklch, var(--color-accent) 34%, var(--color-paper-2));
+  }
+
+  /* Above the threshold is the accent at full strength. The label below says
+     so in words as well — the colour is not carrying the meaning alone. */
+  .col[data-passing] {
+    fill: var(--color-accent);
+  }
+
+  .thresh-line {
+    stroke: var(--color-ink);
+    stroke-width: 1;
+    stroke-dasharray: 2 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .mark {
+    stroke: var(--color-ink);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .scale {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--space-2xs);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .thresh-label {
+    position: absolute;
+    top: 0;
+    translate: -50% 0;
+    white-space: nowrap;
+    color: var(--color-ink);
+    background: var(--color-paper);
+    padding-inline: var(--space-2xs);
+  }
+</style>

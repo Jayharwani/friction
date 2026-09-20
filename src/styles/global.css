@@ -11,6 +11,7 @@
      on a raised surface. The named tell is a 4-6px solid stripe on a card;
      this is a blockquote and there are no cards anywhere in the project. */
 @import "tailwindcss";
+@import "./charts.css";
 
 /* ===================================================================
    Friction — design tokens

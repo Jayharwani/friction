@@ -1,0 +1,179 @@
+---
+/**
+ * App versions along a real time axis, with a mark wherever evidence appeared.
+ *
+ * The axis is time, not version order, for two reasons. The stores number
+ * independently — 0.6.4100 and 1.7.338 do not sort against each other — and
+ * the gaps are the point: a reader should be able to see that a complaint
+ * survived six releases across five months rather than arriving all at once.
+ *
+ * Mark area is proportional to the number of reviews naming that version, so a
+ * version reported twice is twice the mark, not twice the radius.
+ *
+ * Labels sit in rows beneath rather than under their own marks. Six versions
+ * clustered into three weeks put six labels on top of each other, and a
+ * timeline you cannot read is worse than the table it replaced.
+ */
+import { formatDate } from '../../lib/data';
+import type { VersionMark } from '../../lib/charts';
+
+interface Props {
+  marks: VersionMark[];
+}
+
+const { marks } = Astro.props;
+
+/** Positions are percentages across the axis. */
+const W = 100;
+const PAD = 4;
+
+const times = marks.map((m) => Date.parse(m.first));
+const lo = Math.min(...times);
+const hi = Math.max(...times);
+const span = Math.max(1, hi - lo);
+
+const peak = Math.max(1, ...marks.map((m) => m.count));
+const R_MIN = 1.6;
+const R_MAX = 4;
+
+const nodes = marks.map((m, i) => ({
+  ...m,
+  i,
+  /* A single version has no span to sit in, so it takes the centre. */
+  x: marks.length === 1 ? W / 2 : PAD + ((Date.parse(m.first) - lo) / span) * (W - PAD * 2),
+  // Area-proportional: the radius grows with the square root of the count.
+  r: R_MIN + (R_MAX - R_MIN) * Math.sqrt(m.count / peak),
+}));
+
+const dayGap = Math.round((hi - lo) / 86_400_000);
+
+const alt = `${marks.length} app ${marks.length === 1 ? 'version' : 'versions'} carried this problem${
+  dayGap > 0 ? `, spanning ${dayGap} days` : ''
+}: ${marks
+  .map(
+    (m) =>
+      `${m.version} on ${m.platform === 'ios' ? 'iOS' : 'Android'}, first reported ${formatDate(m.first)}, ${m.count} ${m.count === 1 ? 'review' : 'reviews'}`,
+  )
+  .join('; ')}.`;
+---
+
+<figure class="vt" data-chart>
+  {/*
+    HTML rather than SVG. A stretched viewBox turns every circle into an
+    ellipse, and the axis has to span the full width, so there is no aspect
+    ratio that satisfies both.
+  */}
+  <div class="axis" aria-hidden="true">
+    {
+      nodes.map((n) => (
+        <span
+          class="ch-pop dot"
+          style={`--ch-i:${n.i}; --ch-step:30ms; left:${n.x}%; --d:${(n.r * 2).toFixed(2)}`}
+          title={`${n.version} — ${n.count} ${n.count === 1 ? 'review' : 'reviews'}, first on ${formatDate(n.first)}`}
+        />
+      ))
+    }
+  </div>
+
+  {
+    dayGap > 0 && (
+      <p class="span num" aria-hidden="true">
+        <span>{formatDate(marks[0]!.first)}</span>
+        <span class="gap">{dayGap} days</span>
+        <span>{formatDate(marks.at(-1)!.first)}</span>
+      </p>
+    )
+  }
+
+  <ol class="rows">
+    {
+      nodes.map((n) => (
+        <li class="ch-fade" style={`--ch-i:${n.i}; --ch-step:30ms`}>
+          <span class="v num">{n.version}</span>
+          <span class="when num">{formatDate(n.first)}</span>
+          <span class="n num">
+            {n.count}
+            <span class="sr-only"> {n.count === 1 ? 'review' : 'reviews'}</span>
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+
+  <figcaption class="sr-only">{alt}</figcaption>
+</figure>
+
+<style>
+  .vt {
+    margin: 0;
+  }
+
+  /* The axis is the rule; the dots sit on it. */
+  .axis {
+    position: relative;
+    height: 1.25rem;
+    margin-bottom: var(--space-2xs);
+  }
+
+  .axis::before {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto;
+    height: var(--rule-hair);
+    background: var(--color-rule);
+  }
+
+  .dot {
+    position: absolute;
+    top: 50%;
+    /* --d is the diameter in the same units the marks were sized in. */
+    width: calc(var(--d) * 0.14rem);
+    height: calc(var(--d) * 0.14rem);
+    border-radius: 50%;
+    background: var(--color-accent);
+    translate: -50% -50%;
+    /* Ringed in the page colour so overlapping marks stay countable. */
+    box-shadow: 0 0 0 1.5px var(--color-paper);
+  }
+
+  .span {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .gap {
+    color: var(--color-ink);
+  }
+
+  .rows {
+    list-style: none;
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .rows li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: baseline;
+    column-gap: var(--space-sm);
+    padding-block: var(--space-3xs);
+  }
+
+  .rows li + li {
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .v {
+    color: var(--color-ink);
+  }
+
+  .n {
+    min-width: 1.4em;
+    text-align: right;
+  }
+</style>
