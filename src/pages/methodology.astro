@@ -190,6 +190,30 @@ const componentMeaning: Record<string, string> = {
 
     <h2 id="how-reviews-become-problems">How reviews become problems</h2>
 
+    {
+      run && (
+        <Funnel
+          stages={[
+            { label: 'Read', value: run.funnel.fetched.total, note: 'Every review pulled from both stores, including ones already processed in an earlier scan.' },
+            { label: 'Screened', value: run.funnel.screened.total, note: 'Survived deduplication, the age limit, the length floor and the crisis screen.' },
+            { label: 'Complaints', value: run.funnel.filtered.total, note: 'Rated three stars or lower and carrying at least one complaint marker.' },
+            { label: 'Carried', value: run.funnel.capped.total, note: `Ranked by marker count, then rating, then recency, and capped at ${CANDIDATE_CAP}.` },
+          ]}
+        >
+        <p class="num ch-caption">
+          The scan on <time datetime={run.date}>{formatDate(run.date)}</time> read{' '}
+          {run.funnel.fetched.total.toLocaleString('en-GB')} reviews, of which{' '}
+          {run.funnel.screened.total.toLocaleString('en-GB')} passed screening,{' '}
+          {run.funnel.filtered.total.toLocaleString('en-GB')} read like complaints, and{' '}
+          {run.funnel.capped.total} were carried forward. Every run is listed in the{' '}
+          <a href={url('/archive')}>archive</a>.
+        </p>
+        </Funnel>
+      )
+    }
+
+
+
     <p>
       Most of the filtering is deterministic and happens before any model sees anything. A review is
       rejected outright if it has already been processed, if it is older than {MAX_AGE_DAYS} days, if
@@ -200,31 +224,6 @@ const componentMeaning: Record<string, string> = {
       then recency, and capped at {CANDIDATE_CAP} per run.
     </p>
 
-    {
-      run && (
-        <p class="num">
-          The scan on <time datetime={run.date}>{formatDate(run.date)}</time> read{' '}
-          {run.funnel.fetched.total.toLocaleString('en-GB')} reviews, of which{' '}
-          {run.funnel.screened.total.toLocaleString('en-GB')} passed screening,{' '}
-          {run.funnel.filtered.total.toLocaleString('en-GB')} read like complaints, and{' '}
-          {run.funnel.capped.total} were carried forward. Every run is listed in the{' '}
-          <a href={url('/archive')}>archive</a>.
-        </p>
-      )
-    }
-
-    {
-      run && (
-        <Funnel
-          stages={[
-            { label: 'Read', value: run.funnel.fetched.total, note: 'Every review pulled from both stores, including ones already processed in an earlier scan.' },
-            { label: 'Screened', value: run.funnel.screened.total, note: 'Survived deduplication, the age limit, the length floor and the crisis screen.' },
-            { label: 'Complaints', value: run.funnel.filtered.total, note: 'Rated three stars or lower and carrying at least one complaint marker.' },
-            { label: 'Carried', value: run.funnel.capped.total, note: `Ranked by marker count, then rating, then recency, and capped at ${CANDIDATE_CAP}.` },
-          ]}
-        />
-      )
-    }
 
     <p>
       Those go to a language model with one job: group reviews that describe the same

@@ -61,6 +61,9 @@ const alt = `Of ${top.toLocaleString('en-GB')} reviews read, ${rows
       ))
     }
   </ol>
+  {/* The prose that states these numbers belongs to the chart, not beside it. */}
+  <slot />
+
   <span class="sr-only">{alt}</span>
 </div>
 
