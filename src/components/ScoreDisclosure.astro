@@ -53,7 +53,7 @@ const verdictNote: Record<string, string> = {
 
       <ol class="components">
         {
-          rows.map((row) => (
+          rows.map((row, i) => (
             <li>
               <div class="row-head">
                 <span class="row-label">{row.label}</span>
@@ -61,7 +61,7 @@ const verdictNote: Record<string, string> = {
               </div>
 
               <div class="track" aria-hidden="true">
-                <div class="fill" style={`width:${row.value * 100}%;background:${mix(row.value)}`} />
+                <div class="fill" style={`width:${row.value * 100}%;background:${mix(row.value)};--row:${i}`} />
               </div>
 
               <p class="row-detail">{row.detail}</p>
@@ -171,16 +171,43 @@ const verdictNote: Record<string, string> = {
     padding-bottom: var(--space-4);
   }
 
-  /* The one animation on this component, and it animates only itself. */
-  @media (prefers-reduced-motion: no-preference) {
-    .disclosure[open] .disclosure-body {
-      animation: disclose 220ms ease-out;
-    }
+  /* ---- the third animated moment ----
 
-    @keyframes disclose {
-      from {
-        opacity: 0;
-        transform: translateY(-0.25rem);
+     `interpolate-size: allow-keywords` lets height:auto transition natively,
+     so the panel opens without measuring anything in JavaScript.
+
+     It is Chromium-only and not Baseline, so everything here sits behind
+     @supports. Without it the panel opens instantly, which is a perfectly
+     good outcome and is what most browsers will do today. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
+      .disclosure {
+        interpolate-size: allow-keywords;
+      }
+
+      .disclosure::details-content {
+        block-size: 0;
+        overflow: hidden;
+        transition:
+          block-size 240ms cubic-bezier(0.2, 0, 0, 1),
+          content-visibility 240ms allow-discrete;
+      }
+
+      .disclosure[open]::details-content {
+        block-size: auto;
+      }
+
+      /* Bars grow from zero as the panel opens, 30ms apart. */
+      .disclosure[open] .fill {
+        animation: grow 240ms cubic-bezier(0.2, 0, 0, 1) backwards;
+        animation-delay: calc(var(--row) * 30ms);
+        transform-origin: left center;
+      }
+
+      @keyframes grow {
+        from {
+          transform: scaleX(0);
+        }
       }
     }
   }

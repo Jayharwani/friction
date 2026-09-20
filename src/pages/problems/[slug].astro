@@ -46,9 +46,10 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
       the score below every quote on mobile, and put the score disclosure after
       all the evidence links in the tab order.
     -->
-    <div class="columns bleed">
+    <div class="detail bleed">
+      <div class="columns">
       <header class="intro">
-        <h1>{problem.title}</h1>
+        <h1 transition:name={`title-${problem.slug}`}>{problem.title}</h1>
         <p class="summary">{problem.summary}</p>
         <p class="meta">
           {problem.category}, {platformsLabel(problem.platforms)}, {problem.evidence.length}{' '}
@@ -137,6 +138,7 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
 
         {evidence.map((e) => <EvidenceItem evidence={e} />)}
       </div>
+      </div>
     </div>
   </div>
 </Layout>
@@ -154,9 +156,16 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
     padding-block: var(--space-5) var(--space-6);
   }
 
+  /* A container query, not a viewport query: the split responds to the space
+     this block actually has. Without container-query support the rules simply
+     do not apply and the single-column layout stands, which is a fine result. */
+  .detail {
+    container-type: inline-size;
+  }
+
   /* Two columns only where there is room for both to stay legible. Grid areas
      place the panel on the right while it stays second in the DOM. */
-  @media (min-width: 64rem) {
+  @container (min-width: 64rem) {
     .columns {
       grid-template-columns: minmax(0, 1fr) 20rem;
       grid-template-areas:
@@ -240,7 +249,7 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
 
   /* ---- right column ---- */
 
-  @media (min-width: 64rem) {
+  @container (min-width: 64rem) {
     .sticky {
       position: sticky;
       top: 1.5rem;

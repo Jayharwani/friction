@@ -271,6 +271,33 @@ if (specimen) seenVerdicts.add(specimen.verdict);
     }
   }
 
+  /* ---- scroll reveal, the second animated moment ----
+
+     Opacity only, no movement, and it starts from 0.4 rather than 0: the
+     brief is "barely perceptible", and a row that begins fully transparent
+     is both more noticeable and riskier if the timeline never advances.
+
+     Feature-detected. Without support the rows are simply visible, and no
+     JavaScript or IntersectionObserver is involved either way. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .list :global(.row) {
+        animation: row-reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 0% cover 25%;
+      }
+
+      @keyframes row-reveal {
+        from {
+          opacity: 0.4;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    }
+  }
+
   @media (max-width: 34rem) {
     .statement {
       padding-top: var(--space-4);
