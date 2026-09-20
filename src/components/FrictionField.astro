@@ -246,7 +246,13 @@ const payload = JSON.stringify(field);
     pointer-events: auto;
   }
 
-  @media (max-width: 48rem) {
+  /*
+   * 767.98px, not 48rem. The root font is 17px, so 48rem is 816px, and the
+   * mount script falls back to the strip at innerWidth < 768 — which left a
+   * 48px band getting the stacked mobile layout with a live canvas in it.
+   * The two thresholds have to be the same number.
+   */
+  @media (max-width: 767.98px) {
     .field {
       height: auto;
       min-height: 0;
