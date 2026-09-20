@@ -1,412 +1,270 @@
 [
   {
-    "productSlug": "notion",
-    "title": "The mobile app freezes and lags while editing pages",
-    "summary": "Reviewers on both iOS and Android describe the mobile app freezing, lagging or closing itself while they edit. It is reported on iPhone, iPad and Android, and across several releases rather than a single bad build. Several people say they have to close and reopen the app to carry on working.",
-    "category": "Performance",
+    "productSlug": "ticketmaster",
+    "title": "Purchased tickets cannot be reached when the app fails to load or sign in",
+    "summary": "Reviewers report the app refusing their login with a generic error, logging them out after every close, or hanging on a loading screen. Because tickets are only available in the app, a failed sign-in means no way into the event. Reinstalling does not resolve it.",
+    "category": "Accounts and login",
     "evidence": [
-      {
-        "reviewId": "apple:14561556753",
-        "quote": "The screen keeps randomly jumping from one place to another",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "play:8a9a214e-50b2-492b-b6b3-385239f9f523",
-        "quote": "NOT usable on Android, very very slow, lagy, buggy whatever",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14094765473",
-        "quote": "it causes phone to freeze or just kicks me out",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:13997492983",
-        "quote": "I have to close the app like every minute because it gets stuck or freeze",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": true
-        }
-      },
-      {
-        "reviewId": "apple:13889485864",
-        "quote": "Every time I use the app and I mean every single time it lags, crashes or constantly refreshes",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14443909133",
-        "quote": "Sometimes the screen just freezes; have no clue why",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": true
-        }
-      },
-      {
-        "reviewId": "apple:14445282859",
-        "quote": "the app is really really laggy on iPhone",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": true
-        }
-      }
+      { "reviewId": "play:5cb1fa28-49af-45cb-a8d7-d6d8c0719dce", "quote": "Won't even let me log in to my account because am error occurs everytime", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:bd09560f-315b-48f8-a265-666b0af03375", "quote": "Can't log in, it shows a web page error after entering login credentials", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:e218262f-1f05-4872-a3d5-318444986152", "quote": "can't log in as it's stuck trying to get me to select my favourite teams and the skip option doesn't work", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:fe0afb41-4bb2-41a4-be23-f0c18eb14322", "quote": "can't even log in. just keeps loading then says error", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:afd28655-7ec3-4b11-a950-e955c5c80c02", "quote": "having login problems after updating once again. Made me update, now it won't open", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "play:79707e90-f96e-4966-a0d3-b9be98490986", "quote": "The app literally won't load any pages I click on", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:46192723-e01b-44db-8ebb-d79cdafaeee8", "quote": "it loves to stay on a infinite loading screen when I select the my tickets tab", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
     ],
-    "workarounds": ["close and reopen the app", "select the text and use cut instead of delete"],
-    "existingSolutions": []
-  },
-  {
-    "productSlug": "teams",
-    "title": "The mobile app stutters and crashes in chats and calls",
-    "summary": "Reviewers report the mobile app freezing while scrolling channels, stuttering as they type, and restarting during calls. It is described on both iOS and Android and across several releases. Some say it began after an update and that reinstalling did not help.",
-    "category": "Performance",
-    "evidence": [
-      {
-        "reviewId": "apple:13886695436",
-        "quote": "when i try to scroll up through posts the app freezes",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": true
-        }
-      },
-      {
-        "reviewId": "play:873d717b-c698-4bfa-8a5b-eaa522ece310",
-        "quote": "extremely slow, you can't search anything you send",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:13906347997",
-        "quote": "It stutters and lags as I interact with the chats and channels on my mobile device",
-        "signals": {
-          "churnIntent": true,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:13936375063",
-        "quote": "Teams randomly crashes and restarts even in the middle of calls",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      }
-    ],
-    "workarounds": ["refresh the app", "restart the phone"],
-    "existingSolutions": []
-  },
-  {
-    "productSlug": "strava",
-    "title": "The app freezes or fails to load, and recording can stop mid-activity",
-    "summary": "Reviewers describe the app hanging on its startup screen, showing a black screen with a retry message, or freezing during use. In several cases a recording stopped part way through an activity and nothing was saved. The reports span four consecutive releases.",
-    "category": "Crashes and stability",
-    "evidence": [
-      {
-        "reviewId": "apple:14510247552",
-        "quote": "the program keeps stopping in the middle of my hike",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14406463669",
-        "quote": "Strava keeps freezing up and when closing the app and reopening it is stuck at the Strava logo startup page",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": true
-        }
-      },
-      {
-        "reviewId": "apple:14332972027",
-        "quote": "every time I wanted to give kudos it would freeze and crash",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14289778020",
-        "quote": "the app does not load. It is just a black screen and an error message that says please try again",
-        "signals": {
-          "churnIntent": true,
-          "competitorNamed": false,
-          "billingComplaint": true,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      }
-    ],
-    "workarounds": ["uninstall and reinstall the app", "restart the phone"],
+    "workarounds": ["use the browser instead of the app"],
     "existingSolutions": []
   },
   {
     "productSlug": "ticketmaster",
-    "title": "Purchased tickets cannot be reached when the app fails to load or sign in",
-    "summary": "Reviewers say tickets they have already paid for are only available in the app, and that the app fails to open, does not keep them signed in, or freezes at login. One reports being told to add tickets to a wallet app that then refuses them. Reinstalling and clearing the cache did not resolve it.",
-    "category": "Crashes and stability",
+    "title": "Tickets are only available in the app and the barcode often will not display",
+    "summary": "Reviewers describe being required to install the app to see a ticket they have already paid for, then finding the barcode unavailable or pushed into a separate wallet app. Screenshots are blocked, so there is no fallback when the display fails.",
+    "category": "Other",
     "evidence": [
-      {
-        "reviewId": "play:34d046a3-7cb4-4ed5-823d-00057f740fac",
-        "quote": "which does not load, crashes frequently, and freezes every time I try to log in",
-        "signals": {
-          "churnIntent": true,
-          "competitorNamed": false,
-          "billingComplaint": true,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "play:5bd3b643-9a32-4d20-9175-97fb925db791",
-        "quote": "app won't open, can't add comments and can't get to my tickets purchased",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": true
-        }
-      },
-      {
-        "reviewId": "play:1308f789-850e-4898-b812-5fa59525f832",
-        "quote": "App says can only access tickets by downloading them to Google Wallet, but then it won't let you",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": true
-        }
-      }
+      { "reviewId": "play:ae1e0928-fd60-4a49-a8d8-5ddcbcdeb78e", "quote": "they forced me to download the app just so I could view my ticket", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:f439facc-e7cd-4c9a-addc-fcebe5dd9cab", "quote": "your site says I can get my ticket on the app OR in my digital wallet", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:a98a76fb-1152-4421-8965-23d313a57d1e", "quote": "I have to use this joke of an app to enter a forthcoming gig", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:3c4c3390-ce2b-4558-908b-c001ed8bceba", "quote": "this app won't display the barcode on my most recent tickets", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "play:7cb3db68-c851-4361-b450-14de00b8f4cb", "quote": "When I tried to download the tickets, they weren't available", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } }
     ],
-    "workarounds": ["reinstall the app", "clear the app cache", "collect tickets at the venue box office"],
+    "workarounds": ["collect tickets at the venue box office"],
     "existingSolutions": []
   },
   {
-    "productSlug": "canva",
-    "title": "Added AI features slow the app and cannot be turned off",
-    "summary": "Long-standing users describe AI and promotional features added to the editor that they cannot disable. They report these prompts appearing on every document open and slowing the app down. One reviewer also reports their own original work being labelled as AI generated.",
-    "category": "Ads and interruptions",
+    "productSlug": "duolingo",
+    "title": "Lessons hang, crash, or fail to load their audio",
+    "summary": "Reviewers report the app freezing at the end of a lesson without saving progress, failing to load character or writing exercises, and producing no sound on activities that need it. Several say it began after a recent update and that restarting does not help.",
+    "category": "Crashes and stability",
     "evidence": [
-      {
-        "reviewId": "apple:14530888893",
-        "quote": "The push for AI on here has ruined what this is supposed to be",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14508989763",
-        "quote": "I don't even use your trash Ai tools -that slow down the whole app",
-        "signals": {
-          "churnIntent": true,
-          "competitorNamed": false,
-          "billingComplaint": true,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14468717937",
-        "quote": "Can we have an option to turn off the annoying (and slow) prompt EVERY TIME I OPEN a Document",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      }
+      { "reviewId": "apple:14234723609", "quote": "I cannot progress beyond this point as the app keeps hanging after the lesson", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "apple:14488703091", "quote": "it also won't load kana or other character / writing lessons", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": true } },
+      { "reviewId": "apple:14565778798", "quote": "Your app just stopped working on my iPhone 15 Plus. It crashes and would not start", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14555357184", "quote": "A lot of bugs like no sounds, the word is different from what it pronounced", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "apple:14522957312", "quote": "There are so many broken activities with buttons that don't select, or don't produce any sound", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": ["restart the app", "wait several minutes for a lesson to load"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "duolingo",
+    "title": "The energy system stops free lessons after a few minutes",
+    "summary": "Reviewers describe a change to an energy or battery system that exhausts after one or two lessons, leaving free users unable to continue until it refills. Several say this makes sustained practice impossible without paying.",
+    "category": "Pricing and billing",
+    "evidence": [
+      { "reviewId": "apple:14523373025", "quote": "They changed to a energy system and u can barely finish 2 lessons before you are out of energy", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "apple:14550299115", "quote": "since adding the energy that drains after 1-2 lessons, unless you pay you can only do 5-10mins every 25hrs", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "apple:14224847827", "quote": "my app is broken and it's putting me at a huge disadvantage", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": ["wait for energy to refill"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "duolingo",
+    "title": "Free trials become a paid year without warning and refunds are refused",
+    "summary": "Reviewers report being charged for a full year immediately after starting what was presented as a free trial, including some who say they cancelled before it ended. The in-app response is that no refund is available.",
+    "category": "Pricing and billing",
+    "evidence": [
+      { "reviewId": "apple:14504549400", "quote": "Signed up for a free trial to stop the ads and was immediately charged 189 for the whole year", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:2d535ff8-18f3-46fc-9a36-e677d7d452e4", "quote": "I believed your one week free trial and cancelled it 2 days before. but then I noticed I have been charged for 1 year subscription", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": true } },
+      { "reviewId": "apple:14562814628", "quote": "just take hundreds of dollars off your card with no consent and no way to get it back", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": ["request a refund through the app store rather than the app"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "airbnb",
+    "title": "Refunds are refused after problems with a stay",
+    "summary": "Guests describe reporting a serious problem with a booking and being denied a refund, in several cases after one had already been agreed. Complaints include a cancellation the night before travel and charges for damage the guest says they did not cause.",
+    "category": "Pricing and billing",
+    "evidence": [
+      { "reviewId": "apple:14496643213", "quote": "I got a bed bug bite and have shown evidence and airbnb refused to refund me", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14302899602", "quote": "Host agreed to a refund. Then disputed it.", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14517825317", "quote": "Airbnb's own rep calculated and we accepted a specific refund in writing", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14538929961", "quote": "Host request for $$$ for clean their hot tub which we didn't use at all", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14521300790", "quote": "6pm the night before we leave for our trip, our host decided to cancel our reservation", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
     ],
     "workarounds": [],
     "existingSolutions": []
   },
   {
-    "productSlug": "duolingo",
-    "title": "Ads and AI prompts interrupt lessons and cannot be dismissed",
-    "summary": "Reviewers on both platforms report advertisements that cannot be closed, leaving the app stuck until it is force quit. Others describe repeated notification sounds and AI features being added with no straightforward way to opt out. One reviewer reports losing earned progress when an ad would not close.",
-    "category": "Ads and interruptions",
+    "productSlug": "airbnb",
+    "title": "The app returns generic errors and basic actions silently fail",
+    "summary": "Reviewers on both platforms report being unable to sign in, a repeating request failure message, and controls that do nothing when tapped. Uninstalling and reinstalling is described as having no effect.",
+    "category": "Crashes and stability",
     "evidence": [
-      {
-        "reviewId": "apple:14517093187",
-        "quote": "Some ads cannot be closed after watching them",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": false,
-          "workaroundDescribed": true
-        }
-      },
-      {
-        "reviewId": "play:f531cdf6-4b9e-48c2-ab62-cb77642fde8d",
-        "quote": "constant pings and dings slowing down the entire experience; spamming rewards",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": true,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14560317809",
-        "quote": "Duo now forces users to use AI",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      }
+      { "reviewId": "play:0be748ff-5f62-4a93-862b-394c523ee9e7", "quote": "Can't log in. I just get a generic error message, even after uninstalling and reinstalling.", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": true } },
+      { "reviewId": "play:232b528d-f8ff-49dc-8a20-31df98210d51", "quote": "Uninstalled the app and reinstalled, no luck!", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": true } },
+      { "reviewId": "play:bdc84669-5353-45e2-8dd8-f7776ac10835", "quote": "slow chats bugs in messaging , bookings failure", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14176061190", "quote": "saving a place as a favourite did not work when you tapped the heart nothing happened", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": true } }
     ],
-    "workarounds": ["force close and restart the app"],
+    "workarounds": ["uninstall and reinstall", "open the listing before saving it"],
     "existingSolutions": []
   },
   {
-    "productSlug": "airbnb",
-    "title": "Hosts cannot reach the calendar or messages after the redesign",
-    "summary": "Hosts describe being held on a dashboard or review prompt that blocks access to their calendar and messages. Others report navigation and messaging failing on Android, and repeated feature popups interrupting pricing work. The reports come from long-standing hosts on both platforms.",
-    "category": "Navigation",
+    "productSlug": "spotify",
+    "title": "The free tier will not let you choose which song plays",
+    "summary": "Free users describe being unable to pick a track from their own playlist, being forced into shuffle, and losing basic transport controls. Several report the app substituting recommended tracks for the playlist they selected.",
+    "category": "Pricing and billing",
     "evidence": [
-      {
-        "reviewId": "apple:14110076661",
-        "quote": "I need access to my calendar and messages, but I'm stuck on the main dashboard",
-        "signals": {
-          "churnIntent": true,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "play:e01608e1-e3b4-4c19-87cd-3136ef8e4274",
-        "quote": "Messaging is broken. App navigation is broken on abdroid",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": true,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14500700742",
-        "quote": "popups keep triggering over and over multiple times per session blocking my workflow",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": false,
-          "regressionClaim": true,
-          "workaroundDescribed": true
-        }
-      }
+      { "reviewId": "play:1542b101-a79a-4744-80c0-69b916cd795a", "quote": "it doesn't give free users the loop button, puts it on a queue you can't even see or control", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:cf4f723f-1f97-46ed-abf9-0cce0bcae942", "quote": "won't let you go back to a previous song and forces you to listen to your playlists on shuffle", "signals": { "churnIntent": true, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:2c4ae40f-45be-4a3a-b104-66f75cd97ee3", "quote": "won't let you actually choose what songs you want to listen without buying premium", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14562664785", "quote": "it keeps telling me that I can't choose my own music or songs", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14560120986", "quote": "this app isnt even playing the songs in my playlist it jst plays like 4 songs from my playlist", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } }
     ],
-    "workarounds": ["use third-party tools to manage pricing"],
+    "workarounds": [],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "spotify",
+    "title": "Playback pauses, restarts or cuts out on its own",
+    "summary": "Reviewers describe music stopping without input, restarting from the beginning of a playlist, or cutting off and not resuming. Reports come from both platforms and from paying subscribers as well as free users.",
+    "category": "Crashes and stability",
+    "evidence": [
+      { "reviewId": "apple:14563394186", "quote": "App keeps pausing my music then restarting to the beginning of the playlist", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:36ce732c-4e5d-4b3d-94b2-e3d3ace9f7d4", "quote": "every time I open the app it pauses my music or it just completely cuts off the music", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "apple:14564365703", "quote": "Spotify has its moments of working, but most times does not", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14524936130", "quote": "the app keeps lagging and its been like this for the past month", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": [],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "spotify",
+    "title": "Adverts interrupt every second song and cover the player",
+    "summary": "Free users report audio adverts between almost every track, plus banner adverts obscuring album art, the liked songs list and search results. Several describe the frequency as having increased recently.",
+    "category": "Ads and interruptions",
+    "evidence": [
+      { "reviewId": "apple:14554068290", "quote": "Every song is followed up by an advert. When there isn't an audible advert, you get an advert obscuring the album art", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "apple:14555489504", "quote": "the ads are so in your face it's exhausting, pop ups covering the albums", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:15a12237-64c6-4d8a-b751-cac7de00f111", "quote": "more than 2 ads after every 2 songs is more irritating", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:baf4b52d-bc3e-4838-b3ba-b88449047395", "quote": "even though I got an add every 2 songs", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": true, "workaroundDescribed": false } }
+    ],
+    "workarounds": [],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "venmo",
+    "title": "Payments and transfers fail, leaving money unreachable",
+    "summary": "Reviewers report being unable to send a payment, reach the wallet screen, or move a balance to their bank, each ending in a generic error. Several describe money that has left one account and not arrived in another, with no resolution from support.",
+    "category": "Crashes and stability",
+    "evidence": [
+      { "reviewId": "play:dcd86caf-bc7a-437c-b351-717230507411", "quote": "Have not been able to send a single payment. It just gives me an error message that says it can't be completed at this time.", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:a9f8c8a9-08f4-49eb-8ff3-ede4f1f174e8", "quote": "I can't pay someone I have paid in the past.", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "apple:14564979925", "quote": "I can't actually access this page because I keep getting an error every time I try to access it", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "play:818f3aba-5dfc-46d5-8620-50946fafa874", "quote": "I added money to my Venmo account and still couldn't get my order", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:1b8f8e8f-6d9f-4de1-9c42-553c2befba09", "quote": "It won't just come back into my Venmo like it's supposed to", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14566090292", "quote": "A deposit was made to my account a week ago today.", "signals": { "churnIntent": true, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": [],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "strava",
+    "title": "Free trials convert to a paid year immediately and refunds are refused",
+    "summary": "Reviewers describe accepting a trial and being charged for a full year straight away, in one case after the trial prompt appeared a second time. Others report repeated upgrade prompts leading to an accidental purchase that could not be reversed.",
+    "category": "Pricing and billing",
+    "evidence": [
+      { "reviewId": "apple:14271065001", "quote": "Beware starting a free trial, the first time you accept it it says you're in the free trial", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:ea998ae6-cba9-4bf3-a009-525f509bfcb8", "quote": "strava charged me a full years subscription immediately and I can't cancel even though it's only been a few days", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14326954305", "quote": "Every day I get at least 10 notifications asking to sign up for the premium version", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": [],
     "existingSolutions": []
   },
   {
     "productSlug": "expedia",
     "title": "Refunds are refused, delayed, or issued as credit that cannot be used",
-    "summary": "Reviewers describe money held after a cancellation, refunds replaced with platform credit that other airlines will not accept, and required costs disclosed only after booking. In each case support did not resolve it and directed the traveller elsewhere. The reports span several releases.",
+    "summary": "Travellers describe paying for a booking that did not materialise, cancelling within the stated terms, or buying cancellation cover, and then being refused the money back. Several report repeated promises of a refund within a set window that then passes.",
     "category": "Pricing and billing",
     "evidence": [
-      {
-        "reviewId": "apple:14494094443",
-        "quote": "Important information deliberately left out of listings",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": true,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14063359188",
-        "quote": "They gave me a useless OneKeyCash credit instead of a real refund",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": true,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      },
-      {
-        "reviewId": "apple:14309845780",
-        "quote": "have yet to get my refund after 18days",
-        "signals": {
-          "churnIntent": false,
-          "competitorNamed": false,
-          "billingComplaint": true,
-          "regressionClaim": false,
-          "workaroundDescribed": false
-        }
-      }
+      { "reviewId": "apple:14551876197", "quote": "when I got there there was no car available so I requested a refund and they refused to give me my money back", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:f97b583a-c13a-4b66-8559-df8da6a0ffc9", "quote": "You refused to refund our money", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:54333522-e336-42db-abc8-9671d09a0dc6", "quote": "trying to get a partial refund because beds were wrong", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:1d81da49-5849-4df3-9b24-152cb73d83cc", "quote": "I purchased flight cancelation due to the fact its based on work schedule", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
     ],
     "workarounds": [],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "expedia",
+    "title": "The app errors out and the support chat is unusable",
+    "summary": "Reviewers report a repeating error on booking screens, reservations that do not appear after being made, and freezing that requires a restart. The in-app chat is described as slow, and the keyboard covers the field while typing.",
+    "category": "Support",
+    "evidence": [
+      { "reviewId": "play:315c3fc5-41b2-443b-aad0-6da88d44500a", "quote": "Then it freezes. Then it freezes your whole phone!", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:39473e7a-30e3-4fd0-90d0-e4b3e7268171", "quote": "the app keeps saying error please try again every time I try I get the same error", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:459ff0dd-bbe8-4652-bf10-f0e71f063893", "quote": "Made a reservation and I is not showing up. Chat section is terrible. Freezes up constantly", "signals": { "churnIntent": true, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": true } },
+      { "reviewId": "play:c56e9959-3812-4b6a-b42e-3ee01c24d21e", "quote": "cannot see while you are typing in the chat. very slow chat responses.", "signals": { "churnIntent": true, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": ["restart the app"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "uber",
+    "title": "There is no way to reach a person about a problem with a ride",
+    "summary": "Reviewers describe automated support that will not connect them to anyone, no support option in the app for riders, and unanswered reports of lost property or duplicate charges. Several say the only route offered leads back to a bot.",
+    "category": "Support",
+    "evidence": [
+      { "reviewId": "apple:14497725115", "quote": "the automated customer support does not let me contact the customer service", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:f9b7fabd-3ee9-40c9-8987-8f3030683c14", "quote": "The app doesn't even have a customer support option.", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:4acb1b53-7bd7-42b5-bbda-f78c395f9ad5", "quote": "the driver just cancel on me, everytime I use it now, same thing happens", "signals": { "churnIntent": true, "competitorNamed": false, "billingComplaint": false, "regressionClaim": true, "workaroundDescribed": false } },
+      { "reviewId": "apple:14553760467", "quote": "if you ever need help your completely on your own, there is no help number for riders only drivers", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": [],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "uber",
+    "title": "The amount charged does not match the fare that was quoted",
+    "summary": "Reviewers report final fares well above the quoted price, waiting-time fees applied when the rider was the one waiting, and cancellation fees charged after the driver cancelled. Several say reversing a charge requires contacting support, which is itself difficult.",
+    "category": "Pricing and billing",
+    "evidence": [
+      { "reviewId": "apple:14544882468", "quote": "app gave wildly inaccurate fare cost. Pre booked from airport, quoted $126, ended up costing $176!", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14519392111", "quote": "When I need to drive to the airport it it charged me double price. Always adds wait time fee", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "apple:14516476698", "quote": "they charged me a cancellation fee then locked me out of my account", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": true, "regressionClaim": false, "workaroundDescribed": false } }
+    ],
+    "workarounds": [],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "slack",
+    "title": "The app crashes, signs you out, and will not reopen without reinstalling",
+    "summary": "Android reviewers report the app closing itself with a system bug notice, random sign-outs, and a state where it refuses to open until it is uninstalled and reinstalled. One describes two-step sign-in failing because switching to an authenticator resets the screen.",
+    "category": "Crashes and stability",
+    "evidence": [
+      { "reviewId": "play:e0c97ead-6cfe-4319-b665-0a1230316dd3", "quote": "Slack keeps crashing on my Samsung Galaxy S24 Ultra running Android 16", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:9875d54f-733f-4c91-b459-9bfd9dc8fec4", "quote": "Terrible app that crashes constantly, logs me out at random, and more often and not, it just wont open untill I uninstall and reinstall it", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": true } },
+      { "reviewId": "play:38b45678-bded-486f-9316-71dc068b4576", "quote": "I can no longer sign in as we now require 2 step authentication", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": true, "workaroundDescribed": false } }
+    ],
+    "workarounds": ["uninstall and reinstall the app"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "zoom",
+    "title": "Meetings cannot be joined from the mobile app",
+    "summary": "Android reviewers report being blocked from joining a meeting by an update prompt with no update available, by repeated verification requests, or by the app ejecting them when the camera is opened. Reinstalling is described as not helping.",
+    "category": "Crashes and stability",
+    "evidence": [
+      { "reviewId": "play:4f2c9ed4-5b77-459c-80c5-c1f9fe4c87a5", "quote": "won't let me join work meetings saying I need to update, no update available", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": true } },
+      { "reviewId": "play:d5d150fd-945f-4962-b31a-5c530137f053", "quote": "ask verification multiple times and information and after all I can't join the meeting", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:a8b10c92-b95e-4cb2-bbdc-af6a84ea00a0", "quote": "whenever i try to open my camera, i was forced to leave", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": true, "workaroundDescribed": false } }
+    ],
+    "workarounds": ["uninstall and reinstall the app"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "teams",
+    "title": "Sign-in fails and a stale account cannot be removed from the app",
+    "summary": "Android reviewers report being unable to get past the login screen, landing on an error page instead. One describes leaving an organisation and then being locked into signing in to an account that no longer exists, with no way to remove it or switch.",
+    "category": "Accounts and login",
+    "evidence": [
+      { "reviewId": "play:905ebde4-74cd-4a7a-af7b-383d547886df", "quote": "it always prompts me to sign in to the now non-existent account when I open the app", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:fc051691-bd9a-4925-946b-07e3688d67bd", "quote": "I can't even sign in with my account", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": false, "workaroundDescribed": false } },
+      { "reviewId": "play:980f5afc-6089-4883-a7f9-74670006802c", "quote": "I can't even get past the login screen without being spit into an error page", "signals": { "churnIntent": false, "competitorNamed": false, "billingComplaint": false, "regressionClaim": true, "workaroundDescribed": true } }
+    ],
+    "workarounds": ["clear the app cache", "uninstall and reinstall the app"],
     "existingSolutions": []
   }
 ]

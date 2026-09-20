@@ -1,0 +1,139 @@
+{
+  "id": "airbnb--the-app-returns-generic-errors-and-basic-actions-silently-fail",
+  "slug": "airbnb--the-app-returns-generic-errors-and-basic-actions-silently-fail",
+  "productSlug": "airbnb",
+  "title": "The app returns generic errors and basic actions silently fail",
+  "summary": "Reviewers on both platforms report being unable to sign in, a repeating request failure message, and controls that do nothing when tapped. Uninstalling and reinstalling is described as having no effect.",
+  "category": "Crashes and stability",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "play:0be748ff-5f62-4a93-862b-394c523ee9e7",
+      "productSlug": "airbnb",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.38",
+      "reviewedAt": "2026-09-17T01:40:35.241Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "16d9252d4e2d5cf6",
+      "quote": "Can't log in. I just get a generic error message, even after uninstalling and reinstalling.",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "play:232b528d-f8ff-49dc-8a20-31df98210d51",
+      "productSlug": "airbnb",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.37",
+      "reviewedAt": "2026-09-12T07:29:51.440Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "1eee23ecf67d3a96",
+      "quote": "Uninstalled the app and reinstalled, no luck!",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "play:bdc84669-5353-45e2-8dd8-f7776ac10835",
+      "productSlug": "airbnb",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.37",
+      "reviewedAt": "2026-09-12T02:48:40.350Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "b38d0bc7680a7924",
+      "quote": "slow chats bugs in messaging , bookings failure",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14176061190",
+      "productSlug": "airbnb",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 2,
+      "title": "Cancelling experience was a bit confusing and experienced some other bugs",
+      "version": "26.24.2",
+      "reviewedAt": "2026-06-13T01:42:24.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "966efec6a0150e2e",
+      "quote": "saving a place as a favourite did not work when you tapped the heart nothing happened",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    }
+  ],
+  "versions": [
+    "26.24.2",
+    "26.37",
+    "26.38"
+  ],
+  "workarounds": [
+    "uninstall and reinstall",
+    "open the listing before saving it"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-06-13T01:42:24.000Z",
+  "lastSeen": "2026-09-17T01:40:35.241Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 57,
+      "evidenceCount": 4
+    }
+  ],
+  "score": 57,
+  "components": {
+    "distinctUsers": 0.3333333333333333,
+    "recurrence": 0.375,
+    "recency": 1,
+    "severity": 0.9375,
+    "churnIntent": 0,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 4,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 3,
+    "meanRating": 1.25,
+    "churnReviewers": 0,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 4
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

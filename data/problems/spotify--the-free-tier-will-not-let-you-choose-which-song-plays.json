@@ -1,0 +1,156 @@
+{
+  "id": "spotify--the-free-tier-will-not-let-you-choose-which-song-plays",
+  "slug": "spotify--the-free-tier-will-not-let-you-choose-which-song-plays",
+  "productSlug": "spotify",
+  "title": "The free tier will not let you choose which song plays",
+  "summary": "Free users describe being unable to pick a track from their own playlist, being forced into shuffle, and losing basic transport controls. Several report the app substituting recommended tracks for the playlist they selected.",
+  "category": "Pricing and billing",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "play:1542b101-a79a-4744-80c0-69b916cd795a",
+      "productSlug": "spotify",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "9.1.80.2221",
+      "reviewedAt": "2026-09-19T04:16:13.380Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "21f3968ab8b12e2c",
+      "quote": "it doesn't give free users the loop button, puts it on a queue you can't even see or control",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:cf4f723f-1f97-46ed-abf9-0cce0bcae942",
+      "productSlug": "spotify",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "8.8.92.700",
+      "reviewedAt": "2026-09-18T19:11:23.823Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "24a182d152a77108",
+      "quote": "won't let you go back to a previous song and forces you to listen to your playlists on shuffle",
+      "signals": {
+        "churnIntent": true,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:2c4ae40f-45be-4a3a-b104-66f75cd97ee3",
+      "productSlug": "spotify",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "9.1.80.2221",
+      "reviewedAt": "2026-09-19T02:57:33.587Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "2d586d1f2c3b7fc0",
+      "quote": "won't let you actually choose what songs you want to listen without buying premium",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14562664785",
+      "productSlug": "spotify",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Idk",
+      "version": "9.1.82",
+      "reviewedAt": "2026-09-18T02:35:37.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "005d98679039ec8a",
+      "quote": "it keeps telling me that I can't choose my own music or songs",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14560120986",
+      "productSlug": "spotify",
+      "platform": "ios",
+      "country": "au",
+      "rating": 1,
+      "title": "FIX THIS IMMEDIATELY!?!",
+      "version": "9.1.82",
+      "reviewedAt": "2026-09-17T12:06:23.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "40625e77192e139e",
+      "quote": "this app isnt even playing the songs in my playlist it jst plays like 4 songs from my playlist",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "8.8.92.700",
+    "9.1.80.2221",
+    "9.1.82"
+  ],
+  "workarounds": [],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-17T12:06:23.000Z",
+  "lastSeen": "2026-09-19T04:16:13.380Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 58,
+      "evidenceCount": 5
+    }
+  ],
+  "score": 58,
+  "components": {
+    "distinctUsers": 0.4166666666666667,
+    "recurrence": 0.125,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0.25,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 5,
+    "weeksWithEvidence": 1,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1,
+    "churnReviewers": 1,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 5
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

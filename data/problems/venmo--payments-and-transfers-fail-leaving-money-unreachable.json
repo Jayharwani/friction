@@ -1,0 +1,175 @@
+{
+  "id": "venmo--payments-and-transfers-fail-leaving-money-unreachable",
+  "slug": "venmo--payments-and-transfers-fail-leaving-money-unreachable",
+  "productSlug": "venmo",
+  "title": "Payments and transfers fail, leaving money unreachable",
+  "summary": "Reviewers report being unable to send a payment, reach the wallet screen, or move a balance to their bank, each ending in a generic error. Several describe money that has left one account and not arrived in another, with no resolution from support.",
+  "category": "Crashes and stability",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "play:dcd86caf-bc7a-437c-b351-717230507411",
+      "productSlug": "venmo",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.19.0",
+      "reviewedAt": "2026-09-18T18:35:14.978Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "2b2d56d7c41aba26",
+      "quote": "Have not been able to send a single payment. It just gives me an error message that says it can't be completed at this time.",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:a9f8c8a9-08f4-49eb-8ff3-ede4f1f174e8",
+      "productSlug": "venmo",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.19.0",
+      "reviewedAt": "2026-09-18T17:18:14.931Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "3cd6430de0a8d34e",
+      "quote": "I can't pay someone I have paid in the past.",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14564979925",
+      "productSlug": "venmo",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Can't Access \"Wallet\" Page in New Design",
+      "version": "26.20.0",
+      "reviewedAt": "2026-09-18T16:48:56.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "55115ce961ce0593",
+      "quote": "I can't actually access this page because I keep getting an error every time I try to access it",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:818f3aba-5dfc-46d5-8620-50946fafa874",
+      "productSlug": "venmo",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.19.0",
+      "reviewedAt": "2026-09-19T01:48:04.299Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "2100d3d036ccb343",
+      "quote": "I added money to my Venmo account and still couldn't get my order",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:1b8f8e8f-6d9f-4de1-9c42-553c2befba09",
+      "productSlug": "venmo",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.19.0",
+      "reviewedAt": "2026-09-17T22:00:08.255Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "a8ab512036ac2b27",
+      "quote": "It won't just come back into my Venmo like it's supposed to",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14566090292",
+      "productSlug": "venmo",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Where to go if you want to have your deposit taken not posted!",
+      "version": "26.20.0",
+      "reviewedAt": "2026-09-18T23:21:46.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "6729d64c1c97d597",
+      "quote": "A deposit was made to my account a week ago today.",
+      "signals": {
+        "churnIntent": true,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "26.19.0",
+    "26.20.0"
+  ],
+  "workarounds": [],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-17T22:00:08.255Z",
+  "lastSeen": "2026-09-19T01:48:04.299Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 58,
+      "evidenceCount": 6
+    }
+  ],
+  "score": 58,
+  "components": {
+    "distinctUsers": 0.5,
+    "recurrence": 0.125,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0.25,
+    "versionPersistence": 0.5,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 6,
+    "weeksWithEvidence": 1,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1,
+    "churnReviewers": 1,
+    "distinctVersions": 2,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 6
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

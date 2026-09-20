@@ -3,9 +3,10 @@
   "slug": "expedia--refunds-are-refused-delayed-or-issued-as-credit-that-cannot-be-used",
   "productSlug": "expedia",
   "title": "Refunds are refused, delayed, or issued as credit that cannot be used",
-  "summary": "Reviewers describe money held after a cancellation, refunds replaced with platform credit that other airlines will not accept, and required costs disclosed only after booking. In each case support did not resolve it and directed the traveller elsewhere. The reports span several releases.",
+  "summary": "Travellers describe paying for a booking that did not materialise, cancelling within the stated terms, or buying cancellation cover, and then being refused the money back. Several report repeated promises of a refund within a set window that then passes.",
   "category": "Pricing and billing",
   "platforms": [
+    "android",
     "ios"
   ],
   "evidence": [
@@ -68,47 +69,131 @@
         "regressionClaim": false,
         "workaroundDescribed": false
       }
+    },
+    {
+      "id": "apple:14551876197",
+      "productSlug": "expedia",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Horrible rental car experience",
+      "version": "2026.37",
+      "reviewedAt": "2026-09-15T08:34:15.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "4d010f76563e19f9",
+      "quote": "when I got there there was no car available so I requested a refund and they refused to give me my money back",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:f97b583a-c13a-4b66-8559-df8da6a0ffc9",
+      "productSlug": "expedia",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "2026.36.0",
+      "reviewedAt": "2026-09-15T01:10:40.236Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "df5306cbbb4ea5b1",
+      "quote": "You refused to refund our money",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:54333522-e336-42db-abc8-9671d09a0dc6",
+      "productSlug": "expedia",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "2026.36.0",
+      "reviewedAt": "2026-09-10T15:57:02.388Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "7709df0815d03826",
+      "quote": "trying to get a partial refund because beds were wrong",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:1d81da49-5849-4df3-9b24-152cb73d83cc",
+      "productSlug": "expedia",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "2026.34.0",
+      "reviewedAt": "2026-09-08T01:36:59.633Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "a25425e89f36ef61",
+      "quote": "I purchased flight cancelation due to the fact its based on work schedule",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
     }
   ],
   "versions": [
     "2026.19",
     "2026.28",
-    "2026.35"
+    "2026.34.0",
+    "2026.35",
+    "2026.36.0",
+    "2026.37"
   ],
   "workarounds": [],
   "existingSolutions": [],
   "firstSeen": "2026-05-14T12:37:57.000Z",
-  "lastSeen": "2026-08-31T14:30:27.000Z",
+  "lastSeen": "2026-09-15T08:34:15.000Z",
   "history": [
     {
       "date": "2026-09-20",
-      "score": 50,
-      "evidenceCount": 3
+      "score": 72,
+      "evidenceCount": 7
     }
   ],
-  "score": 50,
+  "score": 72,
   "components": {
-    "distinctUsers": 0.25,
-    "recurrence": 0.375,
-    "recency": 0.9698795180722891,
-    "severity": 0.9166666666666667,
+    "distinctUsers": 0.5833333333333334,
+    "recurrence": 0.625,
+    "recency": 1,
+    "severity": 0.9642857142857143,
     "churnIntent": 0,
-    "versionPersistence": 0.75,
-    "crossPlatform": 0
+    "versionPersistence": 1,
+    "crossPlatform": 1
   },
   "inputs": {
-    "uniqueReviewers": 3,
-    "weeksWithEvidence": 3,
-    "daysSinceLastSeen": 19,
-    "meanRating": 1.3333333333333333,
+    "uniqueReviewers": 7,
+    "weeksWithEvidence": 5,
+    "daysSinceLastSeen": 4,
+    "meanRating": 1.1428571428571428,
     "churnReviewers": 0,
-    "distinctVersions": 3,
+    "distinctVersions": 6,
     "platforms": [
+      "android",
       "ios"
     ],
-    "evidenceInWindow": 3
+    "evidenceInWindow": 7
   },
   "buildThreshold": 70,
-  "verdict": "Thin evidence",
+  "verdict": "Strong signal",
   "status": "active"
 }

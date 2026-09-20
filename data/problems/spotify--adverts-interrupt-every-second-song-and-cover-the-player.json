@@ -1,0 +1,136 @@
+{
+  "id": "spotify--adverts-interrupt-every-second-song-and-cover-the-player",
+  "slug": "spotify--adverts-interrupt-every-second-song-and-cover-the-player",
+  "productSlug": "spotify",
+  "title": "Adverts interrupt every second song and cover the player",
+  "summary": "Free users report audio adverts between almost every track, plus banner adverts obscuring album art, the liked songs list and search results. Several describe the frequency as having increased recently.",
+  "category": "Ads and interruptions",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14554068290",
+      "productSlug": "spotify",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 1,
+      "title": "Adpocalypse",
+      "version": "9.1.82",
+      "reviewedAt": "2026-09-15T21:11:37.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "1e3a24937444d9e4",
+      "quote": "Every song is followed up by an advert. When there isn't an audible advert, you get an advert obscuring the album art",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14555489504",
+      "productSlug": "spotify",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 1,
+      "title": "awful",
+      "version": "9.1.82",
+      "reviewedAt": "2026-09-16T07:04:29.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "420d9c4843f1a088",
+      "quote": "the ads are so in your face it's exhausting, pop ups covering the albums",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:15a12237-64c6-4d8a-b751-cac7de00f111",
+      "productSlug": "spotify",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "9.1.80.2221",
+      "reviewedAt": "2026-09-18T18:06:51.859Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "fe1d27f6e7db3b6f",
+      "quote": "more than 2 ads after every 2 songs is more irritating",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:baf4b52d-bc3e-4838-b3ba-b88449047395",
+      "productSlug": "spotify",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "9.1.82.2161",
+      "reviewedAt": "2026-09-19T03:34:42.734Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "910de7b6c80b6265",
+      "quote": "even though I got an add every 2 songs",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "9.1.80.2221",
+    "9.1.82",
+    "9.1.82.2161"
+  ],
+  "workarounds": [],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-15T21:11:37.000Z",
+  "lastSeen": "2026-09-19T03:34:42.734Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 53,
+      "evidenceCount": 4
+    }
+  ],
+  "score": 53,
+  "components": {
+    "distinctUsers": 0.3333333333333333,
+    "recurrence": 0.125,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 4,
+    "weeksWithEvidence": 1,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1,
+    "churnReviewers": 0,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 4
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

@@ -1,39 +1,39 @@
 [
   {
     "date": "2026-09-20",
-    "startedAt": "2026-09-20T03:23:33.683Z",
+    "startedAt": "2026-09-20T04:45:51.853Z",
     "funnel": {
       "fetched": {
-        "ios": 26103,
+        "ios": 5494,
         "android": 4500,
-        "total": 30603
+        "total": 9994
       },
       "screened": {
-        "ios": 9226,
-        "android": 1290,
-        "total": 10516
+        "ios": 2035,
+        "android": 1284,
+        "total": 3319
       },
       "filtered": {
-        "ios": 2416,
-        "android": 442,
-        "total": 2858
+        "ios": 523,
+        "android": 433,
+        "total": 956
       },
       "capped": {
-        "ios": 47,
-        "android": 13,
-        "total": 60
+        "ios": 62,
+        "android": 88,
+        "total": 150
       }
     },
     "products": [
       {
         "slug": "notion",
-        "appleOk": true,
+        "appleOk": false,
         "playOk": true,
         "playError": null
       },
       {
         "slug": "slack",
-        "appleOk": true,
+        "appleOk": false,
         "playOk": true,
         "playError": null
       },
@@ -116,8 +116,8 @@
         "playError": null
       }
     ],
-    "extractedProblems": 8,
-    "problemsTotal": 8,
-    "problemsNew": 8
+    "extractedProblems": 19,
+    "problemsTotal": 25,
+    "problemsNew": 17
   }
 ]

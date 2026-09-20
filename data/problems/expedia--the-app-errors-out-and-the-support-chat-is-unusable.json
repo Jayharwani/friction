@@ -1,0 +1,136 @@
+{
+  "id": "expedia--the-app-errors-out-and-the-support-chat-is-unusable",
+  "slug": "expedia--the-app-errors-out-and-the-support-chat-is-unusable",
+  "productSlug": "expedia",
+  "title": "The app errors out and the support chat is unusable",
+  "summary": "Reviewers report a repeating error on booking screens, reservations that do not appear after being made, and freezing that requires a restart. The in-app chat is described as slow, and the keyboard covers the field while typing.",
+  "category": "Support",
+  "platforms": [
+    "android"
+  ],
+  "evidence": [
+    {
+      "id": "play:315c3fc5-41b2-443b-aad0-6da88d44500a",
+      "productSlug": "expedia",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "2026.36.0",
+      "reviewedAt": "2026-09-12T20:21:57.803Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "b15a7f6c35a8c181",
+      "quote": "Then it freezes. Then it freezes your whole phone!",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:39473e7a-30e3-4fd0-90d0-e4b3e7268171",
+      "productSlug": "expedia",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "2026.34.0",
+      "reviewedAt": "2026-09-16T13:47:17.657Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "f0b794cfd4e9305c",
+      "quote": "the app keeps saying error please try again every time I try I get the same error",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:459ff0dd-bbe8-4652-bf10-f0e71f063893",
+      "productSlug": "expedia",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "2026.35.0",
+      "reviewedAt": "2026-09-08T05:35:48.134Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "fd65ee2c7152d206",
+      "quote": "Made a reservation and I is not showing up. Chat section is terrible. Freezes up constantly",
+      "signals": {
+        "churnIntent": true,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "play:c56e9959-3812-4b6a-b42e-3ee01c24d21e",
+      "productSlug": "expedia",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "2026.35.0",
+      "reviewedAt": "2026-09-06T13:41:49.720Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "ee256bdf93e4449d",
+      "quote": "cannot see while you are typing in the chat. very slow chat responses.",
+      "signals": {
+        "churnIntent": true,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "2026.34.0",
+    "2026.35.0",
+    "2026.36.0"
+  ],
+  "workarounds": [
+    "restart the app"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-06T13:41:49.720Z",
+  "lastSeen": "2026-09-16T13:47:17.657Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 58,
+      "evidenceCount": 4
+    }
+  ],
+  "score": 58,
+  "components": {
+    "distinctUsers": 0.3333333333333333,
+    "recurrence": 0.375,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0.5,
+    "versionPersistence": 0.75,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 4,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 3,
+    "meanRating": 1,
+    "churnReviewers": 2,
+    "distinctVersions": 3,
+    "platforms": [
+      "android"
+    ],
+    "evidenceInWindow": 4
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

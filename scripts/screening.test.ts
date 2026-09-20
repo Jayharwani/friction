@@ -98,8 +98,13 @@ test('seed products are well formed and unique', () => {
     products.length,
     'play packages must be unique',
   );
+  // Assert the invariant rather than a literal list: every product must pull
+  // from the same storefronts, so comparisons between apps stay fair. The list
+  // itself is free to grow.
+  const first = products[0]!.countries;
+  assert.ok(first.length > 0, 'products must declare at least one storefront');
   for (const p of products) {
-    assert.deepEqual(p.countries, ['us', 'gb', 'ca', 'au'], `${p.slug} storefronts`);
+    assert.deepEqual(p.countries, first, `${p.slug} storefronts differ from ${products[0]!.slug}`);
   }
 });
 

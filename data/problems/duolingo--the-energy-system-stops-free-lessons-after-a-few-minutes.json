@@ -1,0 +1,116 @@
+{
+  "id": "duolingo--the-energy-system-stops-free-lessons-after-a-few-minutes",
+  "slug": "duolingo--the-energy-system-stops-free-lessons-after-a-few-minutes",
+  "productSlug": "duolingo",
+  "title": "The energy system stops free lessons after a few minutes",
+  "summary": "Reviewers describe a change to an energy or battery system that exhausts after one or two lessons, leaving free users unable to continue until it refills. Several say this makes sustained practice impossible without paying.",
+  "category": "Pricing and billing",
+  "platforms": [
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14523373025",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 1,
+      "title": "Do not update",
+      "version": "7.138.0",
+      "reviewedAt": "2026-09-08T00:18:56.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "b15e6dad9441df5c",
+      "quote": "They changed to a energy system and u can barely finish 2 lessons before you are out of energy",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14550299115",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 1,
+      "title": "Fast draining energy!",
+      "version": "7.140.0",
+      "reviewedAt": "2026-09-14T20:57:17.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "f07bb0133bc67889",
+      "quote": "since adding the energy that drains after 1-2 lessons, unless you pay you can only do 5-10mins every 25hrs",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14224847827",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "ie",
+      "rating": 1,
+      "title": "A/B test hell: 2-day user punished harder than my friends",
+      "version": "7.128.1",
+      "reviewedAt": "2026-06-25T14:35:08.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "9d7a67c5819e6ace",
+      "quote": "my app is broken and it's putting me at a huge disadvantage",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "7.128.1",
+    "7.138.0",
+    "7.140.0"
+  ],
+  "workarounds": [
+    "wait for energy to refill"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-06-25T14:35:08.000Z",
+  "lastSeen": "2026-09-14T20:57:17.000Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 51,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 51,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.375,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0,
+    "versionPersistence": 0.75,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 5,
+    "meanRating": 1,
+    "churnReviewers": 0,
+    "distinctVersions": 3,
+    "platforms": [
+      "ios"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Thin evidence",
+  "status": "active"
+}

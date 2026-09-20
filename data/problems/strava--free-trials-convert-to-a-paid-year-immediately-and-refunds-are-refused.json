@@ -1,0 +1,116 @@
+{
+  "id": "strava--free-trials-convert-to-a-paid-year-immediately-and-refunds-are-refused",
+  "slug": "strava--free-trials-convert-to-a-paid-year-immediately-and-refunds-are-refused",
+  "productSlug": "strava",
+  "title": "Free trials convert to a paid year immediately and refunds are refused",
+  "summary": "Reviewers describe accepting a trial and being charged for a full year straight away, in one case after the trial prompt appeared a second time. Others report repeated upgrade prompts leading to an accidental purchase that could not be reversed.",
+  "category": "Pricing and billing",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14271065001",
+      "productSlug": "strava",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 1,
+      "title": "Ridiculous buggy free trial",
+      "version": "470.0.2",
+      "reviewedAt": "2026-07-06T18:47:27.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "dd319f1f745de9eb",
+      "quote": "Beware starting a free trial, the first time you accept it it says you're in the free trial",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:ea998ae6-cba9-4bf3-a009-525f509bfcb8",
+      "productSlug": "strava",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "480.15",
+      "reviewedAt": "2026-09-14T23:58:16.824Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "86a4ac168c733644",
+      "quote": "strava charged me a full years subscription immediately and I can't cancel even though it's only been a few days",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14326954305",
+      "productSlug": "strava",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 2,
+      "title": "Very good but forced me to buy the subscription",
+      "version": "472.0.0",
+      "reviewedAt": "2026-07-20T16:29:47.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "966f676f14df5345",
+      "quote": "Every day I get at least 10 notifications asking to sign up for the premium version",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "470.0.2",
+    "472.0.0",
+    "480.15"
+  ],
+  "workarounds": [],
+  "existingSolutions": [],
+  "firstSeen": "2026-07-06T18:47:27.000Z",
+  "lastSeen": "2026-09-14T23:58:16.824Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 55,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 55,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.375,
+    "recency": 1,
+    "severity": 0.9166666666666667,
+    "churnIntent": 0,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 5,
+    "meanRating": 1.3333333333333333,
+    "churnReviewers": 0,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Thin evidence",
+  "status": "active"
+}

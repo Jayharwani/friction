@@ -1,0 +1,117 @@
+{
+  "id": "duolingo--free-trials-become-a-paid-year-without-warning-and-refunds-are-refused",
+  "slug": "duolingo--free-trials-become-a-paid-year-without-warning-and-refunds-are-refused",
+  "productSlug": "duolingo",
+  "title": "Free trials become a paid year without warning and refunds are refused",
+  "summary": "Reviewers report being charged for a full year immediately after starting what was presented as a free trial, including some who say they cancelled before it ended. The in-app response is that no refund is available.",
+  "category": "Pricing and billing",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14504549400",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "au",
+      "rating": 1,
+      "title": "Scammers",
+      "version": "7.138.0",
+      "reviewedAt": "2026-09-03T06:10:23.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "04568e351d8717f9",
+      "quote": "Signed up for a free trial to stop the ads and was immediately charged 189 for the whole year",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:2d535ff8-18f3-46fc-9a36-e677d7d452e4",
+      "productSlug": "duolingo",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": null,
+      "reviewedAt": "2026-08-29T09:03:10.947Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "e949d320e027aed9",
+      "quote": "I believed your one week free trial and cancelled it 2 days before. but then I noticed I have been charged for 1 year subscription",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "apple:14562814628",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 1,
+      "title": "It's a trap",
+      "version": "7.140.0",
+      "reviewedAt": "2026-09-18T03:40:57.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "70ab227a182e5f71",
+      "quote": "just take hundreds of dollars off your card with no consent and no way to get it back",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "7.138.0",
+    "7.140.0"
+  ],
+  "workarounds": [
+    "request a refund through the app store rather than the app"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-08-29T09:03:10.947Z",
+  "lastSeen": "2026-09-18T03:40:57.000Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 54,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 54,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.375,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0,
+    "versionPersistence": 0.5,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 2,
+    "meanRating": 1,
+    "churnReviewers": 0,
+    "distinctVersions": 2,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Thin evidence",
+  "status": "active"
+}

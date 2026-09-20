@@ -1,0 +1,116 @@
+{
+  "id": "teams--sign-in-fails-and-a-stale-account-cannot-be-removed-from-the-app",
+  "slug": "teams--sign-in-fails-and-a-stale-account-cannot-be-removed-from-the-app",
+  "productSlug": "teams",
+  "title": "Sign-in fails and a stale account cannot be removed from the app",
+  "summary": "Android reviewers report being unable to get past the login screen, landing on an error page instead. One describes leaving an organisation and then being locked into signing in to an account that no longer exists, with no way to remove it or switch.",
+  "category": "Accounts and login",
+  "platforms": [
+    "android"
+  ],
+  "evidence": [
+    {
+      "id": "play:905ebde4-74cd-4a7a-af7b-383d547886df",
+      "productSlug": "teams",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "1416/1.0.0.2026163804",
+      "reviewedAt": "2026-09-18T14:09:07.832Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "e230460ac176a186",
+      "quote": "it always prompts me to sign in to the now non-existent account when I open the app",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:fc051691-bd9a-4925-946b-07e3688d67bd",
+      "productSlug": "teams",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "1416/1.0.0.2026163804",
+      "reviewedAt": "2026-09-16T17:55:32.449Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "f29d5cec5cd3bcae",
+      "quote": "I can't even sign in with my account",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:980f5afc-6089-4883-a7f9-74670006802c",
+      "productSlug": "teams",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "1416/1.0.0.2025234302",
+      "reviewedAt": "2026-09-15T13:08:03.819Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "041ad8e34dbca8c0",
+      "quote": "I can't even get past the login screen without being spit into an error page",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": true
+      }
+    }
+  ],
+  "versions": [
+    "1416/1.0.0.2025234302",
+    "1416/1.0.0.2026163804"
+  ],
+  "workarounds": [
+    "clear the app cache",
+    "uninstall and reinstall the app"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-15T13:08:03.819Z",
+  "lastSeen": "2026-09-18T14:09:07.832Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 44,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 44,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.125,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0,
+    "versionPersistence": 0.5,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 1,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1,
+    "churnReviewers": 0,
+    "distinctVersions": 2,
+    "platforms": [
+      "android"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Thin evidence",
+  "status": "active"
+}

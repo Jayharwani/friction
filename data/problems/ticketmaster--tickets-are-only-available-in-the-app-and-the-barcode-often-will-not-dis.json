@@ -1,0 +1,155 @@
+{
+  "id": "ticketmaster--tickets-are-only-available-in-the-app-and-the-barcode-often-will-not-dis",
+  "slug": "ticketmaster--tickets-are-only-available-in-the-app-and-the-barcode-often-will-not-dis",
+  "productSlug": "ticketmaster",
+  "title": "Tickets are only available in the app and the barcode often will not display",
+  "summary": "Reviewers describe being required to install the app to see a ticket they have already paid for, then finding the barcode unavailable or pushed into a separate wallet app. Screenshots are blocked, so there is no fallback when the display fails.",
+  "category": "Other",
+  "platforms": [
+    "android"
+  ],
+  "evidence": [
+    {
+      "id": "play:ae1e0928-fd60-4a49-a8d8-5ddcbcdeb78e",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "273.4",
+      "reviewedAt": "2026-08-31T03:13:44.218Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "43f775349c21ca56",
+      "quote": "they forced me to download the app just so I could view my ticket",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:f439facc-e7cd-4c9a-addc-fcebe5dd9cab",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "273.4",
+      "reviewedAt": "2026-09-08T21:25:03.456Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "a35752f8eaaea021",
+      "quote": "your site says I can get my ticket on the app OR in my digital wallet",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:a98a76fb-1152-4421-8965-23d313a57d1e",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "301.0",
+      "reviewedAt": "2026-09-08T17:16:36.417Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "28b40b3767d5bfa4",
+      "quote": "I have to use this joke of an app to enter a forthcoming gig",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:3c4c3390-ce2b-4558-908b-c001ed8bceba",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "273.4",
+      "reviewedAt": "2026-09-08T08:52:33.494Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "afa1979308ec5d53",
+      "quote": "this app won't display the barcode on my most recent tickets",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:7cb3db68-c851-4361-b450-14de00b8f4cb",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "301.0",
+      "reviewedAt": "2026-09-15T09:22:18.520Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "249153c37de4f544",
+      "quote": "When I tried to download the tickets, they weren't available",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "273.4",
+    "301.0"
+  ],
+  "workarounds": [
+    "collect tickets at the venue box office"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-08-31T03:13:44.218Z",
+  "lastSeen": "2026-09-15T09:22:18.520Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 53,
+      "evidenceCount": 5
+    }
+  ],
+  "score": 53,
+  "components": {
+    "distinctUsers": 0.4166666666666667,
+    "recurrence": 0.375,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0,
+    "versionPersistence": 0.5,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 5,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 4,
+    "meanRating": 1,
+    "churnReviewers": 0,
+    "distinctVersions": 2,
+    "platforms": [
+      "android"
+    ],
+    "evidenceInWindow": 5
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

@@ -1,0 +1,114 @@
+{
+  "id": "zoom--meetings-cannot-be-joined-from-the-mobile-app",
+  "slug": "zoom--meetings-cannot-be-joined-from-the-mobile-app",
+  "productSlug": "zoom",
+  "title": "Meetings cannot be joined from the mobile app",
+  "summary": "Android reviewers report being blocked from joining a meeting by an update prompt with no update available, by repeated verification requests, or by the app ejecting them when the camera is opened. Reinstalling is described as not helping.",
+  "category": "Crashes and stability",
+  "platforms": [
+    "android"
+  ],
+  "evidence": [
+    {
+      "id": "play:4f2c9ed4-5b77-459c-80c5-c1f9fe4c87a5",
+      "productSlug": "zoom",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "7.1.6.41876",
+      "reviewedAt": "2026-09-15T19:29:41.850Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "6db89eca7709dbba",
+      "quote": "won't let me join work meetings saying I need to update, no update available",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "play:d5d150fd-945f-4962-b31a-5c530137f053",
+      "productSlug": "zoom",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "7.1.6.41876",
+      "reviewedAt": "2026-09-15T11:31:09.723Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "d131db532de5d73f",
+      "quote": "ask verification multiple times and information and after all I can't join the meeting",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:a8b10c92-b95e-4cb2-bbdc-af6a84ea00a0",
+      "productSlug": "zoom",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": null,
+      "reviewedAt": "2026-09-18T08:32:09.947Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "4f2524e7c18a43e0",
+      "quote": "whenever i try to open my camera, i was forced to leave",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "7.1.6.41876"
+  ],
+  "workarounds": [
+    "uninstall and reinstall the app"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-15T11:31:09.723Z",
+  "lastSeen": "2026-09-18T08:32:09.947Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 41,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 41,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.125,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0,
+    "versionPersistence": 0.25,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 1,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1,
+    "churnReviewers": 0,
+    "distinctVersions": 1,
+    "platforms": [
+      "android"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Thin evidence",
+  "status": "active"
+}

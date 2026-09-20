@@ -1,0 +1,136 @@
+{
+  "id": "uber--there-is-no-way-to-reach-a-person-about-a-problem-with-a-ride",
+  "slug": "uber--there-is-no-way-to-reach-a-person-about-a-problem-with-a-ride",
+  "productSlug": "uber",
+  "title": "There is no way to reach a person about a problem with a ride",
+  "summary": "Reviewers describe automated support that will not connect them to anyone, no support option in the app for riders, and unanswered reports of lost property or duplicate charges. Several say the only route offered leads back to a bot.",
+  "category": "Support",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14497725115",
+      "productSlug": "uber",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 1,
+      "title": "Poor Customer Service",
+      "version": "3.737.10002",
+      "reviewedAt": "2026-09-01T12:57:20.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "d390c7eeeaca2a15",
+      "quote": "the automated customer support does not let me contact the customer service",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:f9b7fabd-3ee9-40c9-8987-8f3030683c14",
+      "productSlug": "uber",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "4.648.10003",
+      "reviewedAt": "2026-09-18T11:36:17.623Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "a5e15bd341f5473f",
+      "quote": "The app doesn't even have a customer support option.",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:4acb1b53-7bd7-42b5-bbda-f78c395f9ad5",
+      "productSlug": "uber",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "4.648.10003",
+      "reviewedAt": "2026-09-18T16:05:26.640Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "9d92c3232c8adc92",
+      "quote": "the driver just cancel on me, everytime I use it now, same thing happens",
+      "signals": {
+        "churnIntent": true,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14553760467",
+      "productSlug": "uber",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "SUPPORT SUCKS",
+      "version": "3.739.10000",
+      "reviewedAt": "2026-09-15T19:18:33.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "2ef98b6b85350fb9",
+      "quote": "if you ever need help your completely on your own, there is no help number for riders only drivers",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "3.737.10002",
+    "3.739.10000",
+    "4.648.10003"
+  ],
+  "workarounds": [],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-01T12:57:20.000Z",
+  "lastSeen": "2026-09-18T16:05:26.640Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 58,
+      "evidenceCount": 4
+    }
+  ],
+  "score": 58,
+  "components": {
+    "distinctUsers": 0.3333333333333333,
+    "recurrence": 0.25,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0.25,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 4,
+    "weeksWithEvidence": 2,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1,
+    "churnReviewers": 1,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 4
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

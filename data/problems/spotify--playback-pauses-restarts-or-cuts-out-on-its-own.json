@@ -1,0 +1,136 @@
+{
+  "id": "spotify--playback-pauses-restarts-or-cuts-out-on-its-own",
+  "slug": "spotify--playback-pauses-restarts-or-cuts-out-on-its-own",
+  "productSlug": "spotify",
+  "title": "Playback pauses, restarts or cuts out on its own",
+  "summary": "Reviewers describe music stopping without input, restarting from the beginning of a playlist, or cutting off and not resuming. Reports come from both platforms and from paying subscribers as well as free users.",
+  "category": "Crashes and stability",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14563394186",
+      "productSlug": "spotify",
+      "platform": "ios",
+      "country": "au",
+      "rating": 2,
+      "title": "App bugs",
+      "version": "9.1.84",
+      "reviewedAt": "2026-09-18T08:11:06.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "c33ddfae5924ecd6",
+      "quote": "App keeps pausing my music then restarting to the beginning of the playlist",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:36ce732c-4e5d-4b3d-94b2-e3d3ace9f7d4",
+      "productSlug": "spotify",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "9.1.80.2221",
+      "reviewedAt": "2026-09-18T22:05:57.652Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "afd151bf570b6478",
+      "quote": "every time I open the app it pauses my music or it just completely cuts off the music",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14564365703",
+      "productSlug": "spotify",
+      "platform": "ios",
+      "country": "au",
+      "rating": 1,
+      "title": "Crashes constantly",
+      "version": "9.1.84",
+      "reviewedAt": "2026-09-18T13:52:59.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "d0806ffa24ba3408",
+      "quote": "Spotify has its moments of working, but most times does not",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14524936130",
+      "productSlug": "spotify",
+      "platform": "ios",
+      "country": "au",
+      "rating": 1,
+      "title": "Lag",
+      "version": "9.1.80",
+      "reviewedAt": "2026-09-08T11:40:39.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "354669ebf849cea6",
+      "quote": "the app keeps lagging and its been like this for the past month",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "9.1.80",
+    "9.1.80.2221",
+    "9.1.84"
+  ],
+  "workarounds": [],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-08T11:40:39.000Z",
+  "lastSeen": "2026-09-18T22:05:57.652Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 55,
+      "evidenceCount": 4
+    }
+  ],
+  "score": 55,
+  "components": {
+    "distinctUsers": 0.3333333333333333,
+    "recurrence": 0.25,
+    "recency": 1,
+    "severity": 0.9375,
+    "churnIntent": 0,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 4,
+    "weeksWithEvidence": 2,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1.25,
+    "churnReviewers": 0,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 4
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

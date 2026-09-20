@@ -20,6 +20,7 @@ import {
   getActiveProblems,
   getLatestRun,
   getProblems,
+  getProblemsFromRun,
   getProduct,
   groupByProduct,
 } from '../lib/data';
@@ -38,7 +39,11 @@ const problemsTracked = all.length;
 const specimen = active[0]; // getProblems() is sorted by score, descending
 const specimenProduct = specimen ? getProduct(specimen.productSlug) : undefined;
 
-const grouped = groupByProduct(active);
+// The heading says "the last scan", so the list must be that run's problems,
+// not every active record. Today both runs fall on the same date so the two
+// coincide; on a later run they would not.
+const fromRun = run ? getProblemsFromRun(run.date) : [];
+const grouped = groupByProduct(fromRun);
 
 // Glosses appear once per page, on each verdict's first appearance in the list.
 const seenVerdicts = new Set<Verdict>();

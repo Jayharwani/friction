@@ -1,0 +1,116 @@
+{
+  "id": "slack--the-app-crashes-signs-you-out-and-will-not-reopen-without-reinstalling",
+  "slug": "slack--the-app-crashes-signs-you-out-and-will-not-reopen-without-reinstalling",
+  "productSlug": "slack",
+  "title": "The app crashes, signs you out, and will not reopen without reinstalling",
+  "summary": "Android reviewers report the app closing itself with a system bug notice, random sign-outs, and a state where it refuses to open until it is uninstalled and reinstalled. One describes two-step sign-in failing because switching to an authenticator resets the screen.",
+  "category": "Crashes and stability",
+  "platforms": [
+    "android"
+  ],
+  "evidence": [
+    {
+      "id": "play:e0c97ead-6cfe-4319-b665-0a1230316dd3",
+      "productSlug": "slack",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.08.20.0",
+      "reviewedAt": "2026-08-16T11:37:52.112Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "f42a0fb0e50b8c1b",
+      "quote": "Slack keeps crashing on my Samsung Galaxy S24 Ultra running Android 16",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:9875d54f-733f-4c91-b459-9bfd9dc8fec4",
+      "productSlug": "slack",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.09.30.0",
+      "reviewedAt": "2026-09-18T23:17:55.643Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "312025d0e3b21204",
+      "quote": "Terrible app that crashes constantly, logs me out at random, and more often and not, it just wont open untill I uninstall and reinstall it",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "play:38b45678-bded-486f-9316-71dc068b4576",
+      "productSlug": "slack",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "26.08.10.0",
+      "reviewedAt": "2026-08-10T09:55:53.619Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "ce78dd9bfa58563f",
+      "quote": "I can no longer sign in as we now require 2 step authentication",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "26.08.10.0",
+    "26.08.20.0",
+    "26.09.30.0"
+  ],
+  "workarounds": [
+    "uninstall and reinstall the app"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-08-10T09:55:53.619Z",
+  "lastSeen": "2026-09-18T23:17:55.643Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 49,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 49,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.25,
+    "recency": 1,
+    "severity": 1,
+    "churnIntent": 0,
+    "versionPersistence": 0.75,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 2,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1,
+    "churnReviewers": 0,
+    "distinctVersions": 3,
+    "platforms": [
+      "android"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Thin evidence",
+  "status": "active"
+}

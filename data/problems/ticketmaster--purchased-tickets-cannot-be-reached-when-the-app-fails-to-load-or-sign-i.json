@@ -3,8 +3,8 @@
   "slug": "ticketmaster--purchased-tickets-cannot-be-reached-when-the-app-fails-to-load-or-sign-i",
   "productSlug": "ticketmaster",
   "title": "Purchased tickets cannot be reached when the app fails to load or sign in",
-  "summary": "Reviewers say tickets they have already paid for are only available in the app, and that the app fails to open, does not keep them signed in, or freezes at login. One reports being told to add tickets to a wallet app that then refuses them. Reinstalling and clearing the cache did not resolve it.",
-  "category": "Crashes and stability",
+  "summary": "Reviewers report the app refusing their login with a generic error, logging them out after every close, or hanging on a loading screen. Because tickets are only available in the app, a failed sign-in means no way into the event. Reinstalling does not resolve it.",
+  "category": "Accounts and login",
   "platforms": [
     "android"
   ],
@@ -68,50 +68,189 @@
         "regressionClaim": false,
         "workaroundDescribed": true
       }
+    },
+    {
+      "id": "play:5cb1fa28-49af-45cb-a8d7-d6d8c0719dce",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "301.1",
+      "reviewedAt": "2026-09-18T10:11:40.180Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "d267868271b25908",
+      "quote": "Won't even let me log in to my account because am error occurs everytime",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:bd09560f-315b-48f8-a265-666b0af03375",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "301.0",
+      "reviewedAt": "2026-09-11T04:30:50.410Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "e31018e2e07603ea",
+      "quote": "Can't log in, it shows a web page error after entering login credentials",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:e218262f-1f05-4872-a3d5-318444986152",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "273.4",
+      "reviewedAt": "2026-09-03T13:43:26.535Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "72a4c9b03448d337",
+      "quote": "can't log in as it's stuck trying to get me to select my favourite teams and the skip option doesn't work",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:fe0afb41-4bb2-41a4-be23-f0c18eb14322",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": null,
+      "reviewedAt": "2026-09-10T17:35:29.255Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "9c2a6c4296a4ac34",
+      "quote": "can't even log in. just keeps loading then says error",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:afd28655-7ec3-4b11-a950-e955c5c80c02",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "301.0",
+      "reviewedAt": "2026-09-10T17:28:31.731Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "59301f598cc458a0",
+      "quote": "having login problems after updating once again. Made me update, now it won't open",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:79707e90-f96e-4966-a0d3-b9be98490986",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "301.1",
+      "reviewedAt": "2026-09-18T02:59:24.999Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "a7b68fe406d322d2",
+      "quote": "The app literally won't load any pages I click on",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:46192723-e01b-44db-8ebb-d79cdafaeee8",
+      "productSlug": "ticketmaster",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "301.0",
+      "reviewedAt": "2026-09-10T19:29:07.132Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "e29624080979ef55",
+      "quote": "it loves to stay on a infinite loading screen when I select the my tickets tab",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
     }
   ],
   "versions": [
     "273.4",
-    "301.0"
+    "301.0",
+    "301.1"
   ],
   "workarounds": [
-    "reinstall the app",
-    "clear the app cache",
-    "collect tickets at the venue box office"
+    "use the browser instead of the app"
   ],
   "existingSolutions": [],
-  "firstSeen": "2026-09-04T03:27:30.132Z",
-  "lastSeen": "2026-09-16T14:26:19.127Z",
+  "firstSeen": "2026-09-03T13:43:26.535Z",
+  "lastSeen": "2026-09-18T10:11:40.180Z",
   "history": [
     {
       "date": "2026-09-20",
-      "score": 51,
-      "evidenceCount": 3
+      "score": 68,
+      "evidenceCount": 10
     }
   ],
-  "score": 51,
+  "score": 68,
   "components": {
-    "distinctUsers": 0.25,
+    "distinctUsers": 0.8333333333333334,
     "recurrence": 0.375,
     "recency": 1,
     "severity": 1,
     "churnIntent": 0.25,
-    "versionPersistence": 0.5,
+    "versionPersistence": 0.75,
     "crossPlatform": 0
   },
   "inputs": {
-    "uniqueReviewers": 3,
+    "uniqueReviewers": 10,
     "weeksWithEvidence": 3,
-    "daysSinceLastSeen": 3,
+    "daysSinceLastSeen": 1,
     "meanRating": 1,
     "churnReviewers": 1,
-    "distinctVersions": 2,
+    "distinctVersions": 3,
     "platforms": [
       "android"
     ],
-    "evidenceInWindow": 3
+    "evidenceInWindow": 10
   },
   "buildThreshold": 70,
-  "verdict": "Thin evidence",
+  "verdict": "Recurring",
   "status": "active"
 }

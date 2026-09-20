@@ -1,0 +1,158 @@
+{
+  "id": "duolingo--lessons-hang-crash-or-fail-to-load-their-audio",
+  "slug": "duolingo--lessons-hang-crash-or-fail-to-load-their-audio",
+  "productSlug": "duolingo",
+  "title": "Lessons hang, crash, or fail to load their audio",
+  "summary": "Reviewers report the app freezing at the end of a lesson without saving progress, failing to load character or writing exercises, and producing no sound on activities that need it. Several say it began after a recent update and that restarting does not help.",
+  "category": "Crashes and stability",
+  "platforms": [
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14234723609",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "sg",
+      "rating": 1,
+      "title": "App hangs, cannot progress",
+      "version": "7.128.1",
+      "reviewedAt": "2026-06-28T00:06:35.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "b7921b97dadce220",
+      "quote": "I cannot progress beyond this point as the app keeps hanging after the lesson",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14488703091",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "au",
+      "rating": 2,
+      "title": "App issues",
+      "version": "7.137.0",
+      "reviewedAt": "2026-08-30T05:42:06.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "12a67e703fe61a18",
+      "quote": "it also won't load kana or other character / writing lessons",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "apple:14565778798",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "App stopped working on 15+",
+      "version": "7.140.0",
+      "reviewedAt": "2026-09-18T21:19:55.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "ee9f62de6aad27a4",
+      "quote": "Your app just stopped working on my iPhone 15 Plus. It crashes and would not start",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14555357184",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "nz",
+      "rating": 1,
+      "title": "It used to be good but now it’s getting worse when they update each time.",
+      "version": "7.140.0",
+      "reviewedAt": "2026-09-16T06:04:35.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "9ac2dc1dd2bed0d9",
+      "quote": "A lot of bugs like no sounds, the word is different from what it pronounced",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14522957312",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 1,
+      "title": "Broken activities",
+      "version": "7.138.0",
+      "reviewedAt": "2026-09-07T21:34:18.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "14ee61fd61f44135",
+      "quote": "There are so many broken activities with buttons that don't select, or don't produce any sound",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "7.128.1",
+    "7.137.0",
+    "7.138.0",
+    "7.140.0"
+  ],
+  "workarounds": [
+    "restart the app",
+    "wait several minutes for a lesson to load"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-06-28T00:06:35.000Z",
+  "lastSeen": "2026-09-18T21:19:55.000Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 60,
+      "evidenceCount": 5
+    }
+  ],
+  "score": 60,
+  "components": {
+    "distinctUsers": 0.4166666666666667,
+    "recurrence": 0.5,
+    "recency": 1,
+    "severity": 0.95,
+    "churnIntent": 0,
+    "versionPersistence": 1,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 5,
+    "weeksWithEvidence": 4,
+    "daysSinceLastSeen": 1,
+    "meanRating": 1.2,
+    "churnReviewers": 0,
+    "distinctVersions": 4,
+    "platforms": [
+      "ios"
+    ],
+    "evidenceInWindow": 5
+  },
+  "buildThreshold": 70,
+  "verdict": "Recurring",
+  "status": "active"
+}

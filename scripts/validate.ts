@@ -354,6 +354,8 @@ export const RunSchema = z.object({
       playOk: z.boolean(),
       /** why Play was skipped or failed; null when it worked or was not configured */
       playError: z.string().nullable(),
+      /** storefronts that returned nothing, which usually means Apple rate limited us */
+      appleNote: z.string().nullable().optional(),
     }),
   ),
   /** filled in by score.ts; absent on a run that stopped before extraction */

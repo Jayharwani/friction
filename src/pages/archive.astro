@@ -5,6 +5,7 @@
 import Layout from '../layouts/Layout.astro';
 import { url } from '../lib/url';
 import { formatDate, getRuns } from '../lib/data';
+import { CANDIDATE_CAP } from '../../scripts/validate';
 
 const runs = getRuns();
 ---
@@ -70,7 +71,7 @@ const runs = getRuns();
       runs.length > 0 && (
         <p class="note measure">
           "Read" counts every review pulled from both stores, including ones already processed in an
-          earlier scan. "Carried" is capped at sixty per run by design — see the{' '}
+          earlier scan. "Carried" is capped at {CANDIDATE_CAP} per run by design — see the{' '}
           <a href={url('/methodology')}>methodology</a>.
         </p>
       )

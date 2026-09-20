@@ -1,0 +1,113 @@
+{
+  "id": "uber--the-amount-charged-does-not-match-the-fare-that-was-quoted",
+  "slug": "uber--the-amount-charged-does-not-match-the-fare-that-was-quoted",
+  "productSlug": "uber",
+  "title": "The amount charged does not match the fare that was quoted",
+  "summary": "Reviewers report final fares well above the quoted price, waiting-time fees applied when the rider was the one waiting, and cancellation fees charged after the driver cancelled. Several say reversing a charge requires contacting support, which is itself difficult.",
+  "category": "Pricing and billing",
+  "platforms": [
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14544882468",
+      "productSlug": "uber",
+      "platform": "ios",
+      "country": "au",
+      "rating": 3,
+      "title": "Be careful, flaky app, wildly inaccurate fare quote",
+      "version": "3.738.10002",
+      "reviewedAt": "2026-09-13T12:41:24.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "95c7f655d91663ed",
+      "quote": "app gave wildly inaccurate fare cost. Pre booked from airport, quoted $126, ended up costing $176!",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14519392111",
+      "productSlug": "uber",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 1,
+      "title": "Charges are unfair",
+      "version": "3.737.10003",
+      "reviewedAt": "2026-09-06T23:28:57.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "bfe5c5eff96a1159",
+      "quote": "When I need to drive to the airport it it charged me double price. Always adds wait time fee",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14516476698",
+      "productSlug": "uber",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 1,
+      "title": "Driver smelled of pot and Uber locked my account",
+      "version": "3.737.10003",
+      "reviewedAt": "2026-09-06T06:38:41.000Z",
+      "capturedAt": "2026-09-20T04:45:51.853Z",
+      "reviewerHash": "56eb99ce9a0b6b77",
+      "quote": "they charged me a cancellation fee then locked me out of my account",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "3.737.10003",
+    "3.738.10002"
+  ],
+  "workarounds": [],
+  "existingSolutions": [],
+  "firstSeen": "2026-09-06T06:38:41.000Z",
+  "lastSeen": "2026-09-13T12:41:24.000Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 44,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 44,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.25,
+    "recency": 1,
+    "severity": 0.8333333333333333,
+    "churnIntent": 0,
+    "versionPersistence": 0.5,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 2,
+    "daysSinceLastSeen": 6,
+    "meanRating": 1.6666666666666667,
+    "churnReviewers": 0,
+    "distinctVersions": 2,
+    "platforms": [
+      "ios"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Thin evidence",
+  "status": "active"
+}

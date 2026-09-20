@@ -296,7 +296,7 @@ function main(): void {
   const passRate = active.length ? (byVerdict('Strong signal') / active.length) * 100 : 0;
 
   console.log(`\nThreshold: ${buildThreshold.toFixed(1)} (max of 70 and the 80th percentile of ${activeScores.length} active scores)`);
-  console.log(`Verdicts:  ${byVerdict('Strong signal')} worth building, ${byVerdict('Recurring')} watch, ${byVerdict('Already solved')} already solved, ${byVerdict('Thin evidence')} too small`);
+  console.log(`Verdicts:  ${byVerdict('Strong signal')} strong signal, ${byVerdict('Recurring')} recurring, ${byVerdict('Already solved')} already solved, ${byVerdict('Thin evidence')} thin evidence`);
   console.log(`Pass rate: ${passRate.toFixed(0)}% of active problems`);
   console.log(`Records:   ${created} created, ${merged} merged, ${newEvidence} new pieces of evidence`);
   console.log(`Stale:     ${problems.length - active.length} (no evidence in ${STALE_AFTER_DAYS} days)`);

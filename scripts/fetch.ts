@@ -50,6 +50,14 @@ const RETRIES = 2;
 /** Apple caps the customer reviews feed at ten pages; page 11 returns HTTP 400. */
 const MAX_PAGES = 10;
 
+/**
+ * Apple refuses sustained heavy use. A run across seven storefronts makes
+ * roughly a thousand requests, and past a point the feed starts returning
+ * non-200s. These control how hard we back off before abandoning a storefront.
+ */
+const THROTTLE_RETRIES = 3;
+const THROTTLE_BACKOFF_MS = 5000;
+
 // Raised from 60: eight problems across fifteen apps read as a prototype.
 // Imported so the methodology page cannot quote a stale number.
 const BODY_TRUNCATE = 1200;
@@ -204,34 +212,77 @@ async function fetchApple(
 ): Promise<SourceResult> {
   const candidates: Candidate[] = [];
   let pageErrors = 0;
+  let throttled = 0;
 
   for (let page = 1; page <= maxPages; page++) {
     const url = `https://itunes.apple.com/${country}/rss/customerreviews/page=${page}/id=${product.appleId}/sortby=mostrecent/json`;
-    try {
-      const res = await politeFetch(url);
-      if (!res.ok) break; // depth limit or storefront without this app
 
-      const data = (await res.json()) as { feed?: { entry?: AppleEntry | AppleEntry[] } };
-      const raw = data.feed?.entry;
-      const entries = Array.isArray(raw) ? raw : raw ? [raw] : [];
+    // Each page gets its own retry budget, because a refusal here means
+    // "slow down", not "there is nothing more".
+    let attempt = 0;
+    let done = false;
 
-      for (const entry of entries) {
-        if (isMetadataEntry(entry)) continue;
-        const candidate = mapAppleEntry(entry, product, country, capturedAt, salt);
-        if (candidate) candidates.push(candidate);
+    while (!done) {
+      try {
+        const res = await politeFetch(url);
+
+        if (res.ok) {
+          const data = (await res.json()) as { feed?: { entry?: AppleEntry | AppleEntry[] } };
+          const raw = data.feed?.entry;
+          const entries = Array.isArray(raw) ? raw : raw ? [raw] : [];
+
+          for (const entry of entries) {
+            if (isMetadataEntry(entry)) continue;
+            const candidate = mapAppleEntry(entry, product, country, capturedAt, salt);
+            if (candidate) candidates.push(candidate);
+          }
+          done = true;
+          break;
+        }
+
+        // 400 is the documented page-depth limit and 404 means the app is not
+        // sold in this storefront. Both are legitimate reasons to stop paging.
+        if (res.status === 400 || res.status === 404) return finish();
+
+        // Anything else — 403, 429, 5xx — is Apple pushing back. Treating it
+        // as "no more pages" is what silently truncated an earlier run to a
+        // fifth of the expected reviews, so back off and try the page again.
+        throttled++;
+        if (attempt >= THROTTLE_RETRIES) {
+          pageErrors++;
+          console.warn(
+            `    ! ${product.slug}/${country} page ${page}: HTTP ${res.status} after ${attempt} retries, giving up on this storefront`,
+          );
+          return finish();
+        }
+
+        const wait = THROTTLE_BACKOFF_MS * 2 ** attempt;
+        console.warn(
+          `    . ${product.slug}/${country} page ${page}: HTTP ${res.status}, waiting ${Math.round(wait / 1000)}s`,
+        );
+        await sleep(wait);
+        attempt++;
+      } catch (err) {
+        // A single bad page is never fatal (spec 5.1 step 5).
+        pageErrors++;
+        console.warn(`    ! ${product.slug}/${country} page ${page}: ${(err as Error).message}`);
+        done = true;
       }
-    } catch (err) {
-      // A single bad page is never fatal (spec 5.1 step 5).
-      pageErrors++;
-      console.warn(`    ! ${product.slug}/${country} page ${page}: ${(err as Error).message}`);
     }
   }
 
-  return {
-    candidates,
-    ok: candidates.length > 0 || pageErrors === 0,
-    error: pageErrors > 0 ? `${pageErrors} page(s) failed` : null,
-  };
+  return finish();
+
+  function finish(): SourceResult {
+    const notes: string[] = [];
+    if (pageErrors > 0) notes.push(`${pageErrors} page(s) failed`);
+    if (throttled > 0) notes.push(`${throttled} throttled response(s)`);
+    return {
+      candidates,
+      ok: candidates.length > 0,
+      error: notes.length > 0 ? notes.join(', ') : null,
+    };
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -465,16 +516,33 @@ async function main(): Promise<void> {
     }
 
     let appleOk = false;
+    let appleSilent: string[] = [];
     const countries = countryOverride ?? product.countries;
 
     if (product.appleId) {
       let total = 0;
+      const silent: string[] = [];
+
       for (const country of countries) {
         const result = await fetchApple(product, country, capturedAt, salt, maxPages);
         fetched.push(...result.candidates);
         total += result.candidates.length;
+        if (result.candidates.length === 0) silent.push(country);
       }
+
       appleOk = total > 0;
+
+      // Apple does not rate-limit with an error code. Under sustained load it
+      // answers 200 with an empty feed, which is indistinguishable from "this
+      // app has no reviews here" on a single request — and silently cost an
+      // earlier run two thirds of its reviews. A tracked app returning nothing
+      // across every page of a storefront is the signal worth surfacing.
+      if (silent.length > 0) {
+        appleSilent = silent;
+        console.warn(
+          `${' '.repeat(14)} apple      ! no reviews from ${silent.length}/${countries.length} storefronts (${silent.join(', ')}) — likely rate limited`,
+        );
+      }
       console.log(`${product.slug.padEnd(14)} apple ${String(total).padStart(5)} reviews`);
     } else {
       console.log(`${product.slug.padEnd(14)} apple     — no appleId`);
@@ -507,7 +575,16 @@ async function main(): Promise<void> {
       await sleep(RATE_LIMIT_MS);
     }
 
-    productStatus.push({ slug: product.slug, appleOk, playOk, playError });
+    productStatus.push({
+      slug: product.slug,
+      appleOk,
+      playOk,
+      playError,
+      appleNote:
+        appleSilent.length > 0
+          ? `no reviews from ${appleSilent.length} storefront(s): ${appleSilent.join(', ')}`
+          : null,
+    });
   }
 
   /* ---- raw dump for hand inspection ---- */
