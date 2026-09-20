@@ -40,29 +40,22 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
       <a href={url(`/products/${problem.productSlug}`)}>{product?.name ?? problem.productSlug}</a>
     </nav>
 
+    <!--
+      DOM order is header, computed panel, evidence stream. Grid areas put the
+      panel on the right at wide widths. Ordering it after the stream would bury
+      the score below every quote on mobile, and put the score disclosure after
+      all the evidence links in the tab order.
+    -->
     <div class="columns">
-      <!-- ---------- left: the evidence stream ---------- -->
-      <div class="stream">
-        <header class="intro">
-          <h1>{problem.title}</h1>
-          <p class="summary">{problem.summary}</p>
-          <p class="meta">
-            {problem.category}, {platformsLabel(problem.platforms)}, {problem.evidence.length}{' '}
-            {problem.evidence.length === 1 ? 'review' : 'reviews'}
-            {problem.status === 'stale' && <span class="stale">, no new evidence in 120 days</span>}
-          </p>
-        </header>
-
-        <h2 class="stream-heading">Evidence</h2>
-
-        <p class="standing-note">
-          Neither app store gives an individual review a permanent public link, so each entry below
-          is a snapshot taken on the date shown, and the link goes to the app's review listing
-          rather than to the review itself. The repository's git history is the audit trail.
+      <header class="intro">
+        <h1>{problem.title}</h1>
+        <p class="summary">{problem.summary}</p>
+        <p class="meta">
+          {problem.category}, {platformsLabel(problem.platforms)}, {problem.evidence.length}{' '}
+          {problem.evidence.length === 1 ? 'review' : 'reviews'}
+          {problem.status === 'stale' && <span class="stale">, no new evidence in 120 days</span>}
         </p>
-
-        {evidence.map((e) => <EvidenceItem evidence={e} />)}
-      </div>
+      </header>
 
       <!-- ---------- right: the computed panel ---------- -->
       <aside class="panel-column">
@@ -131,6 +124,19 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
           </section>
         </div>
       </aside>
+
+      <!-- ---------- left: the evidence stream ---------- -->
+      <div class="stream">
+        <h2 class="stream-heading">Evidence</h2>
+
+        <p class="standing-note">
+          Neither app store gives an individual review a permanent public link, so each entry below
+          is a snapshot taken on the date shown, and the link goes to the app's review listing
+          rather than to the review itself. The repository's git history is the audit trail.
+        </p>
+
+        {evidence.map((e) => <EvidenceItem evidence={e} />)}
+      </div>
     </div>
   </div>
 </Layout>
@@ -148,12 +154,34 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
     padding-block: 1.5rem 2rem;
   }
 
-  /* Two columns only where there is room for both to stay legible. */
+  /* Two columns only where there is room for both to stay legible. Grid areas
+     place the panel on the right while it stays second in the DOM. */
   @media (min-width: 64rem) {
     .columns {
       grid-template-columns: minmax(0, 1fr) 20rem;
-      gap: 4rem;
+      grid-template-areas:
+        'head  panel'
+        'stream panel';
+      grid-template-rows: auto 1fr;
+      column-gap: 4rem;
+      row-gap: 0;
       align-items: start;
+    }
+
+    .intro {
+      grid-area: head;
+    }
+
+    .stream {
+      grid-area: stream;
+    }
+
+    /* Stretched rather than content-height, otherwise the sticky child has no
+       room to travel and never actually sticks. */
+    .panel-column {
+      grid-area: panel;
+      align-self: stretch;
+      height: 100%;
     }
   }
 
@@ -191,7 +219,7 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
   }
 
   .stream-heading {
-    margin-top: 2.75rem;
+    margin-top: 2.25rem;
     font-size: var(--text-sm);
     font-weight: 600;
   }

@@ -23,12 +23,29 @@ interface Props {
 
 const { grid } = Astro.props;
 
-/** Position on the single cold-to-hot scale; 0 evidence reads as absence. */
+/**
+ * Position on the single cold-to-hot scale; 0 evidence reads as absence.
+ *
+ * The ramp runs empty -> pale cold -> cold -> hot in two stages rather than
+ * mixing cold and hot directly. A direct mix gives the low end no resolution:
+ * with a maximum of two reviews a single review would land at the midpoint and
+ * look almost as strong as the busiest week. Both stages darken and gain
+ * chroma as the count rises, so the scale stays monotonic — which is what the
+ * caption "darker means more" promises.
+ */
+function heatColour(t: number): string {
+  if (t <= 0) return 'var(--cell-empty)';
+  if (t <= 0.5) {
+    // Pale tint of cold, deepening to full cold at the midpoint.
+    const pct = Math.round(30 + 70 * (t / 0.5));
+    return `color-mix(in oklab, var(--cold) ${pct}%, var(--cell-empty))`;
+  }
+  const pct = Math.round(((t - 0.5) / 0.5) * 100);
+  return `color-mix(in oklab, var(--hot) ${pct}%, var(--cold))`;
+}
+
 function cellStyle(count: number): string {
-  if (count === 0) return 'background:var(--cell-empty)';
-  // Floor at 0.15 so a single review is still visibly warmer than nothing.
-  const t = Math.max(0.15, count / grid.max);
-  return `background:color-mix(in oklab, var(--hot) ${Math.round(t * 100)}%, var(--cold))`;
+  return `background:${heatColour(count / grid.max)}`;
 }
 
 const firstWeek = grid.weeks[0];
@@ -54,7 +71,7 @@ const lastWeek = grid.weeks.at(-1);
                 <span class="sr-only">Week of {weekLabel(week)}</span>
                 {/* Every third label is shown, so the axis stays readable at 360px. */}
                 <span class="week-label num" aria-hidden="true">
-                  {i % 3 === 0 ? weekLabel(week).replace(/ /g, ' ') : ''}
+                  {i % 3 === 0 ? weekLabel(week) : ''}
                 </span>
               </th>
             ))
@@ -88,13 +105,7 @@ const lastWeek = grid.weeks.at(-1);
   <figcaption class="legend">
     <span>Less</span>
     <span class="ramp" aria-hidden="true">
-      {
-        [0, 0.25, 0.5, 0.75, 1].map((t) => (
-          <span
-            style={`background:${t === 0 ? 'var(--cell-empty)' : `color-mix(in oklab, var(--hot) ${t * 100}%, var(--cold))`}`}
-          />
-        ))
-      }
+      {[0, 0.25, 0.5, 0.75, 1].map((t) => <span style={`background:${heatColour(t)}`} />)}
     </span>
     <span>More</span>
   </figcaption>
@@ -127,25 +138,31 @@ const lastWeek = grid.weeks.at(-1);
     border-collapse: separate;
     /* The gap between cells is the --rule hairline made into space. */
     border-spacing: 2px;
-    width: 100%;
-    min-width: 33rem;
+    /* Sized by its columns rather than stretched to the container: at full
+       width the cells become wide bands and the grid stops reading as a grid. */
+    width: auto;
     table-layout: fixed;
   }
 
   .corner {
-    width: 13rem;
+    width: 15rem;
+  }
+
+  .week {
+    width: 2.6rem;
+    font-weight: 400;
+    vertical-align: bottom;
+    padding-bottom: 0.35rem;
   }
 
   @media (max-width: 48rem) {
     .corner {
-      width: 9rem;
+      width: 10rem;
     }
-  }
 
-  .week {
-    font-weight: 400;
-    vertical-align: bottom;
-    padding-bottom: 0.35rem;
+    .week {
+      width: 2.1rem;
+    }
   }
 
   .week-label {
@@ -154,6 +171,7 @@ const lastWeek = grid.weeks.at(-1);
     color: var(--muted);
     text-align: left;
     line-height: 1;
+    white-space: nowrap;
   }
 
   .label {
@@ -161,7 +179,7 @@ const lastWeek = grid.weeks.at(-1);
     text-align: left;
     padding-right: 0.75rem;
     font-size: var(--text-sm);
-    max-width: 13rem;
+    max-width: 15rem;
   }
 
   .label a {
@@ -181,7 +199,7 @@ const lastWeek = grid.weeks.at(-1);
   }
 
   .cell {
-    height: 1.6rem;
+    height: 1.75rem;
     padding: 0;
   }
 
