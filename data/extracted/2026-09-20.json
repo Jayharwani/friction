@@ -1,0 +1,412 @@
+[
+  {
+    "productSlug": "notion",
+    "title": "The mobile app freezes and lags while editing pages",
+    "summary": "Reviewers on both iOS and Android describe the mobile app freezing, lagging or closing itself while they edit. It is reported on iPhone, iPad and Android, and across several releases rather than a single bad build. Several people say they have to close and reopen the app to carry on working.",
+    "category": "Performance",
+    "evidence": [
+      {
+        "reviewId": "apple:14561556753",
+        "quote": "The screen keeps randomly jumping from one place to another",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "play:8a9a214e-50b2-492b-b6b3-385239f9f523",
+        "quote": "NOT usable on Android, very very slow, lagy, buggy whatever",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14094765473",
+        "quote": "it causes phone to freeze or just kicks me out",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:13997492983",
+        "quote": "I have to close the app like every minute because it gets stuck or freeze",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": true
+        }
+      },
+      {
+        "reviewId": "apple:13889485864",
+        "quote": "Every time I use the app and I mean every single time it lags, crashes or constantly refreshes",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14443909133",
+        "quote": "Sometimes the screen just freezes; have no clue why",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": true
+        }
+      },
+      {
+        "reviewId": "apple:14445282859",
+        "quote": "the app is really really laggy on iPhone",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": true
+        }
+      }
+    ],
+    "workarounds": ["close and reopen the app", "select the text and use cut instead of delete"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "teams",
+    "title": "The mobile app stutters and crashes in chats and calls",
+    "summary": "Reviewers report the mobile app freezing while scrolling channels, stuttering as they type, and restarting during calls. It is described on both iOS and Android and across several releases. Some say it began after an update and that reinstalling did not help.",
+    "category": "Performance",
+    "evidence": [
+      {
+        "reviewId": "apple:13886695436",
+        "quote": "when i try to scroll up through posts the app freezes",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": true
+        }
+      },
+      {
+        "reviewId": "play:873d717b-c698-4bfa-8a5b-eaa522ece310",
+        "quote": "extremely slow, you can't search anything you send",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:13906347997",
+        "quote": "It stutters and lags as I interact with the chats and channels on my mobile device",
+        "signals": {
+          "churnIntent": true,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:13936375063",
+        "quote": "Teams randomly crashes and restarts even in the middle of calls",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      }
+    ],
+    "workarounds": ["refresh the app", "restart the phone"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "strava",
+    "title": "The app freezes or fails to load, and recording can stop mid-activity",
+    "summary": "Reviewers describe the app hanging on its startup screen, showing a black screen with a retry message, or freezing during use. In several cases a recording stopped part way through an activity and nothing was saved. The reports span four consecutive releases.",
+    "category": "Crashes and stability",
+    "evidence": [
+      {
+        "reviewId": "apple:14510247552",
+        "quote": "the program keeps stopping in the middle of my hike",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14406463669",
+        "quote": "Strava keeps freezing up and when closing the app and reopening it is stuck at the Strava logo startup page",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": true
+        }
+      },
+      {
+        "reviewId": "apple:14332972027",
+        "quote": "every time I wanted to give kudos it would freeze and crash",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14289778020",
+        "quote": "the app does not load. It is just a black screen and an error message that says please try again",
+        "signals": {
+          "churnIntent": true,
+          "competitorNamed": false,
+          "billingComplaint": true,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      }
+    ],
+    "workarounds": ["uninstall and reinstall the app", "restart the phone"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "ticketmaster",
+    "title": "Purchased tickets cannot be reached when the app fails to load or sign in",
+    "summary": "Reviewers say tickets they have already paid for are only available in the app, and that the app fails to open, does not keep them signed in, or freezes at login. One reports being told to add tickets to a wallet app that then refuses them. Reinstalling and clearing the cache did not resolve it.",
+    "category": "Crashes and stability",
+    "evidence": [
+      {
+        "reviewId": "play:34d046a3-7cb4-4ed5-823d-00057f740fac",
+        "quote": "which does not load, crashes frequently, and freezes every time I try to log in",
+        "signals": {
+          "churnIntent": true,
+          "competitorNamed": false,
+          "billingComplaint": true,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "play:5bd3b643-9a32-4d20-9175-97fb925db791",
+        "quote": "app won't open, can't add comments and can't get to my tickets purchased",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": true
+        }
+      },
+      {
+        "reviewId": "play:1308f789-850e-4898-b812-5fa59525f832",
+        "quote": "App says can only access tickets by downloading them to Google Wallet, but then it won't let you",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": true
+        }
+      }
+    ],
+    "workarounds": ["reinstall the app", "clear the app cache", "collect tickets at the venue box office"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "canva",
+    "title": "Added AI features slow the app and cannot be turned off",
+    "summary": "Long-standing users describe AI and promotional features added to the editor that they cannot disable. They report these prompts appearing on every document open and slowing the app down. One reviewer also reports their own original work being labelled as AI generated.",
+    "category": "Ads and interruptions",
+    "evidence": [
+      {
+        "reviewId": "apple:14530888893",
+        "quote": "The push for AI on here has ruined what this is supposed to be",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14508989763",
+        "quote": "I don't even use your trash Ai tools -that slow down the whole app",
+        "signals": {
+          "churnIntent": true,
+          "competitorNamed": false,
+          "billingComplaint": true,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14468717937",
+        "quote": "Can we have an option to turn off the annoying (and slow) prompt EVERY TIME I OPEN a Document",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      }
+    ],
+    "workarounds": [],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "duolingo",
+    "title": "Ads and AI prompts interrupt lessons and cannot be dismissed",
+    "summary": "Reviewers on both platforms report advertisements that cannot be closed, leaving the app stuck until it is force quit. Others describe repeated notification sounds and AI features being added with no straightforward way to opt out. One reviewer reports losing earned progress when an ad would not close.",
+    "category": "Ads and interruptions",
+    "evidence": [
+      {
+        "reviewId": "apple:14517093187",
+        "quote": "Some ads cannot be closed after watching them",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": false,
+          "workaroundDescribed": true
+        }
+      },
+      {
+        "reviewId": "play:f531cdf6-4b9e-48c2-ab62-cb77642fde8d",
+        "quote": "constant pings and dings slowing down the entire experience; spamming rewards",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": true,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14560317809",
+        "quote": "Duo now forces users to use AI",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      }
+    ],
+    "workarounds": ["force close and restart the app"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "airbnb",
+    "title": "Hosts cannot reach the calendar or messages after the redesign",
+    "summary": "Hosts describe being held on a dashboard or review prompt that blocks access to their calendar and messages. Others report navigation and messaging failing on Android, and repeated feature popups interrupting pricing work. The reports come from long-standing hosts on both platforms.",
+    "category": "Navigation",
+    "evidence": [
+      {
+        "reviewId": "apple:14110076661",
+        "quote": "I need access to my calendar and messages, but I'm stuck on the main dashboard",
+        "signals": {
+          "churnIntent": true,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "play:e01608e1-e3b4-4c19-87cd-3136ef8e4274",
+        "quote": "Messaging is broken. App navigation is broken on abdroid",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": true,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14500700742",
+        "quote": "popups keep triggering over and over multiple times per session blocking my workflow",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": false,
+          "regressionClaim": true,
+          "workaroundDescribed": true
+        }
+      }
+    ],
+    "workarounds": ["use third-party tools to manage pricing"],
+    "existingSolutions": []
+  },
+  {
+    "productSlug": "expedia",
+    "title": "Refunds are refused, delayed, or issued as credit that cannot be used",
+    "summary": "Reviewers describe money held after a cancellation, refunds replaced with platform credit that other airlines will not accept, and required costs disclosed only after booking. In each case support did not resolve it and directed the traveller elsewhere. The reports span several releases.",
+    "category": "Pricing and billing",
+    "evidence": [
+      {
+        "reviewId": "apple:14494094443",
+        "quote": "Important information deliberately left out of listings",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": true,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14063359188",
+        "quote": "They gave me a useless OneKeyCash credit instead of a real refund",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": true,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      },
+      {
+        "reviewId": "apple:14309845780",
+        "quote": "have yet to get my refund after 18days",
+        "signals": {
+          "churnIntent": false,
+          "competitorNamed": false,
+          "billingComplaint": true,
+          "regressionClaim": false,
+          "workaroundDescribed": false
+        }
+      }
+    ],
+    "workarounds": [],
+    "existingSolutions": []
+  }
+]

@@ -81,6 +81,32 @@ export function getProblemsForProduct(slug: string): Problem[] {
   return getProblems().filter((p) => p.productSlug === slug);
 }
 
+/**
+ * Problems that received evidence in a given run, newest-scoring first.
+ * Detected from `capturedAt` on the stored evidence rather than from the run
+ * index, so it stays correct even if runs.json is trimmed.
+ */
+export function getProblemsFromRun(runDate: string): Problem[] {
+  return getProblems().filter((p) =>
+    p.evidence.some((e) => e.capturedAt.slice(0, 10) === runDate),
+  );
+}
+
+/** Group problems by their product, preserving score order within each group. */
+export function groupByProduct(problems: Problem[]): { product: Product; problems: Problem[] }[] {
+  const groups = new Map<string, Problem[]>();
+  for (const p of problems) {
+    const list = groups.get(p.productSlug) ?? [];
+    list.push(p);
+    groups.set(p.productSlug, list);
+  }
+
+  return [...groups.entries()]
+    .map(([slug, list]) => ({ product: getProduct(slug), problems: list }))
+    .filter((g): g is { product: Product; problems: Problem[] } => g.product !== undefined)
+    .sort((a, b) => a.product.name.localeCompare(b.product.name));
+}
+
 /** Products that actually have at least one problem recorded. */
 export function getProductsWithProblems(): Product[] {
   const slugs = new Set(getProblems().map((p) => p.productSlug));

@@ -494,7 +494,9 @@ function main(): void {
 
   // The candidates file is chosen by the extracted file's own date, so a stale
   // or mismatched pair can never validate against the wrong run.
-  const runDate = (extractedName ?? extractedPath.split(/[\/]/).pop() ?? '').replace(/\.json$/, '');
+  // Derived from the file's own name, so --file always validates against the
+  // candidates of the run it actually belongs to.
+  const runDate = (extractedPath.split(/[\\/]/).pop() ?? '').replace(/\.json$/, '');
   const candidatesPath = join(candidatesDir, `${runDate}.json`);
 
   if (!existsSync(candidatesPath)) {

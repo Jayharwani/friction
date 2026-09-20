@@ -1,0 +1,222 @@
+---
+/**
+ * The homepage hero (spec 6.1). Rows are the highest-scoring active problems,
+ * columns are the last twelve ISO weeks, each cell shaded by how much evidence
+ * arrived in that week.
+ *
+ * Built as a real <table> because it is genuinely tabular: that gives row and
+ * column headers to a screen reader for free, and every cell states its count
+ * in text as well as in colour (spec 6.2 quality floor).
+ *
+ * This is the one non-interactive animation in the product: the grid fills
+ * column by column, left to right, over roughly 600ms. The keyframes are
+ * declared only under prefers-reduced-motion: no-preference, so under a
+ * reduced-motion preference the fill does not exist at all.
+ */
+import { url } from '../lib/url';
+import { weekLabel } from '../lib/data';
+import type { RecurrenceGrid } from '../lib/data';
+
+interface Props {
+  grid: RecurrenceGrid;
+}
+
+const { grid } = Astro.props;
+
+/** Position on the single cold-to-hot scale; 0 evidence reads as absence. */
+function cellStyle(count: number): string {
+  if (count === 0) return 'background:var(--cell-empty)';
+  // Floor at 0.15 so a single review is still visibly warmer than nothing.
+  const t = Math.max(0.15, count / grid.max);
+  return `background:color-mix(in oklab, var(--hot) ${Math.round(t * 100)}%, var(--cold))`;
+}
+
+const firstWeek = grid.weeks[0];
+const lastWeek = grid.weeks.at(-1);
+---
+
+<figure class="grid-figure">
+  <div class="scroller">
+    <table>
+      <caption class="sr-only">
+        Evidence volume by week. Rows are the {grid.rows.length} highest-scoring active problems,
+        columns are the {grid.weeks.length} ISO weeks from {weekLabel(firstWeek ?? '')} to {
+          weekLabel(lastWeek ?? '')
+        }. Each cell gives the number of reviews recorded for that problem in that week.
+      </caption>
+
+      <thead>
+        <tr>
+          <th scope="col" class="corner"><span class="sr-only">Problem</span></th>
+          {
+            grid.weeks.map((week, i) => (
+              <th scope="col" class="week">
+                <span class="sr-only">Week of {weekLabel(week)}</span>
+                {/* Every third label is shown, so the axis stays readable at 360px. */}
+                <span class="week-label num" aria-hidden="true">
+                  {i % 3 === 0 ? weekLabel(week).replace(/ /g, ' ') : ''}
+                </span>
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        {
+          grid.rows.map((row) => (
+            <tr>
+              <th scope="row" class="label">
+                <a href={url(`/problems/${row.problem.slug}`)}>{row.problem.title}</a>
+              </th>
+              {row.cells.map((cell, i) => (
+                <td
+                  class="cell"
+                  style={`${cellStyle(cell.count)};--col:${i}`}
+                  title={`${cell.count} ${cell.count === 1 ? 'review' : 'reviews'} in the week of ${weekLabel(cell.week)}`}
+                >
+                  <span class="sr-only">{cell.count}</span>
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <figcaption class="legend">
+    <span>Less</span>
+    <span class="ramp" aria-hidden="true">
+      {
+        [0, 0.25, 0.5, 0.75, 1].map((t) => (
+          <span
+            style={`background:${t === 0 ? 'var(--cell-empty)' : `color-mix(in oklab, var(--hot) ${t * 100}%, var(--cold))`}`}
+          />
+        ))
+      }
+    </span>
+    <span>More</span>
+  </figcaption>
+</figure>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .grid-figure {
+    margin: 0;
+  }
+
+  /* The grid is the widest element on the site and may exceed the prose
+     measure. Below about 700px it scrolls rather than crushing the cells. */
+  .scroller {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  table {
+    border-collapse: separate;
+    /* The gap between cells is the --rule hairline made into space. */
+    border-spacing: 2px;
+    width: 100%;
+    min-width: 33rem;
+    table-layout: fixed;
+  }
+
+  .corner {
+    width: 13rem;
+  }
+
+  @media (max-width: 48rem) {
+    .corner {
+      width: 9rem;
+    }
+  }
+
+  .week {
+    font-weight: 400;
+    vertical-align: bottom;
+    padding-bottom: 0.35rem;
+  }
+
+  .week-label {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--muted);
+    text-align: left;
+    line-height: 1;
+  }
+
+  .label {
+    font-weight: 400;
+    text-align: left;
+    padding-right: 0.75rem;
+    font-size: var(--text-sm);
+    max-width: 13rem;
+  }
+
+  .label a {
+    display: block;
+    text-decoration: none;
+    /* Two lines, then clip: the grid must stay a grid. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.25;
+  }
+
+  .label a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+  }
+
+  .cell {
+    height: 1.6rem;
+    padding: 0;
+  }
+
+  /* ---- the one non-interactive animation ---- */
+  @media (prefers-reduced-motion: no-preference) {
+    .cell {
+      animation: fill 260ms ease-out backwards;
+      /* 12 columns at 50ms apart lands the last column at ~600ms. */
+      animation-delay: calc(var(--col) * 50ms);
+    }
+
+    @keyframes fill {
+      from {
+        opacity: 0;
+        transform: scaleY(0.4);
+      }
+    }
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.85rem;
+    font-size: var(--text-xs);
+    color: var(--muted);
+  }
+
+  .ramp {
+    display: inline-flex;
+    gap: 2px;
+  }
+
+  .ramp span {
+    width: 1.1rem;
+    height: 0.6rem;
+  }
+</style>

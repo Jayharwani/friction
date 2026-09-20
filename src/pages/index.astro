@@ -1,11 +1,163 @@
 ---
+/**
+ * Today (spec 6.1).
+ *
+ * The hero is the data, not a headline: the recurrence grid comes first and a
+ * reader should understand what this site does by looking at it before reading
+ * a word. No signup prompt, no call to action, no hero button.
+ */
 import Layout from '../layouts/Layout.astro';
+import RecurrenceGrid from '../components/RecurrenceGrid.astro';
+import ProblemRow from '../components/ProblemRow.astro';
 import { url } from '../lib/url';
+import {
+  buildRecurrenceGrid,
+  formatDate,
+  getActiveProblems,
+  getLatestRun,
+  getProblemsFromRun,
+  groupByProduct,
+} from '../lib/data';
+
+const active = getActiveProblems();
+const grid = buildRecurrenceGrid(active);
+const run = getLatestRun();
+
+const newest = run ? getProblemsFromRun(run.date) : [];
+const grouped = groupByProduct(newest);
+
+const funnel = run?.funnel;
+const hasGrid = grid.rows.length > 0;
 ---
 
 <Layout title="Friction">
-  <main>
-    <h1>Friction</h1>
-    <p>Scaffold check. Base-aware link: <a href={url('/methodology')}>methodology</a></p>
-  </main>
+  <div class="shell">
+    {
+      hasGrid ? (
+        <section class="hero">
+          <RecurrenceGrid grid={grid} />
+
+          <p class="explain measure">
+            Every cell is one week of app store reviews reporting the same problem. Darker means
+            more people hit it that week. These are the {grid.rows.length} highest-scoring problems
+            currently active across {new Set(active.map((p) => p.productSlug)).size} apps.
+          </p>
+        </section>
+      ) : (
+        <section class="hero empty">
+          <h1>Friction</h1>
+          <p class="measure">
+            No problems have been recorded yet. The first scan has not produced data, or the
+            pipeline stopped before writing. Nothing here is a placeholder — the grid appears once
+            real reviews have been read.
+          </p>
+          <p class="measure">
+            <a href={url('/methodology')}>How this works</a>
+          </p>
+        </section>
+      )
+    }
+
+    {
+      run && funnel && (
+        <section class="run-summary">
+          <h2>Last scan</h2>
+          <p class="measure num">
+            On <time datetime={run.date}>{formatDate(run.date)}</time> this project read{' '}
+            {funnel.fetched.total.toLocaleString('en-GB')} reviews from the App Store and Google
+            Play. {funnel.screened.total.toLocaleString('en-GB')} were recent and substantial
+            enough to consider, {funnel.filtered.total.toLocaleString('en-GB')} read like
+            complaints, and the {funnel.capped.total} strongest were sent to be grouped into
+            problems.
+            {run.extractedProblems !== undefined && (
+              <> That produced {run.extractedProblems} problems, {run.problemsNew ?? 0} of them new.</>
+            )}
+          </p>
+          <p class="measure meta">
+            <a href={url('/archive')}>Every scan so far</a>
+          </p>
+        </section>
+      )
+    }
+
+    {
+      grouped.length > 0 && (
+        <section class="latest">
+          <h2>From the latest scan</h2>
+          {grouped.map((group) => (
+            <div class="group">
+              <h3 class="product-name">
+                <a href={url(`/products/${group.product.slug}`)}>{group.product.name}</a>
+              </h3>
+              {group.problems.map((problem) => (
+                <ProblemRow problem={problem} />
+              ))}
+            </div>
+          ))}
+        </section>
+      )
+    }
+  </div>
 </Layout>
+
+<style>
+  .hero {
+    padding-block: 2.5rem 0;
+  }
+
+  .hero.empty h1 {
+    font-size: var(--text-2xl);
+    margin-bottom: 0.8rem;
+  }
+
+  .hero.empty p + p {
+    margin-top: 0.8rem;
+  }
+
+  .explain {
+    margin-top: 1.5rem;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .run-summary,
+  .latest {
+    margin-top: 3.25rem;
+  }
+
+  h2 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: 0.7rem;
+  }
+
+  .run-summary p + p {
+    margin-top: 0.6rem;
+  }
+
+  .group {
+    margin-top: 2rem;
+  }
+
+  .product-name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .product-name a {
+    text-decoration: none;
+  }
+
+  .product-name a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+  }
+
+  /* Lists of problems stay in the prose measure; only the grid exceeds it. */
+  .latest :global(.row),
+  .group {
+    max-width: var(--measure);
+  }
+</style>

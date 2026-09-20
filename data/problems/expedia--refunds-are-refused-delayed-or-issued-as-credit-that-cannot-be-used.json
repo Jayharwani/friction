@@ -1,0 +1,114 @@
+{
+  "id": "expedia--refunds-are-refused-delayed-or-issued-as-credit-that-cannot-be-used",
+  "slug": "expedia--refunds-are-refused-delayed-or-issued-as-credit-that-cannot-be-used",
+  "productSlug": "expedia",
+  "title": "Refunds are refused, delayed, or issued as credit that cannot be used",
+  "summary": "Reviewers describe money held after a cancellation, refunds replaced with platform credit that other airlines will not accept, and required costs disclosed only after booking. In each case support did not resolve it and directed the traveller elsewhere. The reports span several releases.",
+  "category": "Pricing and billing",
+  "platforms": [
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14494094443",
+      "productSlug": "expedia",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Deceptive",
+      "version": "2026.35",
+      "reviewedAt": "2026-08-31T14:30:27.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "d7017133dda2b6c9",
+      "quote": "Important information deliberately left out of listings",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14063359188",
+      "productSlug": "expedia",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 1,
+      "title": "financial loss, stress, and wasted time.",
+      "version": "2026.19",
+      "reviewedAt": "2026-05-14T12:37:57.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "9bca96f1dcf1b334",
+      "quote": "They gave me a useless OneKeyCash credit instead of a real refund",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14309845780",
+      "productSlug": "expedia",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 2,
+      "title": "Refund Issues",
+      "version": "2026.28",
+      "reviewedAt": "2026-07-16T11:37:27.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "e20bd3b7de1f3e70",
+      "quote": "have yet to get my refund after 18days",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "2026.19",
+    "2026.28",
+    "2026.35"
+  ],
+  "workarounds": [],
+  "existingSolutions": [],
+  "firstSeen": "2026-05-14T12:37:57.000Z",
+  "lastSeen": "2026-08-31T14:30:27.000Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 50,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 50,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.375,
+    "recency": 0.9698795180722891,
+    "severity": 0.9166666666666667,
+    "churnIntent": 0,
+    "versionPersistence": 0.75,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 19,
+    "meanRating": 1.3333333333333333,
+    "churnReviewers": 0,
+    "distinctVersions": 3,
+    "platforms": [
+      "ios"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Too small",
+  "status": "active"
+}

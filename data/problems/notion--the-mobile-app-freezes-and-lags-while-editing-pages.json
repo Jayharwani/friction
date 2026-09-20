@@ -1,0 +1,202 @@
+{
+  "id": "notion--the-mobile-app-freezes-and-lags-while-editing-pages",
+  "slug": "notion--the-mobile-app-freezes-and-lags-while-editing-pages",
+  "productSlug": "notion",
+  "title": "The mobile app freezes and lags while editing pages",
+  "summary": "Reviewers on both iOS and Android describe the mobile app freezing, lagging or closing itself while they edit. It is reported on iPhone, iPad and Android, and across several releases rather than a single bad build. Several people say they have to close and reopen the app to carry on working.",
+  "category": "Performance",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14561556753",
+      "productSlug": "notion",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "The performance on iPad is TERRIBLE",
+      "version": "1.7.338",
+      "reviewedAt": "2026-09-17T19:25:24.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "e1c2e6f1ab3952ac",
+      "quote": "The screen keeps randomly jumping from one place to another",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:8a9a214e-50b2-492b-b6b3-385239f9f523",
+      "productSlug": "notion",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "0.6.4100",
+      "reviewedAt": "2026-08-29T16:42:32.332Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "4b0f197c17750104",
+      "quote": "NOT usable on Android, very very slow, lagy, buggy whatever",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14094765473",
+      "productSlug": "notion",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 1,
+      "title": "Recent update issue",
+      "version": "1.7.308",
+      "reviewedAt": "2026-05-23T00:06:33.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "ecb26ca0c24a7c4b",
+      "quote": "it causes phone to freeze or just kicks me out",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:13997492983",
+      "productSlug": "notion",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Bug fixes",
+      "version": "1.7.301",
+      "reviewedAt": "2026-04-26T02:32:58.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "c07248a98626b31d",
+      "quote": "I have to close the app like every minute because it gets stuck or freeze",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "apple:13889485864",
+      "productSlug": "notion",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Mobile version freezes/lags constantly!",
+      "version": "1.7.289",
+      "reviewedAt": "2026-03-26T16:18:01.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "d4c57cb8aa72e56b",
+      "quote": "Every time I use the app and I mean every single time it lags, crashes or constantly refreshes",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14443909133",
+      "productSlug": "notion",
+      "platform": "ios",
+      "country": "us",
+      "rating": 2,
+      "title": "Great app, just really buggy!",
+      "version": "1.7.328",
+      "reviewedAt": "2026-08-18T18:56:09.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "95319d8ef5e69b11",
+      "quote": "Sometimes the screen just freezes; have no clue why",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "apple:14445282859",
+      "productSlug": "notion",
+      "platform": "ios",
+      "country": "us",
+      "rating": 3,
+      "title": "Good app, extremely laggy on iPhone",
+      "version": "1.7.328",
+      "reviewedAt": "2026-08-19T03:34:57.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "eee3f8e58122c546",
+      "quote": "the app is really really laggy on iPhone",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    }
+  ],
+  "versions": [
+    "0.6.4100",
+    "1.7.289",
+    "1.7.301",
+    "1.7.308",
+    "1.7.328",
+    "1.7.338"
+  ],
+  "workarounds": [
+    "close and reopen the app",
+    "select the text and use cut instead of delete"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-03-26T16:18:01.000Z",
+  "lastSeen": "2026-09-17T19:25:24.000Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 73,
+      "evidenceCount": 7
+    }
+  ],
+  "score": 73,
+  "components": {
+    "distinctUsers": 0.5833333333333334,
+    "recurrence": 0.75,
+    "recency": 1,
+    "severity": 0.8928571428571428,
+    "churnIntent": 0,
+    "versionPersistence": 1,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 7,
+    "weeksWithEvidence": 6,
+    "daysSinceLastSeen": 2,
+    "meanRating": 1.4285714285714286,
+    "churnReviewers": 0,
+    "distinctVersions": 6,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 7
+  },
+  "buildThreshold": 70,
+  "verdict": "Worth building",
+  "status": "active"
+}

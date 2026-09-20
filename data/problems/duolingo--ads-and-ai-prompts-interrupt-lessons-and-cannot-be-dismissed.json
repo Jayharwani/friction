@@ -1,0 +1,118 @@
+{
+  "id": "duolingo--ads-and-ai-prompts-interrupt-lessons-and-cannot-be-dismissed",
+  "slug": "duolingo--ads-and-ai-prompts-interrupt-lessons-and-cannot-be-dismissed",
+  "productSlug": "duolingo",
+  "title": "Ads and AI prompts interrupt lessons and cannot be dismissed",
+  "summary": "Reviewers on both platforms report advertisements that cannot be closed, leaving the app stuck until it is force quit. Others describe repeated notification sounds and AI features being added with no straightforward way to opt out. One reviewer reports losing earned progress when an ad would not close.",
+  "category": "Ads and interruptions",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14517093187",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 1,
+      "title": "Ad bug needs fixing",
+      "version": "7.138.0",
+      "reviewedAt": "2026-09-06T10:48:49.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "c79e5ebdcc2d2fcf",
+      "quote": "Some ads cannot be closed after watching them",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "play:f531cdf6-4b9e-48c2-ab62-cb77642fde8d",
+      "productSlug": "duolingo",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "6.94.5",
+      "reviewedAt": "2026-08-29T08:22:49.300Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "ca4ebb7e35920c87",
+      "quote": "constant pings and dings slowing down the entire experience; spamming rewards",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14560317809",
+      "productSlug": "duolingo",
+      "platform": "ios",
+      "country": "us",
+      "rating": 2,
+      "title": "Frustrating changes",
+      "version": "7.140.0",
+      "reviewedAt": "2026-09-17T13:06:18.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "23a177f61deee0db",
+      "quote": "Duo now forces users to use AI",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "6.94.5",
+    "7.138.0",
+    "7.140.0"
+  ],
+  "workarounds": [
+    "force close and restart the app"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-08-29T08:22:49.300Z",
+  "lastSeen": "2026-09-17T13:06:18.000Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 55,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 55,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.375,
+    "recency": 1,
+    "severity": 0.9166666666666667,
+    "churnIntent": 0,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 2,
+    "meanRating": 1.3333333333333333,
+    "churnReviewers": 0,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Too small",
+  "status": "active"
+}

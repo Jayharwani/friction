@@ -1,0 +1,138 @@
+{
+  "id": "strava--the-app-freezes-or-fails-to-load-and-recording-can-stop-mid-activity",
+  "slug": "strava--the-app-freezes-or-fails-to-load-and-recording-can-stop-mid-activity",
+  "productSlug": "strava",
+  "title": "The app freezes or fails to load, and recording can stop mid-activity",
+  "summary": "Reviewers describe the app hanging on its startup screen, showing a black screen with a retry message, or freezing during use. In several cases a recording stopped part way through an activity and nothing was saved. The reports span four consecutive releases.",
+  "category": "Crashes and stability",
+  "platforms": [
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14510247552",
+      "productSlug": "strava",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "GUI broken",
+      "version": "479.0.0",
+      "reviewedAt": "2026-09-04T16:38:00.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "3818d6e744ac78f2",
+      "quote": "the program keeps stopping in the middle of my hike",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14406463669",
+      "productSlug": "strava",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "App freezes and unusable",
+      "version": "475.0.0",
+      "reviewedAt": "2026-08-09T12:36:16.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "44b04720c232d494",
+      "quote": "Strava keeps freezing up and when closing the app and reopening it is stuck at the Strava logo startup page",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "apple:14332972027",
+      "productSlug": "strava",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "App Nonfunctional",
+      "version": "472.0.0",
+      "reviewedAt": "2026-07-22T04:32:00.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "cc1cc9e0e2914b53",
+      "quote": "every time I wanted to give kudos it would freeze and crash",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14289778020",
+      "productSlug": "strava",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Used to be good.",
+      "version": "471.0.0",
+      "reviewedAt": "2026-07-11T11:30:58.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "507953ab33cdfe5c",
+      "quote": "the app does not load. It is just a black screen and an error message that says please try again",
+      "signals": {
+        "churnIntent": true,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "471.0.0",
+    "472.0.0",
+    "475.0.0",
+    "479.0.0"
+  ],
+  "workarounds": [
+    "uninstall and reinstall the app",
+    "restart the phone"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-07-11T11:30:58.000Z",
+  "lastSeen": "2026-09-04T16:38:00.000Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 61,
+      "evidenceCount": 4
+    }
+  ],
+  "score": 61,
+  "components": {
+    "distinctUsers": 0.3333333333333333,
+    "recurrence": 0.5,
+    "recency": 0.9939759036144579,
+    "severity": 1,
+    "churnIntent": 0.25,
+    "versionPersistence": 1,
+    "crossPlatform": 0
+  },
+  "inputs": {
+    "uniqueReviewers": 4,
+    "weeksWithEvidence": 4,
+    "daysSinceLastSeen": 15,
+    "meanRating": 1,
+    "churnReviewers": 1,
+    "distinctVersions": 4,
+    "platforms": [
+      "ios"
+    ],
+    "evidenceInWindow": 4
+  },
+  "buildThreshold": 70,
+  "verdict": "Watch",
+  "status": "active"
+}

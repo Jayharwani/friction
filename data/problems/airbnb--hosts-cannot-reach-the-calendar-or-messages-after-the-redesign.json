@@ -1,0 +1,118 @@
+{
+  "id": "airbnb--hosts-cannot-reach-the-calendar-or-messages-after-the-redesign",
+  "slug": "airbnb--hosts-cannot-reach-the-calendar-or-messages-after-the-redesign",
+  "productSlug": "airbnb",
+  "title": "Hosts cannot reach the calendar or messages after the redesign",
+  "summary": "Hosts describe being held on a dashboard or review prompt that blocks access to their calendar and messages. Others report navigation and messaging failing on Android, and repeated feature popups interrupting pricing work. The reports come from long-standing hosts on both platforms.",
+  "category": "Navigation",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:14110076661",
+      "productSlug": "airbnb",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "11yr SuperHost - 05/22/26 Update Creating Havoc/Horrible Design Concept!!!",
+      "version": "26.21",
+      "reviewedAt": "2026-05-27T00:51:24.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "3dc5f031558f0bd4",
+      "quote": "I need access to my calendar and messages, but I'm stuck on the main dashboard",
+      "signals": {
+        "churnIntent": true,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "play:e01608e1-e3b4-4c19-87cd-3136ef8e4274",
+      "productSlug": "airbnb",
+      "platform": "android",
+      "country": "us",
+      "rating": 2,
+      "title": "",
+      "version": "26.37",
+      "reviewedAt": "2026-09-13T21:55:44.817Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "3f14da5f02730817",
+      "quote": "Messaging is broken. App navigation is broken on abdroid",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": true,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:14500700742",
+      "productSlug": "airbnb",
+      "platform": "ios",
+      "country": "us",
+      "rating": 2,
+      "title": "Hosting experience keeps getting worse",
+      "version": "26.35.1",
+      "reviewedAt": "2026-09-02T06:37:05.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "da0059a51c99cba0",
+      "quote": "popups keep triggering over and over multiple times per session blocking my workflow",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": true
+      }
+    }
+  ],
+  "versions": [
+    "26.21",
+    "26.35.1",
+    "26.37"
+  ],
+  "workarounds": [
+    "use third-party tools to manage pricing"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-05-27T00:51:24.000Z",
+  "lastSeen": "2026-09-13T21:55:44.817Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 56,
+      "evidenceCount": 3
+    }
+  ],
+  "score": 56,
+  "components": {
+    "distinctUsers": 0.25,
+    "recurrence": 0.375,
+    "recency": 1,
+    "severity": 0.8333333333333333,
+    "churnIntent": 0.25,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 3,
+    "weeksWithEvidence": 3,
+    "daysSinceLastSeen": 6,
+    "meanRating": 1.6666666666666667,
+    "churnReviewers": 1,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 3
+  },
+  "buildThreshold": 70,
+  "verdict": "Too small",
+  "status": "active"
+}

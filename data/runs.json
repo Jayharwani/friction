@@ -1,0 +1,123 @@
+[
+  {
+    "date": "2026-09-20",
+    "startedAt": "2026-09-20T03:23:33.683Z",
+    "funnel": {
+      "fetched": {
+        "ios": 26103,
+        "android": 4500,
+        "total": 30603
+      },
+      "screened": {
+        "ios": 9226,
+        "android": 1290,
+        "total": 10516
+      },
+      "filtered": {
+        "ios": 2416,
+        "android": 442,
+        "total": 2858
+      },
+      "capped": {
+        "ios": 47,
+        "android": 13,
+        "total": 60
+      }
+    },
+    "products": [
+      {
+        "slug": "notion",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "slack",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "zoom",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "canva",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "duolingo",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "spotify",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "airbnb",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "uber",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "strava",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "venmo",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "ticketmaster",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "expedia",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "teams",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "lightroom",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      },
+      {
+        "slug": "robinhood",
+        "appleOk": true,
+        "playOk": true,
+        "playError": null
+      }
+    ],
+    "extractedProblems": 8,
+    "problemsTotal": 8,
+    "problemsNew": 8
+  }
+]

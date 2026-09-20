@@ -1,0 +1,139 @@
+{
+  "id": "teams--the-mobile-app-stutters-and-crashes-in-chats-and-calls",
+  "slug": "teams--the-mobile-app-stutters-and-crashes-in-chats-and-calls",
+  "productSlug": "teams",
+  "title": "The mobile app stutters and crashes in chats and calls",
+  "summary": "Reviewers report the mobile app freezing while scrolling channels, stuttering as they type, and restarting during calls. It is described on both iOS and Android and across several releases. Some say it began after an update and that reinstalling did not help.",
+  "category": "Performance",
+  "platforms": [
+    "android",
+    "ios"
+  ],
+  "evidence": [
+    {
+      "id": "apple:13886695436",
+      "productSlug": "teams",
+      "platform": "ios",
+      "country": "gb",
+      "rating": 2,
+      "title": "Broken App",
+      "version": "8.5.1",
+      "reviewedAt": "2026-03-25T20:56:43.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "567bb71e7a5bdb29",
+      "quote": "when i try to scroll up through posts the app freezes",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": true
+      }
+    },
+    {
+      "id": "play:873d717b-c698-4bfa-8a5b-eaa522ece310",
+      "productSlug": "teams",
+      "platform": "android",
+      "country": "us",
+      "rating": 1,
+      "title": "",
+      "version": "1416/1.0.0.2026162502",
+      "reviewedAt": "2026-09-15T20:23:17.742Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "ffbd68a55b20a86d",
+      "quote": "extremely slow, you can't search anything you send",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:13906347997",
+      "productSlug": "teams",
+      "platform": "ios",
+      "country": "us",
+      "rating": 1,
+      "title": "Slow, laggy, buggy",
+      "version": "8.5.1",
+      "reviewedAt": "2026-03-31T09:49:39.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "7b64efb2a525dc20",
+      "quote": "It stutters and lags as I interact with the chats and channels on my mobile device",
+      "signals": {
+        "churnIntent": true,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": false,
+        "workaroundDescribed": false
+      }
+    },
+    {
+      "id": "apple:13936375063",
+      "productSlug": "teams",
+      "platform": "ios",
+      "country": "ca",
+      "rating": 1,
+      "title": "Keyboard glitchy for copilot",
+      "version": "8.6.0",
+      "reviewedAt": "2026-04-08T17:01:15.000Z",
+      "capturedAt": "2026-09-20T03:23:33.683Z",
+      "reviewerHash": "858923d542ca97f7",
+      "quote": "Teams randomly crashes and restarts even in the middle of calls",
+      "signals": {
+        "churnIntent": false,
+        "competitorNamed": false,
+        "billingComplaint": false,
+        "regressionClaim": true,
+        "workaroundDescribed": false
+      }
+    }
+  ],
+  "versions": [
+    "8.5.1",
+    "8.6.0",
+    "1416/1.0.0.2026162502"
+  ],
+  "workarounds": [
+    "refresh the app",
+    "restart the phone"
+  ],
+  "existingSolutions": [],
+  "firstSeen": "2026-03-25T20:56:43.000Z",
+  "lastSeen": "2026-09-15T20:23:17.742Z",
+  "history": [
+    {
+      "date": "2026-09-20",
+      "score": 62,
+      "evidenceCount": 4
+    }
+  ],
+  "score": 62,
+  "components": {
+    "distinctUsers": 0.3333333333333333,
+    "recurrence": 0.5,
+    "recency": 1,
+    "severity": 0.9375,
+    "churnIntent": 0.25,
+    "versionPersistence": 0.75,
+    "crossPlatform": 1
+  },
+  "inputs": {
+    "uniqueReviewers": 4,
+    "weeksWithEvidence": 4,
+    "daysSinceLastSeen": 4,
+    "meanRating": 1.25,
+    "churnReviewers": 1,
+    "distinctVersions": 3,
+    "platforms": [
+      "android",
+      "ios"
+    ],
+    "evidenceInWindow": 4
+  },
+  "buildThreshold": 70,
+  "verdict": "Watch",
+  "status": "active"
+}
