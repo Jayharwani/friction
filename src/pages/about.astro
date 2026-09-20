@@ -1,0 +1,73 @@
+---
+/**
+ * About (spec 6.1): two paragraphs — what this is, and why store reviews are a
+ * better evidence base than forum posts for this particular question.
+ */
+import Layout from '../layouts/Layout.astro';
+import { url } from '../lib/url';
+import { getProducts } from '../lib/data';
+
+const products = getProducts();
+---
+
+<Layout
+  title="About"
+  description="What Friction is, and why app store reviews are a better evidence base than forum posts for finding recurring product problems."
+>
+  <div class="shell prose">
+    <h1>About</h1>
+
+    <p>
+      Friction is a free, public index of recurring complaints about widely used mobile apps. It
+      reads publicly visible App Store and Google Play reviews for {products.length} apps, groups
+      the ones describing the same underlying problem, scores each problem from evidence, and
+      publishes the working. It is built for product designers and PMs who want evidence of what is
+      actually broken in a product, and for founders deciding whether a problem is worth solving.
+      There is no signup, no payment and nothing to buy.
+    </p>
+
+    <p>
+      Store reviews are a better evidence base than forum posts for this question, and the reason is
+      metadata. A forum thread tells you someone was annoyed. A store review tells you the star
+      rating, the app version, the country and the date. That means this project can answer
+      questions a forum-based tool structurally cannot: whether a complaint started after a specific
+      release, whether it affects one platform or both, and whether it is getting worse or fading.
+      Those are the questions that decide whether a problem is worth anyone's time. The cost of that
+      metadata is that individual reviews have no permanent public link, which the{' '}
+      <a href={url('/methodology')}>methodology</a> is honest about.
+    </p>
+
+    <p class="sig">
+      Built by <a href="https://github.com/Jayharwani" rel="noopener noreferrer">Jay Harwani</a>.
+      The <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">source and
+      every version of the data</a> are public.
+    </p>
+  </div>
+</Layout>
+
+<style>
+  .prose {
+    padding-block: 2.5rem 0;
+  }
+
+  .prose > * {
+    max-width: var(--measure);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin-top: 1.1rem;
+  }
+
+  .sig {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    font-size: var(--text-sm);
+    color: var(--muted);
+  }
+</style>

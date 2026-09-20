@@ -1,0 +1,134 @@
+---
+/**
+ * Archive (spec 6.1): every run from runs.json with funnel numbers, newest first.
+ */
+import Layout from '../layouts/Layout.astro';
+import { url } from '../lib/url';
+import { formatDate, getRuns } from '../lib/data';
+
+const runs = getRuns();
+---
+
+<Layout title="Archive" description="Every Friction scan, with the funnel numbers for each run.">
+  <div class="shell">
+    <header class="intro">
+      <h1>Archive</h1>
+      <p class="measure">
+        One row per scan. The funnel shows how many reviews were read, how many survived screening,
+        how many read like complaints, and how many were carried forward to be grouped into problems.
+      </p>
+    </header>
+
+    {
+      runs.length === 0 ? (
+        <p class="empty measure">
+          No scans have completed yet. Once one does it will be listed here, and the{' '}
+          <a href={url('/methodology')}>methodology</a> explains what each number means.
+        </p>
+      ) : (
+        <div class="scroller">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Scan</th>
+                <th scope="col" class="n">Read</th>
+                <th scope="col" class="n">Screened</th>
+                <th scope="col" class="n">Complaints</th>
+                <th scope="col" class="n">Carried</th>
+                <th scope="col" class="n">Problems</th>
+                <th scope="col" class="n">New</th>
+                <th scope="col">Play coverage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {runs.map((run) => {
+                const withPlay = run.products.filter((p) => p.playOk).length;
+                return (
+                  <tr>
+                    <th scope="row">
+                      <time datetime={run.date}>{formatDate(run.date)}</time>
+                    </th>
+                    <td class="n num">{run.funnel.fetched.total.toLocaleString('en-GB')}</td>
+                    <td class="n num">{run.funnel.screened.total.toLocaleString('en-GB')}</td>
+                    <td class="n num">{run.funnel.filtered.total.toLocaleString('en-GB')}</td>
+                    <td class="n num">{run.funnel.capped.total}</td>
+                    <td class="n num">{run.problemsTotal ?? '—'}</td>
+                    <td class="n num">{run.problemsNew ?? '—'}</td>
+                    <td class="num">
+                      {withPlay} of {run.products.length} apps
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+
+    {
+      runs.length > 0 && (
+        <p class="note measure">
+          "Read" counts every review pulled from both stores, including ones already processed in an
+          earlier scan. "Carried" is capped at sixty per run by design — see the{' '}
+          <a href={url('/methodology')}>methodology</a>.
+        </p>
+      )
+    }
+  </div>
+</Layout>
+
+<style>
+  .intro {
+    padding-block: 2.5rem 0;
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.8rem;
+  }
+
+  .scroller {
+    overflow-x: auto;
+    margin-top: 2rem;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 40rem;
+    font-size: var(--text-sm);
+    text-align: left;
+  }
+
+  th,
+  td {
+    padding: 0.55rem 0.9rem 0.55rem 0;
+    border-top: 1px solid var(--rule);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  thead th {
+    border-top: 0;
+    border-bottom: 1px solid var(--ink);
+    font-weight: 600;
+  }
+
+  tbody th {
+    font-weight: 500;
+  }
+
+  .n {
+    text-align: right;
+    padding-right: 1.5rem;
+  }
+
+  .note,
+  .empty {
+    margin-top: 1.5rem;
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+</style>

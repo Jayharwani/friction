@@ -1,0 +1,33 @@
+---
+/**
+ * Not found. States what happened and what to do, without apologising
+ * and without being vague (spec 6.2 copy rules).
+ */
+import Layout from '../layouts/Layout.astro';
+import { url } from '../lib/url';
+---
+
+<Layout title="Page not found" description="That page does not exist on Friction.">
+  <div class="shell">
+    <h1>Page not found</h1>
+    <p class="measure">
+      That address does not match anything on this site. Problem pages are removed only if their
+      underlying data is removed, so an old link may point at a record that no longer exists.
+    </p>
+    <p class="measure">
+      <a href={url('/')}>Go to the current problems</a>
+    </p>
+  </div>
+</Layout>
+
+<style>
+  h1 {
+    padding-top: 3rem;
+    font-size: var(--text-2xl);
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin-top: 1rem;
+  }
+</style>
