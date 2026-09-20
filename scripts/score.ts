@@ -237,7 +237,7 @@ function main(): void {
           evidenceInWindow: 0,
         },
         buildThreshold: 0,
-        verdict: 'Too small',
+        verdict: 'Thin evidence',
         status: 'active',
       });
       console.log(`  created  ${id}`);
@@ -293,10 +293,10 @@ function main(): void {
   /* ---- report ---- */
   const active = problems.filter((p) => p.status === 'active');
   const byVerdict = (v: string) => problems.filter((p) => p.verdict === v).length;
-  const passRate = active.length ? (byVerdict('Worth building') / active.length) * 100 : 0;
+  const passRate = active.length ? (byVerdict('Strong signal') / active.length) * 100 : 0;
 
   console.log(`\nThreshold: ${buildThreshold.toFixed(1)} (max of 70 and the 80th percentile of ${activeScores.length} active scores)`);
-  console.log(`Verdicts:  ${byVerdict('Worth building')} worth building, ${byVerdict('Watch')} watch, ${byVerdict('Already solved')} already solved, ${byVerdict('Too small')} too small`);
+  console.log(`Verdicts:  ${byVerdict('Strong signal')} worth building, ${byVerdict('Recurring')} watch, ${byVerdict('Already solved')} already solved, ${byVerdict('Thin evidence')} too small`);
   console.log(`Pass rate: ${passRate.toFixed(0)}% of active problems`);
   console.log(`Records:   ${created} created, ${merged} merged, ${newEvidence} new pieces of evidence`);
   console.log(`Stale:     ${problems.length - active.length} (no evidence in ${STALE_AFTER_DAYS} days)`);

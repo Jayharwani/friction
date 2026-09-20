@@ -35,10 +35,10 @@ export const CATEGORIES = [
 ] as const;
 
 export const VERDICTS = [
-  'Worth building',
-  'Watch',
+  'Strong signal',
+  'Recurring',
   'Already solved',
-  'Too small',
+  'Thin evidence',
 ] as const;
 
 export const PLATFORMS = ['ios', 'android'] as const;

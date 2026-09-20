@@ -25,10 +25,10 @@ const total = rows.reduce((sum, r) => sum + r.contribution, 0);
 const mix = (value: number) => `color-mix(in oklab, var(--hot) ${Math.round(value * 100)}%, var(--cold))`;
 
 const verdictNote: Record<string, string> = {
-  'Worth building': `scored at or above the current threshold of ${problem.buildThreshold.toFixed(0)}`,
-  Watch: `below the current threshold of ${problem.buildThreshold.toFixed(0)}`,
+  'Strong signal': `scored at or above the current threshold of ${problem.buildThreshold.toFixed(0)}`,
+  Recurring: `below the current threshold of ${problem.buildThreshold.toFixed(0)}`,
   'Already solved': `${problem.existingSolutions.length} existing products already address this`,
-  'Too small': `only ${problem.inputs.uniqueReviewers} distinct ${problem.inputs.uniqueReviewers === 1 ? 'reviewer' : 'reviewers'}, fewer than the 4 required`,
+  'Thin evidence': `only ${problem.inputs.uniqueReviewers} distinct ${problem.inputs.uniqueReviewers === 1 ? 'reviewer' : 'reviewers'}, fewer than the 4 required`,
 };
 ---
 

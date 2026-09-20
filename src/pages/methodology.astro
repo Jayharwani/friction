@@ -34,7 +34,7 @@ const passRate = getPassRate();
 const run = getLatestRun();
 const products = getProducts();
 
-const worthBuilding = active.filter((p) => p.verdict === 'Worth building').length;
+const worthBuilding = active.filter((p) => p.verdict === 'Strong signal').length;
 const playGaps = run?.products.filter((p) => !p.playOk) ?? [];
 
 const componentMeaning: Record<string, string> = {
@@ -163,9 +163,9 @@ const componentMeaning: Record<string, string> = {
 
     <p>
       The verdict is decided in a fixed order. Fewer than four distinct reviewers is
-      <strong> Too small</strong>, whatever the score. Three or more existing products that already
+      <strong>Thin evidence</strong>, whatever the score. Three or more existing products that already
       solve it is <strong>Already solved</strong>. Otherwise a score at or above the build threshold
-      is <strong>Worth building</strong>, and anything else is <strong>Watch</strong>.
+      is <strong>Strong signal</strong>, and anything else is <strong>Recurring</strong>.
     </p>
 
     <p class="num">
@@ -176,7 +176,7 @@ const componentMeaning: Record<string, string> = {
         active.length > 0 && (
           <>
             {' '}Of {active.length} active {active.length === 1 ? 'problem' : 'problems'},{' '}
-            {worthBuilding} {worthBuilding === 1 ? 'carries' : 'carry'} the "Worth building"
+            {worthBuilding} {worthBuilding === 1 ? 'carries' : 'carry'} the "Strong signal"
             verdict, a pass rate of {passRate.toFixed(0)}%.
           </>
         )

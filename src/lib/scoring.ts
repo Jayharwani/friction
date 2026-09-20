@@ -24,7 +24,7 @@ export const EVIDENCE_WINDOW_DAYS = 180;
 /** A problem with no new evidence for this long is marked stale. */
 export const STALE_AFTER_DAYS = 120;
 
-/** "Worth building" never falls below this, however weak the field is. */
+/** "Strong signal" never falls below this, however weak the field is. */
 export const MIN_BUILD_THRESHOLD = 70;
 
 /** The threshold tracks this percentile of active scores, holding the pass rate near 1 in 5. */
@@ -53,6 +53,21 @@ export const WEIGHTS = {
 } as const satisfies Record<keyof Components, number>;
 
 export type ComponentKey = keyof Components;
+
+/**
+ * One line explaining what each verdict means, shown wherever a verdict first
+ * appears on a page.
+ *
+ * The labels describe the *evidence*, not the opportunity. "Too small" read as
+ * the site dismissing a complaint rather than reporting how much support it
+ * has, which is both wrong and faintly insulting to the person who wrote it.
+ */
+export const VERDICT_GLOSS: Record<Verdict, string> = {
+  'Thin evidence': 'fewer than four distinct reviewers so far',
+  Recurring: 'real and repeated, below the current threshold',
+  'Strong signal': 'at or above the current threshold',
+  'Already solved': 'three or more shipping products already address this',
+};
 
 /** Display order for the score disclosure, heaviest weight first. */
 export const COMPONENT_ORDER: ComponentKey[] = [
@@ -295,10 +310,10 @@ export interface VerdictInput {
 
 /** Evaluated strictly in this order (spec 5.6 step 5). */
 export function decideVerdict(v: VerdictInput): Verdict {
-  if (v.uniqueReviewers < 4) return 'Too small';
+  if (v.uniqueReviewers < 4) return 'Thin evidence';
   if (v.existingSolutionsCount >= 3) return 'Already solved';
-  if (v.score >= v.buildThreshold) return 'Worth building';
-  return 'Watch';
+  if (v.score >= v.buildThreshold) return 'Strong signal';
+  return 'Recurring';
 }
 
 /** True when no evidence has arrived for STALE_AFTER_DAYS. */

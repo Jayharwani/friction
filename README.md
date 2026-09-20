@@ -26,7 +26,7 @@ The homepage hero is the data itself: rows are the highest-scoring active proble
 
 - **The score is computed in code and shown in full.** Open "How this score is calculated" on any problem page and you get all seven components, the raw count behind each one, the weight applied, and arithmetic that sums to the published number.
 - **The model never produces a number.** It extracts and groups. Every score, rank and verdict comes from `src/lib/scoring.ts`, which has exactly one implementation and is imported by both the build scripts and the site.
-- **Most problems are rejected.** The "Worth building" threshold is the higher of 70 and the 80th percentile of active scores, which holds the pass rate near one in five. A site where everything looks promising is worth nothing.
+- **Most problems are rejected.** The "Strong signal" threshold is the higher of 70 and the 80th percentile of active scores, which holds the pass rate near one in five. A site where everything looks promising is worth nothing.
 - **No reviewer names are stored.** Names are hashed with a secret salt the moment they are read and discarded. The hash is never rendered.
 - **Raw review text is deleted after 30 days.** Full bodies exist only in a run's intermediate files. Published records keep a quote capped at 25 words and nothing more.
 - **Apps about personal distress or health are never tracked,** and the check runs before any network request. The seed list is not exempt from it.
@@ -117,6 +117,6 @@ Read these before treating anything here as a conclusion.
 - **Mobile apps only,** and only the fifteen currently tracked. Desktop and web complaints are invisible to this method.
 - **No permanent link to any individual review.** Neither store provides one. Evidence links to the app's review listing and carries the date it was captured; the git history of this repository is the audit trail. You cannot click through and re-read the original review.
 - **Play data is read from public review pages,** not an API, so it is occasionally incomplete and can break without warning. The pipeline treats Play as optional and continues on Apple data alone when it fails.
-- **Small samples on quieter apps.** A problem backed by four reviewers is a weak signal, which is why anything under four distinct reviewers is labelled "Too small" regardless of its score.
+- **Small samples on quieter apps.** A problem backed by four reviewers is a weak signal, which is why anything under four distinct reviewers is labelled "Thin evidence" regardless of its score.
 - **Reviews are a self-selected sample.** People who write store reviews are disproportionately angry or delighted. This measures what gets complained about, which is not the same as what is most common.
 - **A scored problem is a starting point for research, not a finding.** The score says this complaint recurs, across versions, from different people. It does not say the problem is worth your time.

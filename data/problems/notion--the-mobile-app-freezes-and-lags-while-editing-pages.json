@@ -197,6 +197,6 @@
     "evidenceInWindow": 7
   },
   "buildThreshold": 70,
-  "verdict": "Worth building",
+  "verdict": "Strong signal",
   "status": "active"
 }

@@ -121,11 +121,11 @@ export function getBuildThreshold(): number {
   return computeBuildThreshold(getActiveProblems().map((p) => p.score));
 }
 
-/** Share of active problems currently carrying the "Worth building" verdict. */
+/** Share of active problems currently carrying the "Strong signal" verdict. */
 export function getPassRate(): number {
   const active = getActiveProblems();
   if (active.length === 0) return 0;
-  return (active.filter((p) => p.verdict === 'Worth building').length / active.length) * 100;
+  return (active.filter((p) => p.verdict === 'Strong signal').length / active.length) * 100;
 }
 
 /* ------------------------------------------------------------------ */

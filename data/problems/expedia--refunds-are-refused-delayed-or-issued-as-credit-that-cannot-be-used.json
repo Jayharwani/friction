@@ -109,6 +109,6 @@
     "evidenceInWindow": 3
   },
   "buildThreshold": 70,
-  "verdict": "Too small",
+  "verdict": "Thin evidence",
   "status": "active"
 }

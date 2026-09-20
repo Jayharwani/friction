@@ -109,7 +109,7 @@ test('weights are exactly the documented values', () => {
 /* Fixture 1 — every component maxed, cross-platform                   */
 /* ------------------------------------------------------------------ */
 
-test('fixture 1: all components at full marks scores exactly 100 and is Worth building', () => {
+test('fixture 1: all components at full marks scores exactly 100 and is Strong signal', () => {
   // 12 distinct reviewers, 8 distinct ISO weeks, newest today,
   // all 1-star, 4 churn reviewers, 4 distinct versions, both platforms.
   const offsets = [0, 0, 0, 0, 0, 7, 14, 21, 28, 35, 42, 49];
@@ -152,15 +152,15 @@ test('fixture 1: all components at full marks scores exactly 100 and is Worth bu
       score,
       buildThreshold: 70,
     }),
-    'Worth building',
+    'Strong signal',
   );
 });
 
 /* ------------------------------------------------------------------ */
-/* Fixture 2 — Too small                                               */
+/* Fixture 2 — Thin evidence                                               */
 /* ------------------------------------------------------------------ */
 
-test('fixture 2: three reviewers scores 41 and is Too small regardless of score', () => {
+test('fixture 2: three reviewers scores 41 and is Thin evidence regardless of score', () => {
   // 3 reviewers, all inside one ISO week, newest today, all 1-star,
   // no churn, one version, iOS only.
   //   0.25*(3/12) + 0.20*(1/8) + 0.15*1 + 0.15*1 + 0.10*0 + 0.10*(1/4) + 0.05*0
@@ -182,7 +182,7 @@ test('fixture 2: three reviewers scores 41 and is Too small regardless of score'
       score,
       buildThreshold: 70,
     }),
-    'Too small',
+    'Thin evidence',
   );
 });
 
@@ -230,7 +230,7 @@ test('fixture 3: score 92 but three existing solutions yields Already solved', (
       score,
       buildThreshold: 70,
     }),
-    'Worth building',
+    'Strong signal',
   );
 });
 
@@ -281,7 +281,7 @@ test('fixture 4: mid-strength single-platform problem scores 52 and is Watch', (
       score,
       buildThreshold: 70,
     }),
-    'Watch',
+    'Recurring',
   );
 });
 
@@ -340,12 +340,12 @@ test('fixture 6: evidence older than the 180-day window scores 0', () => {
 /* ------------------------------------------------------------------ */
 
 test('verdict branches are evaluated in the documented order', () => {
-  // Too small wins even with many solutions and a perfect score.
+  // Thin evidence wins even with many solutions and a perfect score.
   assert.equal(
     decideVerdict({ uniqueReviewers: 3, existingSolutionsCount: 5, score: 100, buildThreshold: 70 }),
-    'Too small',
+    'Thin evidence',
   );
-  // Already solved wins over Worth building.
+  // Already solved wins over Strong signal.
   assert.equal(
     decideVerdict({ uniqueReviewers: 4, existingSolutionsCount: 3, score: 100, buildThreshold: 70 }),
     'Already solved',
@@ -353,12 +353,12 @@ test('verdict branches are evaluated in the documented order', () => {
   // Exactly at the threshold passes.
   assert.equal(
     decideVerdict({ uniqueReviewers: 4, existingSolutionsCount: 0, score: 70, buildThreshold: 70 }),
-    'Worth building',
+    'Strong signal',
   );
   // One point below does not.
   assert.equal(
     decideVerdict({ uniqueReviewers: 4, existingSolutionsCount: 0, score: 69, buildThreshold: 70 }),
-    'Watch',
+    'Recurring',
   );
 });
 

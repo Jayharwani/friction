@@ -134,6 +134,6 @@
     "evidenceInWindow": 4
   },
   "buildThreshold": 70,
-  "verdict": "Watch",
+  "verdict": "Recurring",
   "status": "active"
 }
