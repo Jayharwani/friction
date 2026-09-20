@@ -28,7 +28,7 @@ import {
   WebGLRenderer,
 } from 'three';
 
-import { rampLinearRgb, type FieldData, type RampStop } from '../lib/field';
+import { rampLinearRgb, type FieldData, type RampStop } from '../lib/ramp';
 
 /* ------------------------------------------------------------------ */
 /* Tunables                                                            */
@@ -38,7 +38,7 @@ import { rampLinearRgb, type FieldData, type RampStop } from '../lib/field';
 const SUB_X = 4;
 const SUB_Z = 3;
 
-const PLANE_W = 12;
+const PLANE_W = 11;
 const PLANE_D = 9;
 const PEAK_H = 2.15;
 
@@ -110,11 +110,15 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   /* ---- scene ---- */
 
   const scene = new Scene();
-  const paper = new Color().setStyle(
-    getComputedStyle(document.documentElement).getPropertyValue('--color-paper').trim() ||
-      '#191512',
-  );
-  scene.fog = new Fog(paper, 9, 21);
+
+  // Color.setStyle() does not parse oklch(). Handed one it silently stays
+  // white, which fogged the whole surface to white — the ramp was correct all
+  // along. Convert the token through the same OKLCH path the ramp uses.
+  const paperStop = readStop('--color-paper', { L: 0.14, C: 0.01, h: 45 });
+  const [pr, pg, pb] = rampLinearRgb(0, paperStop, paperStop);
+  const paper = new Color().setRGB(pr, pg, pb);
+
+  scene.fog = new Fog(paper, 14, 32);
 
   const camera = new PerspectiveCamera(38, 1, 0.1, 100);
 
@@ -155,15 +159,13 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   geometry.setAttribute('color', new Float32BufferAttribute(colours, 3));
   geometry.computeVertexNormals();
 
+  // No emissive: a flat white emissive term washes the ramp out entirely.
+  // The vertex colours are the ramp; the lights only shape it.
   const material = new MeshStandardMaterial({
     vertexColors: true,
-    roughness: 0.82,
-    metalness: 0.02,
-    // Peaks carry their own light so a ridge reads even facing away from the key.
-    emissive: new Color(0xffffff),
-    emissiveIntensity: 0.16,
+    roughness: 0.9,
+    metalness: 0,
   });
-  material.emissiveMap = null;
 
   const mesh = new Mesh(geometry, material);
   scene.add(mesh);
@@ -204,21 +206,21 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
 
   /* ---- lighting: one key from upper left, one dim warm fill behind ---- */
 
-  const key = new DirectionalLight(0xfff1e2, 2.1);
+  const key = new DirectionalLight(0xfff1e2, 1.35);
   key.position.set(-6, 7, 4);
   scene.add(key);
 
-  const fill = new DirectionalLight(0xff9a4d, 0.5);
+  const fill = new DirectionalLight(0xff9a4d, 0.32);
   fill.position.set(3, 1.2, -8);
   scene.add(fill);
 
-  scene.add(new AmbientLight(0xffffff, 0.22));
+  scene.add(new AmbientLight(0xffffff, 0.14));
 
   /* ---- camera ---- */
 
   const BASE_AZ = -18;
-  const BASE_EL = 30;
-  const DIST = 15.5;
+  const BASE_EL = 33;
+  const DIST = 17.5;
 
   function placeCamera(azDeg: number, elDeg: number): void {
     const az = rad(azDeg);
@@ -263,6 +265,12 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     pointer.x = ((ev.clientX - r.left) / r.width) * 2 - 1;
     pointer.y = -((ev.clientY - r.top) / r.height) * 2 + 1;
     hasPointer = true;
+    // Under reduced motion the camera never moves, but hovering still reads
+    // the surface — the labels are the point, the parallax is the decoration.
+    if (reducedMotion) {
+      updateLabel();
+      return;
+    }
     tiltTarget.x = pointer.x * TILT_DEG;
     tiltTarget.y = pointer.y * TILT_DEG;
   }
@@ -276,6 +284,7 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
 
   function hideLabel(): void {
     label.hidden = true;
+    canvas.style.cursor = '';
     hoverRow = -1;
     hoverCol = -1;
   }
@@ -313,11 +322,15 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     label.querySelector('[data-f-meta]')!.textContent =
       `${row.app} · week of ${data.weekLabels[cell.col]} · ${n} ${n === 1 ? 'review' : 'reviews'}`;
 
+    // Kept inside the canvas, so a label near the right edge does not hang off it.
     const r = canvas.getBoundingClientRect();
-    const lx = ((pointer.x + 1) / 2) * r.width;
-    const ly = ((1 - pointer.y) / 2) * r.height;
-    label.style.transform = `translate3d(${Math.round(lx)}px, ${Math.round(ly)}px, 0)`;
-    canvas.style.cursor = n > 0 ? 'pointer' : 'default';
+    const lw = label.offsetWidth;
+    const lh = label.offsetHeight;
+    const lx = Math.min(((pointer.x + 1) / 2) * r.width, r.width - lw - 24);
+    const ly = Math.min(((1 - pointer.y) / 2) * r.height, r.height - lh - 24);
+    label.style.transform = `translate3d(${Math.round(Math.max(lx, 0))}px, ${Math.round(Math.max(ly, 0))}px, 0)`;
+    // The whole row is the problem, so any part of it is a link to it.
+    canvas.style.cursor = 'pointer';
   }
 
   function onClick(): void {
@@ -334,11 +347,14 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   let raf = 0;
   let running = false;
   let start = 0;
+  /** Animation time consumed before the current run, so a pause is a pause. */
+  let elapsedBase = 0;
+  let elapsed = 0;
   let settleT = reducedMotion ? 1 : 0;
 
   function frame(now: number): void {
     if (!start) start = now;
-    const elapsed = now - start;
+    elapsed = elapsedBase + (now - start);
 
     if (settleT < 1) {
       settleT = clamp01(elapsed / (SETTLE_MS + COL_DELAY_MS * cols));
@@ -370,20 +386,25 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   function play(): void {
     if (running) return;
     running = true;
-    // Rebase so a pause does not fast-forward the drift.
-    start = performance.now() - (settleT >= 1 ? SETTLE_MS + COL_DELAY_MS * cols : 0);
+    // Resume where it stopped: a mid-settle pause must not replay the drop,
+    // and the drift must not jump phase when the field scrolls back in.
+    start = 0;
     raf = requestAnimationFrame(frame);
   }
 
   function pause(): void {
+    if (!running) return;
     running = false;
     cancelAnimationFrame(raf);
+    elapsedBase = elapsed;
   }
 
   /* ---- only run while visible ---- */
 
   const io = new IntersectionObserver(
     ([entry]) => {
+      // A reduced-motion field has no loop to start: one frame, then nothing.
+      if (reducedMotion) return;
       if (entry?.isIntersecting) play();
       else pause();
     },
@@ -392,6 +413,7 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   io.observe(canvas);
 
   function onVisibility(): void {
+    if (reducedMotion) return;
     if (document.hidden) pause();
     else if (canvas.getBoundingClientRect().bottom > 0) play();
   }

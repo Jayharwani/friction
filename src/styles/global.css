@@ -185,9 +185,16 @@ h1, h2, h3, h4 {
   text-wrap: balance;
   font-weight: 600;
   letter-spacing: -0.018em;
-  /* Long problem titles must break rather than push the layout wide. */
+  /* Long problem titles must break rather than push the layout wide.
+     Display sentences opt out via .display-line. */
   overflow-wrap: anywhere;
   min-width: 0;
+}
+
+.display-line {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 p {

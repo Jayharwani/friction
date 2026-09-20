@@ -41,7 +41,7 @@ const payload = JSON.stringify(field);
 
   <div class="overlay">
     <div class="overlay-inner">
-      <h1 data-enter="1">Every ridge is a complaint that keeps coming back.</h1>
+      <h1 class="display-line" data-enter="1">Every ridge is a complaint that keeps coming back.</h1>
       <p class="sub" data-enter="2">
         Read from public App Store and Google Play reviews. Every score is computed in code.
       </p>
@@ -205,11 +205,11 @@ const payload = JSON.stringify(field);
   }
 
   .overlay-inner {
-    max-width: 22ch;
+    max-width: 24ch;
   }
 
   .overlay h1 {
-    font-size: var(--text-display);
+    font-size: clamp(1.9rem, 1rem + 2.4vw, 2.9rem);
     font-weight: 600;
     line-height: 1.0;
     letter-spacing: -0.035em;
