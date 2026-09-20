@@ -11,7 +11,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "resolve-apps": "tsx scripts/resolve-apps.ts",
-    "fetch": "tsx scripts/fetch.ts",
+    "fetch": "tsx --env-file-if-exists=.env scripts/fetch.ts",
     "validate": "tsx scripts/validate.ts",
     "score": "tsx scripts/score.ts",
     "prune": "tsx scripts/prune.ts",
