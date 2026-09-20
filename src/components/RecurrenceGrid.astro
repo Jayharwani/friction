@@ -113,9 +113,9 @@ const lastWeek = grid.weeks.at(-1);
   }
 
   .explain {
-    color: var(--muted);
+    color: var(--color-muted);
     font-size: var(--text-sm);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-md);
     max-width: var(--measure);
   }
 
@@ -142,7 +142,7 @@ const lastWeek = grid.weeks.at(-1);
     width: 3rem;
     font-weight: 400;
     vertical-align: bottom;
-    padding-bottom: var(--space-1);
+    padding-bottom: var(--space-2xs);
   }
 
   @media (max-width: 48rem) {
@@ -154,7 +154,7 @@ const lastWeek = grid.weeks.at(-1);
   .week-label {
     display: block;
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--color-muted);
     text-align: left;
     line-height: 1;
     white-space: nowrap;
@@ -167,13 +167,13 @@ const lastWeek = grid.weeks.at(-1);
     position: sticky;
     left: 0;
     z-index: 1;
-    background: var(--bg);
+    background: var(--color-paper);
   }
 
   .label {
     font-weight: 400;
     text-align: left;
-    padding-right: var(--space-3);
+    padding-right: var(--space-sm);
     font-size: var(--text-sm);
     max-width: 14rem;
   }
@@ -198,7 +198,7 @@ const lastWeek = grid.weeks.at(-1);
   }
 
   /* One hue. Five steps. Nothing else in the product uses a second colour. */
-  [data-heat='0'] { background: var(--heat-0); }
+  [data-heat='0'] { background: var(--color-paper-2); }
   [data-heat='1'] { background: var(--heat-1); }
   [data-heat='2'] { background: var(--heat-2); }
   [data-heat='3'] { background: var(--heat-3); }
@@ -207,10 +207,10 @@ const lastWeek = grid.weeks.at(-1);
   .legend {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-4);
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--color-muted);
   }
 
   .ramp {

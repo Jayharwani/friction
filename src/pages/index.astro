@@ -147,11 +147,11 @@ if (specimen) seenVerdicts.add(specimen.verdict);
 
 <style>
   .statement {
-    padding-top: var(--space-6);
+    padding-top: var(--space-xl);
   }
 
   h1 {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
     font-size: clamp(1.9rem, 3.6vw, 3rem);
     font-weight: 500;
     line-height: 1.12;
@@ -160,8 +160,8 @@ if (specimen) seenVerdicts.add(specimen.verdict);
   }
 
   .sub {
-    margin-top: var(--space-4);
-    color: var(--muted);
+    margin-top: var(--space-md);
+    color: var(--color-muted);
     max-width: var(--measure);
   }
 
@@ -170,16 +170,16 @@ if (specimen) seenVerdicts.add(specimen.verdict);
   .proof {
     display: flex;
     flex-wrap: wrap;
-    margin-top: var(--space-5);
-    padding-block: var(--space-4);
-    border-top: 1px solid var(--rule);
+    margin-top: var(--space-lg);
+    padding-block: var(--space-md);
+    border-top: 1px solid var(--color-rule);
   }
 
   /* Separated by hairlines, never by middle dots. */
   .figure + .figure {
-    margin-left: var(--space-5);
-    padding-left: var(--space-5);
-    border-left: 1px solid var(--rule);
+    margin-left: var(--space-lg);
+    padding-left: var(--space-lg);
+    border-left: 1px solid var(--color-rule);
   }
 
   .stat-figure {
@@ -190,9 +190,9 @@ if (specimen) seenVerdicts.add(specimen.verdict);
   }
 
   .stat-label {
-    margin-top: var(--space-1);
+    margin-top: var(--space-2xs);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--color-muted);
   }
 
   /* ---- list ---- */
@@ -208,15 +208,15 @@ if (specimen) seenVerdicts.add(specimen.verdict);
   }
 
   .group {
-    margin-top: var(--space-6);
+    margin-top: var(--space-xl);
     max-width: var(--measure);
   }
 
   .app-name {
     font-size: var(--text-sm);
     font-weight: 600;
-    color: var(--muted);
-    margin-bottom: var(--space-2);
+    color: var(--color-muted);
+    margin-bottom: var(--space-xs);
   }
 
   .app-name a {
@@ -229,20 +229,20 @@ if (specimen) seenVerdicts.add(specimen.verdict);
   }
 
   .gloss {
-    padding: var(--space-2) 0 var(--space-3);
+    padding: var(--space-xs) 0 var(--space-sm);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--color-muted);
   }
 
   .grid-section h2 {
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-md);
   }
 
   .empty {
-    margin-top: var(--space-7);
+    margin-top: var(--space-2xl);
     max-width: var(--measure);
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-sm);
   }
 
   /* ---- entry, the first of three animated moments ---- */
@@ -305,21 +305,21 @@ if (specimen) seenVerdicts.add(specimen.verdict);
 
   @media (max-width: 34rem) {
     .statement {
-      padding-top: var(--space-4);
+      padding-top: var(--space-md);
     }
 
     .sub {
-      margin-top: var(--space-3);
+      margin-top: var(--space-sm);
     }
 
     .proof {
-      margin-top: var(--space-4);
-      padding-block: var(--space-3);
+      margin-top: var(--space-md);
+      padding-block: var(--space-sm);
     }
 
     .figure + .figure {
-      margin-left: var(--space-4);
-      padding-left: var(--space-4);
+      margin-left: var(--space-md);
+      padding-left: var(--space-md);
     }
 
     .stat-figure {

@@ -52,8 +52,8 @@ const summary =
     ) : (
       <>
         <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={summary} preserveAspectRatio="none">
-          <path d={path} fill="none" stroke="var(--accent-dim)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-          {last && <circle cx={last.x} cy={last.y} r="2.5" fill="var(--accent)" />}
+          <path d={path} fill="none" stroke="var(--color-neutral)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+          {last && <circle cx={last.x} cy={last.y} r="2.5" fill="var(--color-accent)" />}
         </svg>
         <p class="caption num">
           from {first!.score} to {latest!.score} over {history.length} scans
@@ -66,13 +66,13 @@ const summary =
 
 <style>
   .sparkline {
-    margin-top: var(--space-5);
+    margin-top: var(--space-lg);
   }
 
   h3 {
     font-size: var(--text-sm);
     font-weight: 600;
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-xs);
   }
 
   svg {
@@ -84,12 +84,12 @@ const summary =
 
   .caption,
   .empty {
-    margin-top: var(--space-2);
+    margin-top: var(--space-xs);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--color-muted);
   }
 
   .delta {
-    color: var(--muted);
+    color: var(--color-muted);
   }
 </style>

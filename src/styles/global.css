@@ -1,159 +1,192 @@
+/* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5 */
 @import "tailwindcss";
 
 /* ===================================================================
    Friction — design tokens
 
-   Concept: an instrument, not a dashboard. A well-made measuring
-   device — precise, calm, one glowing indicator against a neutral
-   body. Everything is quiet except the data.
+   Macrostructure: Map / Diagram. Nav: N9 edge-aligned.
+   Footer: Ft5 statement. Theme: custom, anchor hue 45.
 
-   No cards. No shadows. No gradients. No icons. Separation comes from
-   space and hairline rules only, so the site reads as one continuous,
-   well-set document.
+   Every colour and font below is a named token. Nothing in this
+   codebase declares a colour or a font-family inline.
    =================================================================== */
 
 /* -------------------------------------------------------------------
-   Colour, in OKLCH.
+   Colour — OKLCH, anchor hue 45.
 
-   OKLCH matters here specifically: the heat ramp has to be
-   perceptually even. An sRGB ramp collapses in the middle, which was
-   the actual bug in the previous grid.
-
-   Dark is the default and was designed first. The system preference
-   wins unless the reader has chosen explicitly, which is what the
-   :not([data-theme]) guard below is for.
+   Neutrals carry a trace of the anchor so the page reads warm all the
+   way through. Elevation in dark goes *lighter*, ~4% per level; there
+   are no shadows anywhere in the product.
    ------------------------------------------------------------------- */
 
 :root {
-  --bg:         oklch(0.17 0.010 255);
-  --surface:    oklch(0.21 0.010 255);
-  --rule:       oklch(0.30 0.010 255);
-  --text:       oklch(0.96 0.004 255);
-  --muted:      oklch(0.67 0.010 255);
-  --accent:     oklch(0.78 0.17 62);
-  --accent-dim: oklch(0.45 0.09 62);
+  --color-paper:   oklch(14% 0.010 45);
+  --color-paper-2: oklch(18% 0.012 45);
+  --color-paper-3: oklch(22% 0.012 45);
+  --color-rule:    oklch(28% 0.010 45);
+  --color-neutral: oklch(56% 0.008 45);
+  --color-muted:   oklch(72% 0.006 45);
+  --color-ink:     oklch(95% 0.006 60);
+  --color-accent:  oklch(76% 0.17 55);
+  --color-focus:   oklch(72% 0.19 55);
 
   color-scheme: dark;
 }
 
-/* The light palette is written twice on purpose: one branch for the
-   system preference, one for an explicit choice. CSS cannot share a
-   declaration block across a media query and an attribute selector,
-   and the duplication is plainer than the indirection that avoids it. */
+/* Written twice on purpose: CSS cannot share one declaration block
+   between a media query and an attribute selector, and the duplication
+   is plainer than the indirection that avoids it. */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg:         oklch(0.98 0.004 90);
-    --surface:    oklch(0.95 0.006 90);
-    --rule:       oklch(0.88 0.008 90);
-    --text:       oklch(0.22 0.012 255);
-    --muted:      oklch(0.50 0.012 255);
-    --accent:     oklch(0.62 0.16 55);
-    --accent-dim: oklch(0.86 0.06 62);
+    --color-paper:   oklch(97% 0.010 60);
+    --color-paper-2: oklch(94% 0.012 60);
+    --color-paper-3: oklch(91% 0.012 60);
+    --color-rule:    oklch(85% 0.010 60);
+    --color-neutral: oklch(55% 0.008 60);
+    --color-muted:   oklch(42% 0.008 55);
+    --color-ink:     oklch(19% 0.010 50);
+    --color-accent:  oklch(58% 0.16 48);
+    --color-focus:   oklch(55% 0.19 50);
 
     color-scheme: light;
   }
 }
 
 :root[data-theme="light"] {
-  --bg:         oklch(0.98 0.004 90);
-  --surface:    oklch(0.95 0.006 90);
-  --rule:       oklch(0.88 0.008 90);
-  --text:       oklch(0.22 0.012 255);
-  --muted:      oklch(0.50 0.012 255);
-  --accent:     oklch(0.62 0.16 55);
-  --accent-dim: oklch(0.86 0.06 62);
+  --color-paper:   oklch(97% 0.010 60);
+  --color-paper-2: oklch(94% 0.012 60);
+  --color-paper-3: oklch(91% 0.012 60);
+  --color-rule:    oklch(85% 0.010 60);
+  --color-neutral: oklch(55% 0.008 60);
+  --color-muted:   oklch(42% 0.008 55);
+  --color-ink:     oklch(19% 0.010 50);
+  --color-accent:  oklch(58% 0.16 48);
+  --color-focus:   oklch(55% 0.19 50);
 
   color-scheme: light;
 }
 
-/* One accent hue for the entire product. The heat ramp is five steps
-   interpolated in OKLCH from the page surface to the accent; five
-   discrete steps read more clearly than a continuous mix at the low
-   counts this data actually produces. */
+/* The one ramp in the product: page surface to accent, interpolated in
+   OKLCH. The field's shader reads these same five stops, so the 3D
+   surface and the 2D fallback are the same scale. */
 :root {
-  --heat-0: var(--surface);
-  --heat-1: color-mix(in oklch, var(--accent) 22%, var(--surface));
-  --heat-2: color-mix(in oklch, var(--accent) 45%, var(--surface));
-  --heat-3: color-mix(in oklch, var(--accent) 70%, var(--surface));
-  --heat-4: var(--accent);
+  --heat-0: var(--color-paper-2);
+  --heat-1: color-mix(in oklch, var(--color-accent) 22%, var(--color-paper-2));
+  --heat-2: color-mix(in oklch, var(--color-accent) 45%, var(--color-paper-2));
+  --heat-3: color-mix(in oklch, var(--color-accent) 70%, var(--color-paper-2));
+  --heat-4: var(--color-accent);
 }
 
 /* -------------------------------------------------------------------
-   Space. Only these values are used; no arbitrary margins anywhere.
+   Type — Geist for the instrument, Newsreader roman for human voice.
    ------------------------------------------------------------------- */
 
 :root {
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4.5rem;
-  --space-9: 6rem;
+  --font-display: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: var(--font-display);
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Reviewers' words. Roman, never italic — italic display type is a tell. */
+  --font-quote: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
 
-  /* One step of separation between sections, plus a hairline. Never a
-     blank screenful. */
-  --section-gap: var(--space-8);
-}
-
-/* -------------------------------------------------------------------
-   Type. Three roles, clearly separated.
-   ------------------------------------------------------------------- */
-
-:root {
-  --font-serif: "Newsreader", ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
-  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* The arithmetic line inside the score disclosure is read digit by
-     digit, so it gets a real monospace. System stack: no extra load. */
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-
-  /* 1.25 ratio off a 17px base, fluid where size actually matters. */
+  /* 1.25 ratio off a 17px base, fluid where size carries meaning. */
   --text-xs: 0.72rem;
   --text-sm: 0.82rem;
-  --text-base: 1rem;
+  --text-md: 1rem;
   --text-lg: clamp(1.15rem, 1.05rem + 0.4vw, 1.25rem);
   --text-xl: clamp(1.35rem, 1.2rem + 0.75vw, 1.5625rem);
   --text-2xl: clamp(1.6rem, 1.35rem + 1.25vw, 1.953rem);
-  --text-3xl: clamp(1.9rem, 1.5rem + 2vw, 2.441rem);
+  --text-3xl: clamp(2rem, 1.5rem + 2.4vw, 2.75rem);
+  --text-display: clamp(2.4rem, 1.4rem + 4.4vw, 4.25rem);
 
   --measure: 68ch;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --rule-hair: 1px;
 }
 
 /* -------------------------------------------------------------------
-   Base
+   Space — 4pt scale, semantic names. Only these values are used.
    ------------------------------------------------------------------- */
 
+:root {
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --space-4xl: 6rem;
+
+  --section-gap: var(--space-3xl);
+}
+
+/* -------------------------------------------------------------------
+   Motion — three named easings. The browser default never appears.
+   ------------------------------------------------------------------- */
+
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+}
+
+/* ===================================================================
+   Base
+   =================================================================== */
+
 html {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
   font-size: 17px;
   -webkit-text-size-adjust: 100%;
   scrollbar-gutter: stable;
+  /* clip, never hidden: hidden on the root kills position: sticky. */
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
+  overflow-x: clip;
   line-height: 1.55;
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Every figure on this site is compared against another figure.
-   They must not shift horizontally. */
+/* Dark surfaces bloom optically; pull body weight back to compensate. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body {
+    font-weight: 350;
+  }
+}
+
+:root[data-theme="dark"] body {
+  font-weight: 350;
+}
+
+/* Every figure on this site is read against another figure. */
 :where(time, .num, td, th, .score, .version, .count, .stat-figure) {
   font-variant-numeric: tabular-nums;
 }
 
 h1, h2, h3, h4 {
   margin: 0;
-  line-height: 1.15;
+  /* Roman always. Emphasis comes from weight, colour or a drawn rule. */
+  font-style: normal;
+  font-family: var(--font-display);
+  line-height: 1.12;
   text-wrap: balance;
   font-weight: 600;
-  letter-spacing: -0.012em;
+  letter-spacing: -0.018em;
+  /* Long problem titles must break rather than push the layout wide. */
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 p {
@@ -163,59 +196,63 @@ p {
 
 a {
   color: inherit;
-  text-decoration-color: color-mix(in oklch, currentColor 35%, transparent);
+  text-decoration-color: color-mix(in oklch, currentColor 32%, transparent);
   text-underline-offset: 0.18em;
   text-decoration-thickness: from-font;
+  transition: text-decoration-color var(--dur-micro) var(--ease-out);
 }
 
 a:hover {
-  text-decoration-color: currentColor;
+  text-decoration-color: var(--color-accent);
 }
 
-/* Drawn with outline so it never collapses a layout, and never
-   removed without replacement. */
+/* Shown instantly, never animated. */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--color-focus);
   outline-offset: 3px;
-  border-radius: 1px;
+  border-radius: 2px;
 }
 
 ::selection {
-  background: color-mix(in oklch, var(--accent) 28%, transparent);
+  background: color-mix(in oklch, var(--color-accent) 26%, transparent);
 }
 
 hr {
   border: 0;
-  border-top: 1px solid var(--rule);
+  border-top: var(--rule-hair) solid var(--color-rule);
   margin: 0;
 }
 
-/* -------------------------------------------------------------------
+/* ===================================================================
    Layout
 
-   The page is a grid with a named content column and a full-bleed
-   column either side. Break-out elements just switch column — no
-   negative margins, no transforms, nothing that breaks `position:
-   sticky` further down the tree.
-   ------------------------------------------------------------------- */
+   A named-column grid: content sits in the measure, the field and the
+   tables switch to the full track. No negative margins, no transforms,
+   nothing that breaks `position: sticky` further down the tree.
+   =================================================================== */
 
 .shell {
   display: grid;
   grid-template-columns:
-    [full-start] minmax(var(--space-5), 1fr)
-    [content-start] min(var(--measure), 100% - (var(--space-5) * 2)) [content-end]
-    minmax(var(--space-5), 1fr) [full-end];
+    [full-start] minmax(var(--page-gutter), 1fr)
+    [content-start] min(var(--measure), 100% - (var(--page-gutter) * 2)) [content-end]
+    minmax(var(--page-gutter), 1fr) [full-end];
 }
 
 .shell > * {
   grid-column: content;
 }
 
-/* Wider than the prose measure but still centred and still gutter-safe. */
 .shell > .bleed {
   grid-column: full;
-  width: min(74rem, 100% - (var(--space-5) * 2));
+  width: min(76rem, 100% - (var(--page-gutter) * 2));
   margin-inline: auto;
+}
+
+/* Edge to edge, no container padding at all. */
+.shell > .full {
+  grid-column: full;
+  width: 100%;
 }
 
 .measure {
@@ -234,15 +271,49 @@ hr {
   border: 0;
 }
 
-/* -------------------------------------------------------------------
-   Motion
+/* Where a group genuinely needs containment: one paper step up and a
+   hairline. 6px, never 16px. Never a shadow. */
+.panel {
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: 6px;
+}
+
+/* ===================================================================
+   Grain — one static SVG turbulence layer over the whole page.
+
+   This is what gives the page material. Static, never animated,
+   pointer-transparent, and cheap: one fixed layer, no repaint.
+   =================================================================== */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) body::after {
+    opacity: 0.02;
+  }
+}
+
+:root[data-theme="light"] body::after {
+  opacity: 0.02;
+}
+
+/* ===================================================================
+   Motion off-switch
 
    Every animation in this codebase is declared inside
    `prefers-reduced-motion: no-preference`, so under a reduced-motion
    preference it does not exist rather than being overridden. The block
-   below is a backstop for anything that slips through, including
-   Astro's own view transitions.
-   ------------------------------------------------------------------- */
+   below is a backstop for Astro's own view transitions.
+   =================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   html {

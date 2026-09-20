@@ -23,7 +23,7 @@ const total = rows.reduce((sum, r) => sum + r.contribution, 0);
 
 /** One hue: the bar fills from the surface toward the accent, in OKLCH. */
 const mix = (value: number) =>
-  `color-mix(in oklch, var(--accent) ${Math.round(15 + value * 85)}%, var(--surface))`
+  `color-mix(in oklch, var(--color-accent) ${Math.round(15 + value * 85)}%, var(--color-paper-2))`
 
 const verdictNote: Record<string, string> = {
   'Strong signal': `scored at or above the current threshold of ${problem.buildThreshold.toFixed(0)}`,
@@ -94,8 +94,8 @@ const verdictNote: Record<string, string> = {
   }
 
   .panel {
-    border-top: 2px solid var(--text);
-    padding-top: var(--space-4);
+    border-top: 2px solid var(--color-ink);
+    padding-top: var(--space-md);
   }
 
   .score {
@@ -107,33 +107,33 @@ const verdictNote: Record<string, string> = {
   }
 
   .verdict {
-    margin-top: var(--space-2);
+    margin-top: var(--space-xs);
     font-size: var(--text-lg);
     font-weight: 600;
     letter-spacing: -0.012em;
   }
 
   .verdict-note {
-    margin-top: var(--space-1);
-    color: var(--muted);
+    margin-top: var(--space-2xs);
+    color: var(--color-muted);
     font-size: var(--text-sm);
   }
 
   /* ---- disclosure ---- */
 
   .disclosure {
-    margin-top: var(--space-4);
-    border-top: 1px solid var(--rule);
+    margin-top: var(--space-md);
+    border-top: 1px solid var(--color-rule);
   }
 
   summary {
     /* Replaced by a custom marker so the control reads as a button-like row. */
     list-style: none;
     cursor: pointer;
-    padding-block: var(--space-3);
+    padding-block: var(--space-sm);
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-xs);
     font-size: var(--text-sm);
     font-weight: 500;
   }
@@ -168,7 +168,7 @@ const verdictNote: Record<string, string> = {
   }
 
   .disclosure-body {
-    padding-bottom: var(--space-4);
+    padding-bottom: var(--space-md);
   }
 
   /* ---- the third animated moment ----
@@ -213,9 +213,9 @@ const verdictNote: Record<string, string> = {
   }
 
   .preamble {
-    color: var(--muted);
+    color: var(--color-muted);
     font-size: var(--text-sm);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-md);
   }
 
   .components {
@@ -223,14 +223,14 @@ const verdictNote: Record<string, string> = {
     margin: 0;
     padding: 0;
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-md);
   }
 
   .row-head {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: var(--space-4);
+    gap: var(--space-md);
   }
 
   .row-label {
@@ -240,14 +240,14 @@ const verdictNote: Record<string, string> = {
 
   .row-weight {
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--color-muted);
     white-space: nowrap;
   }
 
   .track {
-    margin-top: var(--space-1);
+    margin-top: var(--space-2xs);
     height: 6px;
-    background: var(--surface);
+    background: var(--color-paper-2);
   }
 
   .fill {
@@ -255,24 +255,24 @@ const verdictNote: Record<string, string> = {
   }
 
   .row-detail {
-    margin-top: var(--space-2);
+    margin-top: var(--space-xs);
     font-size: var(--text-sm);
-    color: var(--text);
+    color: var(--color-ink);
   }
 
   /* An equation, read digit by digit, so it gets a real monospace. */
   .row-math {
-    margin-top: var(--space-1);
+    margin-top: var(--space-2xs);
     font-family: var(--font-mono);
     font-size: 0.72rem;
-    color: var(--muted);
+    color: var(--color-muted);
     font-variant-numeric: tabular-nums;
   }
 
   .total {
-    margin-top: var(--space-4);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--rule);
+    margin-top: var(--space-md);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--color-rule);
     font-size: var(--text-sm);
   }
 

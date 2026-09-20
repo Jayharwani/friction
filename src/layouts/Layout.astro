@@ -59,17 +59,18 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     <meta property="og:site_name" content="Friction" />
     <meta name="twitter:card" content="summary" />
 
-    <meta name="theme-color" content="#fbfaf7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#181b20" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f9f7f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1714" media="(prefers-color-scheme: dark)" />
 
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="Friction" href={url('/rss.xml')} />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Newsreader is requested roman only — no italic axis is ever used. */}
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..500&family=Newsreader:opsz,wght@6..72,400..600&display=swap"
     />
 
     <ClientRouter />
@@ -119,32 +120,32 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     position: absolute;
     left: -9999px;
     top: 0;
-    background: var(--bg);
-    color: var(--text);
-    padding: var(--space-3) var(--space-4);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    padding: var(--space-sm) var(--space-md);
     z-index: 10;
-    border: 1px solid var(--text);
+    border: 1px solid var(--color-ink);
   }
 
   .skip:focus {
-    left: var(--space-2);
-    top: var(--space-2);
+    left: var(--space-xs);
+    top: var(--space-xs);
   }
 
   .site-header {
-    border-bottom: 1px solid var(--rule);
+    border-bottom: 1px solid var(--color-rule);
   }
 
   .header-inner {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-3) var(--space-5);
-    padding-block: var(--space-4);
+    gap: var(--space-sm) var(--space-lg);
+    padding-block: var(--space-md);
   }
 
   .wordmark {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
     font-weight: 600;
     font-size: var(--text-lg);
     letter-spacing: -0.02em;
@@ -155,7 +156,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
   nav ul {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-4);
+    gap: var(--space-md);
     list-style: none;
     margin: 0;
     padding: 0;
@@ -163,26 +164,26 @@ const here = Astro.url.pathname.replace(/\/$/, '');
   }
 
   nav a {
-    color: var(--muted);
+    color: var(--color-muted);
     text-decoration: none;
     padding-block: 2px;
   }
 
   nav a:hover {
-    color: var(--text);
+    color: var(--color-ink);
   }
 
   /* Current page marked by weight and a rule, not by colour alone. */
   nav a[aria-current='page'] {
-    color: var(--text);
+    color: var(--color-ink);
     font-weight: 600;
     box-shadow: inset 0 -1px 0 0 currentColor;
   }
 
   @media (max-width: 34rem) {
     .header-inner {
-      gap: var(--space-2) var(--space-3);
-      padding-block: var(--space-3);
+      gap: var(--space-xs) var(--space-sm);
+      padding-block: var(--space-sm);
     }
 
     /* Wordmark and theme control share the first row; nav wraps under them. */

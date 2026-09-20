@@ -107,7 +107,7 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
 
 <style>
   .intro {
-    padding-block: var(--space-6) 0;
+    padding-block: var(--space-xl) 0;
     max-width: var(--measure);
   }
 
@@ -117,19 +117,19 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
   }
 
   .meta {
-    margin-top: var(--space-2);
-    color: var(--muted);
+    margin-top: var(--space-xs);
+    color: var(--color-muted);
     font-size: var(--text-sm);
   }
 
   h2 {
     font-size: var(--text-sm);
     font-weight: 600;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-sm);
   }
 
   .trend-block {
-    margin-top: var(--space-6);
+    margin-top: var(--space-xl);
   }
 
   .trend {
@@ -155,21 +155,21 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
     justify-content: flex-start;
     height: 100%;
     /* A hairline floor so an empty week still reads as a week. */
-    box-shadow: inset 0 -1px 0 0 var(--rule);
+    box-shadow: inset 0 -1px 0 0 var(--color-rule);
   }
 
   .bar.ios {
-    background: var(--text);
+    background: var(--color-ink);
   }
 
   .bar.android {
-    background: color-mix(in oklch, var(--text) 40%, var(--bg));
+    background: color-mix(in oklch, var(--color-ink) 40%, var(--color-paper));
   }
 
   .tick {
-    margin-top: var(--space-1);
+    margin-top: var(--space-2xs);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--color-muted);
     white-space: nowrap;
     line-height: 1;
   }
@@ -177,10 +177,10 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
   .legend {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-5);
+    gap: var(--space-xs);
+    margin-top: var(--space-lg);
     font-size: var(--text-xs);
-    color: var(--muted);
+    color: var(--color-muted);
   }
 
   .legend .swatch {
@@ -190,27 +190,27 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
   }
 
   .legend .swatch.android {
-    margin-left: var(--space-3);
+    margin-left: var(--space-sm);
   }
 
   .swatch.ios {
-    background: var(--text);
+    background: var(--color-ink);
   }
 
   .swatch.android {
-    background: color-mix(in oklch, var(--text) 40%, var(--bg));
+    background: color-mix(in oklch, var(--color-ink) 40%, var(--color-paper));
   }
 
   .group {
-    margin-top: var(--space-7);
+    margin-top: var(--space-2xl);
     max-width: var(--measure);
   }
 
   .disclaimer {
-    margin-top: var(--space-7);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--rule);
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-rule);
     font-size: var(--text-sm);
-    color: var(--muted);
+    color: var(--color-muted);
   }
 </style>
