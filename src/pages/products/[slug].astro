@@ -51,6 +51,10 @@ const ordered = cats.flatMap(({ label }) =>
   description={`Recurring problems reported in ${product.name} app store reviews, scored from public evidence.`}
 >
   <div class="shell">
+    <nav class="crumb" aria-label="Breadcrumb">
+      <a href={url('/apps')}>All apps</a>
+    </nav>
+
     <header class="intro bleed">
       <div class="ident">
         <img
@@ -132,8 +136,14 @@ const ordered = cats.flatMap(({ label }) =>
 </Layout>
 
 <style>
+  .crumb {
+    padding-block: var(--space-lg) 0;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
   .intro {
-    padding-block: var(--space-xl) 0;
+    padding-block: var(--space-md) 0;
     display: flex;
     flex-wrap: wrap;
     align-items: end;

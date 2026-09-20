@@ -4,6 +4,7 @@ import '../styles/global.css';
 import { url } from '../lib/url';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import CommandPalette from '../components/CommandPalette.astro';
 
 interface Props {
   title: string;
@@ -106,6 +107,11 @@ const here = Astro.url.pathname.replace(/\/$/, '');
             </ul>
           </nav>
 
+          <button class="find" type="button" data-palette-open>
+            <span>Search</span>
+            <kbd aria-hidden="true">⌘K</kbd>
+          </button>
+
           <ThemeToggle />
       </div>
     </header>
@@ -116,8 +122,13 @@ const here = Astro.url.pathname.replace(/\/$/, '');
 
     <SiteFooter />
 
+    <CommandPalette />
+
     <script>
       import { watchCharts, stopWatchingCharts } from '../scripts/reveal';
+      import { initPalette } from '../scripts/palette';
+
+      let palette: { destroy(): void } | null = null;
 
       // The nav backdrop engages past 64px. IntersectionObserver on a
       // zero-height sentinel rather than a scroll listener, so this costs
@@ -142,8 +153,14 @@ const here = Astro.url.pathname.replace(/\/$/, '');
       document.addEventListener('astro:page-load', () => {
         watchScroll();
         watchCharts();
+        palette?.destroy();
+        palette = initPalette();
       });
-      document.addEventListener('astro:before-swap', stopWatchingCharts);
+      document.addEventListener('astro:before-swap', () => {
+        stopWatchingCharts();
+        palette?.destroy();
+        palette = null;
+      });
     </script>
   </body>
 </html>
@@ -198,6 +215,59 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     align-items: center;
     gap: var(--space-sm) var(--space-lg);
     padding: var(--space-md) var(--page-gutter);
+  }
+
+  /* A real button, so it is reachable without a keyboard shortcut. */
+  .find {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    background: none;
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 999px;
+    padding: var(--space-3xs) var(--space-xs);
+    cursor: pointer;
+  }
+
+  .find:hover {
+    color: var(--color-ink);
+  }
+
+  .find:active {
+    background: color-mix(in oklch, var(--color-ink) 10%, transparent);
+  }
+
+  .find:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .find kbd {
+    font-family: var(--font-mono);
+    color: var(--color-neutral);
+  }
+
+  @media (max-width: 34rem) {
+    .find span {
+      /* The shortcut hint alone on a phone, where there is no ⌘K anyway. */
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    .find kbd {
+      display: none;
+    }
+
+    .find::after {
+      content: 'Find';
+      color: var(--color-muted);
+    }
   }
 
   .wordmark {
