@@ -104,6 +104,18 @@
   --rule-hair: 1px;
 }
 
+/*
+ * One device pixel, not one CSS pixel. On a 2x or 3x screen a 1px rule is two
+ * or three physical pixels and reads as a drawn line rather than a hairline.
+ */
+@media (min-resolution: 2dppx) {
+  :root { --rule-hair: 0.5px; }
+}
+
+@media (min-resolution: 3dppx) {
+  :root { --rule-hair: 0.34px; }
+}
+
 /* -------------------------------------------------------------------
    Space — 4pt scale, semantic names. Only these values are used.
    ------------------------------------------------------------------- */

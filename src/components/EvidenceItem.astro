@@ -74,20 +74,24 @@ const signals = signalLabels.filter(([key]) => evidence.signals[key]).map(([, la
 
 <style>
   .evidence {
-    border-top: 1px solid var(--color-rule);
+    border-top: var(--rule-hair) solid var(--color-rule);
     padding-block: var(--space-lg);
   }
 
-  /* People's words get the serif, and the italic. Styled here rather than via
-     a global class so the rule lives beside the markup it applies to. */
+  /*
+   * People's words get the serif, a surface one step off the page, and an
+   * accent rule held at 30% so it marks the quote without shouting. Raised by
+   * surface alone — there are no shadows anywhere in this design.
+   */
   blockquote {
     margin: 0;
     font-family: var(--font-quote);
     font-size: var(--text-lg);
     line-height: 1.5;
-    /* A quiet vertical rule marks quoted material without a card or a shadow. */
-    border-left: 2px solid var(--color-rule);
-    padding-left: var(--space-md);
+    background: var(--color-paper-2);
+    border-left: 2px solid color-mix(in oklch, var(--color-accent) 30%, transparent);
+    border-radius: 0 6px 6px 0;
+    padding: var(--space-md) var(--space-lg);
   }
 
   .meta {
@@ -110,7 +114,7 @@ const signals = signalLabels.filter(([key]) => evidence.signals[key]).map(([, la
 
   /* Signals are set in type, with a hairline, never as coloured pills. */
   .signals li {
-    border-bottom: 1px solid var(--color-rule);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
     padding-bottom: var(--space-2xs);
   }
 

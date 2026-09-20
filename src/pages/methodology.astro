@@ -33,6 +33,21 @@ import {
   MIN_TEXT_LENGTH,
 } from '../../scripts/validate';
 
+/*
+ * The margin contents. Declared here rather than scraped from the DOM so the
+ * ids live next to each other and a renamed heading is a visible edit.
+ */
+const sections = [
+  ['where-the-data-comes-from', 'Where the data comes from'],
+  ['how-reviews-become-problems', 'How reviews become problems'],
+  ['how-the-score-is-computed', 'How the score is computed'],
+  ['the-verdict-and-why-most-problems-fail', 'The verdict'],
+  ['what-this-method-cannot-tell-you', 'What this cannot tell you'],
+  ['privacy', 'Privacy'],
+  ['what-is-never-tracked', 'What is never tracked'],
+  ['non-commercial', 'Non-commercial'],
+];
+
 const problems = getProblems();
 const active = getActiveProblems();
 const threshold = getBuildThreshold();
@@ -71,6 +86,16 @@ const componentMeaning: Record<string, string> = {
   description="Where Friction's data comes from, exactly how each score is computed, and what this method cannot tell you."
 >
   <div class="shell prose">
+    {/* Margin contents. Shown above 1100px, where there is room beside the measure. */}
+    <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ol>
+        {sections.map(([id, label]) => (
+          <li><a href={`#${id}`} data-toc={id}>{label}</a></li>
+        ))}
+      </ol>
+    </nav>
+
     <h1>Methodology</h1>
 
     <p class="lede">
@@ -80,7 +105,7 @@ const componentMeaning: Record<string, string> = {
       so is every version of the data.
     </p>
 
-    <h2>Where the data comes from</h2>
+    <h2 id="where-the-data-comes-from">Where the data comes from</h2>
 
     <p>
       Two sources, both public, neither requiring credentials or an agreement.
@@ -111,7 +136,7 @@ const componentMeaning: Record<string, string> = {
       }
     </p>
 
-    <h2>How reviews become problems</h2>
+    <h2 id="how-reviews-become-problems">How reviews become problems</h2>
 
     <p>
       Most of the filtering is deterministic and happens before any model sees anything. A review is
@@ -145,12 +170,25 @@ const componentMeaning: Record<string, string> = {
       previous week's data in place.
     </p>
 
-    <h2>How the score is computed</h2>
+    <h2 id="how-the-score-is-computed">How the score is computed</h2>
 
     <p>
       Seven components, each normalised to a value between 0 and 1 over evidence from the last{' '}
       {EVIDENCE_WINDOW_DAYS} days, multiplied by the weights below, and scaled to 0–100.
     </p>
+
+    {/*
+      The same arithmetic the prose describes, set as an equation. The weights
+      are read from scoring.ts, so this cannot drift out of step with the code.
+    */}
+    <figure class="equation" aria-label="The scoring formula">
+      <pre><code>score = 100 × (
+{
+  COMPONENT_ORDER.map((key, i) => (
+    <>{'  '}{i === 0 ? ' ' : '+'} {WEIGHTS[key].toFixed(2)} × {key}{'\n'}</>
+  ))
+})</code></pre>
+    </figure>
 
     <table class="weights">
       <thead>
@@ -178,7 +216,7 @@ const componentMeaning: Record<string, string> = {
       problem, with the raw counts behind each one and the arithmetic that produces the total.
     </p>
 
-    <h2>The verdict, and why most problems fail</h2>
+    <h2 id="the-verdict-and-why-most-problems-fail">The verdict, and why most problems fail</h2>
 
     <p>
       The verdict is decided in a fixed order. Fewer than four distinct reviewers is
@@ -209,27 +247,32 @@ const componentMeaning: Record<string, string> = {
       stale; it stays readable but is left out of the homepage and out of the threshold calculation.
     </p>
 
-    <h2>What this method cannot tell you</h2>
+    {/* A full-width band, one step lighter: the limits are not a footnote. */}
+    <section class="full limits">
+      <div class="limits-inner">
+      <h2 id="what-this-method-cannot-tell-you">What this method cannot tell you</h2>
 
-    <h3>Reviews have no permanent link</h3>
-    <p>
-      Neither store gives an individual review a stable public URL. This is the single biggest
-      limitation of the whole project and it cannot be engineered away. Evidence therefore links to
-      the app's review listing, not to the review itself, and every quote is labelled with the date
-      the scan captured it. You cannot click through and re-read the original. What you can do is
-      read the commit history in the repository, where every scan's output is recorded with a
-      timestamp.
-    </p>
+      <h3>Reviews have no permanent link</h3>
+      <p>
+        Neither store gives an individual review a stable public URL. This is the single biggest
+        limitation of the whole project and it cannot be engineered away. Evidence therefore links to
+        the app's review listing, not to the review itself, and every quote is labelled with the date
+        the scan captured it. You cannot click through and re-read the original. What you can do is
+        read the commit history in the repository, where every scan's output is recorded with a
+        timestamp.
+      </p>
 
-    <h3>Coverage is narrow</h3>
-    <p>
-      English-language reviews, {storefronts.length} Apple storefronts, one Play storefront, mobile apps only, and
-      only the {products.length} apps currently tracked. A quiet app produces a small sample, and a
-      small sample produces an unreliable score. Treat a scored problem as a starting point for your
-      own research, not as a conclusion.
-    </p>
+      <h3>Coverage is narrow</h3>
+      <p>
+        English-language reviews, {storefronts.length} Apple storefronts, one Play storefront, mobile apps only, and
+        only the {products.length} apps currently tracked. A quiet app produces a small sample, and a
+        small sample produces an unreliable score. Treat a scored problem as a starting point for your
+        own research, not as a conclusion.
+      </p>
+      </div>
+    </section>
 
-    <h2>Privacy</h2>
+    <h2 id="privacy">Privacy</h2>
 
     <ul>
       <li>
@@ -248,7 +291,7 @@ const componentMeaning: Record<string, string> = {
       </li>
     </ul>
 
-    <h2>What is never tracked</h2>
+    <h2 id="what-is-never-tracked">What is never tracked</h2>
 
     <p>
       Apps whose subject matter is personal distress or health are never tracked. The check runs
@@ -271,7 +314,7 @@ const componentMeaning: Record<string, string> = {
       Excluding something that belonged is a cost worth paying here.
     </p>
 
-    <h2>Non-commercial</h2>
+    <h2 id="non-commercial">Non-commercial</h2>
 
     <p>
       Friction has no ads, no payments, no signup, no paywall and no affiliate links, and it is not
@@ -292,7 +335,151 @@ const componentMeaning: Record<string, string> = {
   </div>
 </Layout>
 
+<script>
+  /**
+   * Marks the section being read in the margin contents. An
+   * IntersectionObserver, never a scroll listener, and it only sets an
+   * attribute — nothing here animates.
+   */
+  function watchSections(): void {
+    const links = new Map<string, HTMLAnchorElement>();
+    for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-toc]')) {
+      links.set(a.dataset.toc!, a);
+    }
+    if (links.size === 0) return;
+
+    const seen = new Set<string>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) seen.add(e.target.id);
+          else seen.delete(e.target.id);
+        }
+        // The topmost visible heading wins, so the mark never jumps backwards.
+        let current: string | null = null;
+        for (const id of links.keys()) {
+          if (seen.has(id)) { current = id; break; }
+        }
+        for (const [id, a] of links) {
+          if (id === current) a.setAttribute('aria-current', 'true');
+          else a.removeAttribute('aria-current');
+        }
+      },
+      { rootMargin: '-20% 0px -70% 0px' },
+    );
+
+    for (const id of links.keys()) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true });
+  }
+
+  document.addEventListener('astro:page-load', watchSections);
+</script>
+
 <style>
+
+  /* ---- margin contents ---- */
+
+  .toc {
+    display: none;
+  }
+
+  /*
+   * Fixed rather than sticky: the shell is a single grid column list, so a
+   * sticky item would only span its own row. Anchored off the measure, which
+   * keeps it the same distance from the text at every width.
+   */
+  @media (min-width: 1100px) {
+    .toc {
+      display: block;
+      position: fixed;
+      top: calc(var(--nav-h) + var(--space-xl));
+      right: calc(50% + var(--measure) / 2 + var(--space-xl));
+      width: 11rem;
+      max-height: calc(100vh - var(--nav-h) - var(--space-2xl));
+      overflow-y: auto;
+    }
+  }
+
+  /*
+   * The small type lives on the children, not on .toc. `ch` resolves against
+   * the element's own font, so setting --text-xs on the container made
+   * `var(--measure)` compute narrower there than in the shell and the
+   * contents overlapped the text it was meant to sit beside.
+   */
+  .toc-title,
+  .toc ol {
+    font-size: var(--text-xs);
+  }
+
+  .toc-title {
+    color: var(--color-neutral);
+    margin-bottom: var(--space-xs);
+  }
+
+  .toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .toc a {
+    color: var(--color-muted);
+    text-decoration: none;
+    display: block;
+    padding: 2px 0 2px var(--space-sm);
+    border-left: var(--rule-hair) solid var(--color-rule);
+    text-wrap: pretty;
+  }
+
+  .toc a:hover,
+  .toc a[aria-current='true'] {
+    color: var(--color-ink);
+    border-left-color: var(--color-accent);
+  }
+
+  /* ---- the scoring formula ---- */
+
+  .equation {
+    margin: var(--space-lg) 0;
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 6px;
+    padding: var(--space-md) var(--space-lg);
+    overflow-x: auto;
+  }
+
+  .equation pre {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- the limits band ---- */
+
+  .limits {
+    background: var(--color-paper-2);
+    border-block: var(--rule-hair) solid var(--color-rule);
+    padding-block: var(--space-2xl);
+    margin-block: var(--space-2xl);
+  }
+
+  .limits-inner {
+    width: min(var(--measure), 100% - (var(--page-gutter) * 2));
+    margin-inline: auto;
+  }
+
+  .limits-inner > :first-child {
+    margin-top: 0;
+  }
+
   .prose {
     padding-block: var(--space-xl) 0;
   }
@@ -359,7 +546,7 @@ const componentMeaning: Record<string, string> = {
 
   .weights th,
   .weights td {
-    border-top: 1px solid var(--color-rule);
+    border-top: var(--rule-hair) solid var(--color-rule);
     padding: var(--space-xs) var(--space-sm) var(--space-xs) 0;
     vertical-align: top;
     font-weight: 400;
@@ -367,7 +554,7 @@ const componentMeaning: Record<string, string> = {
 
   .weights thead th {
     border-top: 0;
-    border-bottom: 1px solid var(--color-ink);
+    border-bottom: var(--rule-hair) solid var(--color-ink);
     font-weight: 600;
     padding-bottom: var(--space-xs);
   }

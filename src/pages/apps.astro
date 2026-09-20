@@ -109,13 +109,13 @@ const withFindings = rows.filter((r) => r.problemCount > 0).length;
   th,
   td {
     padding: var(--space-sm) var(--space-sm) var(--space-sm) 0;
-    border-top: 1px solid var(--color-rule);
+    border-top: var(--rule-hair) solid var(--color-rule);
     font-weight: 400;
   }
 
   thead th {
     border-top: 0;
-    border-bottom: 1px solid var(--color-ink);
+    border-bottom: var(--rule-hair) solid var(--color-ink);
     font-weight: 600;
     padding-bottom: var(--space-xs);
   }
@@ -129,6 +129,28 @@ const withFindings = rows.filter((r) => r.problemCount > 0).length;
   tbody th span {
     color: var(--color-muted);
     font-weight: 400;
+  }
+
+  /* ---- table craft (spec 4.4) ---- */
+
+  /*
+   * The header stays put while a long table scrolls. It needs its own
+   * background or the rows would read straight through it.
+   */
+  thead th {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 1;
+    background: var(--color-paper);
+  }
+
+  /* Whole-row hover, mixed off the page colour so it works in both themes. */
+  tbody tr:hover {
+    background: color-mix(in oklch, var(--color-ink) 5%, transparent);
+  }
+
+  tbody tr:has(a:focus-visible) {
+    background: color-mix(in oklch, var(--color-accent) 10%, transparent);
   }
 
   .cat {

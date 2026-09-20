@@ -90,9 +90,27 @@ const runs = getRuns();
     margin-bottom: var(--space-sm);
   }
 
+  /*
+   * The scroller exists only where the table cannot fit. Above 64rem it is
+   * turned off: an overflow container becomes the scrollport for anything
+   * sticky inside it, which pinned the header 68px down its own 80px box and
+   * hid the first row behind it.
+   */
   .scroller {
     overflow-x: auto;
     margin-top: var(--space-xl);
+  }
+
+  @media (min-width: 64rem) {
+    .scroller {
+      overflow-x: visible;
+    }
+  }
+
+  @media (max-width: 63.999rem) {
+    thead th {
+      position: static;
+    }
   }
 
   table {
@@ -106,14 +124,14 @@ const runs = getRuns();
   th,
   td {
     padding: var(--space-xs) var(--space-md) var(--space-xs) 0;
-    border-top: 1px solid var(--color-rule);
+    border-top: var(--rule-hair) solid var(--color-rule);
     font-weight: 400;
     white-space: nowrap;
   }
 
   thead th {
     border-top: 0;
-    border-bottom: 1px solid var(--color-ink);
+    border-bottom: var(--rule-hair) solid var(--color-ink);
     font-weight: 600;
   }
 
@@ -131,5 +149,27 @@ const runs = getRuns();
     margin-top: var(--space-lg);
     color: var(--color-muted);
     font-size: var(--text-sm);
+  }
+
+  /* ---- table craft (spec 4.4) ---- */
+
+  /*
+   * The header stays put while a long table scrolls. It needs its own
+   * background or the rows would read straight through it.
+   */
+  thead th {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: 1;
+    background: var(--color-paper);
+  }
+
+  /* Whole-row hover, mixed off the page colour so it works in both themes. */
+  tbody tr:hover {
+    background: color-mix(in oklch, var(--color-ink) 5%, transparent);
+  }
+
+  tbody tr:has(a:focus-visible) {
+    background: color-mix(in oklch, var(--color-accent) 10%, transparent);
   }
 </style>
