@@ -24,6 +24,16 @@ const payload = JSON.stringify(field);
 ---
 
 <section class="field runs-under-nav" data-field>
+  {/* First in the DOM: on a phone these stack, and the statement leads. */}
+  <div class="overlay">
+    <div class="overlay-inner">
+      <h1 class="display-line" data-enter="1">Every ridge is a complaint that keeps coming back.</h1>
+      <p class="sub" data-enter="2">
+        Read from public App Store and Google Play reviews. Every score is computed in code.
+      </p>
+    </div>
+  </div>
+
   <div class="stage">
     {/* aria-hidden: the surface is fully duplicated by the problem list below. */}
     <canvas data-field-canvas aria-hidden="true"></canvas>
@@ -36,15 +46,6 @@ const payload = JSON.stringify(field);
     <div class="label" data-field-label hidden>
       <p class="l-title" data-f-title></p>
       <p class="l-meta num" data-f-meta></p>
-    </div>
-  </div>
-
-  <div class="overlay">
-    <div class="overlay-inner">
-      <h1 class="display-line" data-enter="1">Every ridge is a complaint that keeps coming back.</h1>
-      <p class="sub" data-enter="2">
-        Read from public App Store and Google Play reviews. Every score is computed in code.
-      </p>
     </div>
   </div>
 
@@ -125,16 +126,20 @@ const payload = JSON.stringify(field);
     inset: 0;
   }
 
+  /*
+   * Hidden until the client confirms WebGL and a wide enough viewport. It has
+   * to be display:none rather than transparent: a percentage height against an
+   * auto-height parent falls back to the 150px intrinsic canvas size, which
+   * opened a band of dead space above the strip on a phone.
+   */
   canvas {
     width: 100%;
     height: 100%;
-    display: block;
-    /* Shown only once the client confirms WebGL and a wide enough viewport. */
-    opacity: 0;
+    display: none;
   }
 
   [data-mode='field'] canvas {
-    opacity: 1;
+    display: block;
   }
 
   .strip {

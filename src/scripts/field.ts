@@ -219,18 +219,25 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   /* ---- camera ---- */
 
   const BASE_AZ = -18;
-  const BASE_EL = 33;
-  const DIST = 17.5;
+  const BASE_EL = 31;
+  const DIST = 14;
+  /**
+   * The camera looks at a point left of the surface, which pushes the surface
+   * right of centre and clear of the statement. Close enough that the terrain
+   * runs off the right edge: a landscape continuing past the frame, not an
+   * object sitting in the middle of one.
+   */
+  const TARGET = { x: -1.35, y: 0.3, z: 0 };
 
   function placeCamera(azDeg: number, elDeg: number): void {
     const az = rad(azDeg);
     const el = rad(elDeg);
     camera.position.set(
-      Math.sin(az) * Math.cos(el) * DIST,
-      Math.sin(el) * DIST,
-      Math.cos(az) * Math.cos(el) * DIST,
+      TARGET.x + Math.sin(az) * Math.cos(el) * DIST,
+      TARGET.y + Math.sin(el) * DIST,
+      TARGET.z + Math.cos(az) * Math.cos(el) * DIST,
     );
-    camera.lookAt(0, 0.35, 0);
+    camera.lookAt(TARGET.x, TARGET.y, TARGET.z);
   }
 
   /* ---- sizing ---- */

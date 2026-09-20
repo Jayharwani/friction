@@ -35,6 +35,15 @@ function step(count: number): number {
         field.weeks.length
       } weeks. Darker means more reviews that week.
     </caption>
+    {/*
+      table-layout: fixed takes its widths from the first row, so a width on
+      the body's row header is ignored and the label column collapses to a
+      single ellipsed letter on a phone. The colgroup sets it for real.
+    */}
+    <colgroup>
+      <col class="c-lbl" />
+      {field.weekLabels.map(() => <col />)}
+    </colgroup>
     <thead>
       <tr>
         <th scope="col"><span class="sr-only">Problem</span></th>
@@ -85,9 +94,12 @@ function step(count: number): number {
     table-layout: fixed;
   }
 
-  .lbl {
+  .c-lbl {
     width: 42%;
     max-width: 16rem;
+  }
+
+  .lbl {
     font-weight: 400;
     text-align: left;
     font-size: var(--text-xs);
