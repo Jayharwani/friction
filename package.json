@@ -1,0 +1,39 @@
+{
+  "name": "friction",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "resolve-apps": "tsx scripts/resolve-apps.ts",
+    "fetch": "tsx scripts/fetch.ts",
+    "validate": "tsx scripts/validate.ts",
+    "score": "tsx scripts/score.ts",
+    "prune": "tsx scripts/prune.ts",
+    "test": "node --import tsx --test \"scripts/**/*.test.ts\"",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.3",
+    "google-play-scraper": "^10.1.3",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.6.5"
+  },
+  "allowScripts": {
+    "esbuild": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.6.2",
+    "tsx": "^4.23.13",
+    "typescript": "^6.0.3"
+  },
+  "private": true
+}

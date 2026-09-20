@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Friction design tokens (spec 6.2)
+
+   Two-temperature scale only: --cold to --hot. There is deliberately
+   no third accent. Platform badges are set in type, not colour.
+   --------------------------------------------------------------- */
+
+:root {
+  --paper: #FAFAF7;   /* page, slightly warm white, not cream */
+  --ink:   #182028;   /* text, cool slate, not tinted black */
+  --rule:  #DDE0DD;   /* hairlines and grid gaps */
+  --muted: #6B7680;   /* secondary text and metadata */
+  --cold:  #4C6E8F;   /* low evidence volume, dormant */
+  --hot:   #A32B5B;   /* high evidence volume, growing */
+
+  /* derived: empty heat cell, sits between paper and rule */
+  --cell-empty: #ECEEEA;
+
+  --font-sans:  "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
+}
+
+/* Same hues at adjusted lightness, per spec 6.2 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #14181C;
+    --ink:   #E6E9E6;
+    --rule:  #2C3339;
+    --muted: #97A1AA;
+    --cold:  #7EA3C4;
+    --hot:   #D9638F;
+
+    --cell-empty: #1E242A;
+  }
+}
+
+/* `inline` keeps the generated utilities pointing at the custom property,
+   so the dark-scheme overrides above apply without a second utility set. */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink:   var(--ink);
+  --color-rule:  var(--rule);
+  --color-muted: var(--muted);
+  --color-cold:  var(--cold);
+  --color-hot:   var(--hot);
+
+  --font-sans:  var(--font-sans);
+  --font-serif: var(--font-serif);
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  /* 17px body, 1.25 ratio scale (spec 6.2) */
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  line-height: 1.55;
+}
+
+/* Visible keyboard focus on every interactive element. Quality floor, 6.2. */
+:focus-visible {
+  outline: 2px solid var(--hot);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
