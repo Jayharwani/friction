@@ -8,10 +8,14 @@
  */
 import Layout from '../../layouts/Layout.astro';
 import ScoreDisclosure from '../../components/ScoreDisclosure.astro';
-import Sparkline from '../../components/Sparkline.astro';
 import EvidenceItem from '../../components/EvidenceItem.astro';
+import RelatedStrip from '../../components/RelatedStrip.astro';
+import Sparkline from '../../components/charts/Sparkline.astro';
+import StackedBar from '../../components/charts/StackedBar.astro';
+import VersionTimeline from '../../components/charts/VersionTimeline.astro';
 import { url } from '../../lib/url';
 import { formatDate, getProblems, getProduct, platformsLabel } from '../../lib/data';
+import { platformSplit, signalCounts, versionMarks, weeklySeries } from '../../lib/charts';
 import type { Problem } from '../../../scripts/validate';
 
 export function getStaticPaths() {
@@ -31,28 +35,10 @@ const product = getProduct(problem.productSlug);
 // Reverse chronological: the newest report of the problem reads first.
 const evidence = [...problem.evidence].sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt));
 
-/*
- * The version timeline. A comma list of build numbers says nothing; ordered by
- * when each build was first complained about, with how many reviews named it,
- * it shows whether a problem is one bad release or a run of them.
- *
- * Ordered by first report rather than by version number on purpose: the two
- * stores number independently, so 0.6.4100 and 1.7.338 do not sort together.
- */
-const versionTimeline = problem.versions
-  .map((version) => {
-    const dates = problem.evidence
-      .filter((e) => e.version === version)
-      .map((e) => e.reviewedAt)
-      .sort();
-    return { version, count: dates.length, first: dates[0] ?? null, last: dates.at(-1) ?? null };
-  })
-  .filter((row) => row.first !== null)
-  .sort((a, b) => a.first!.localeCompare(b.first!));
-
-const versionPeak = Math.max(1, ...versionTimeline.map((r) => r.count));
-/** Five steps, the same ramp the field and the heat strip use. */
-const heatStep = (n: number) => Math.min(4, Math.max(1, Math.ceil((n / versionPeak) * 4)));
+const marks = versionMarks(problem);
+const series = weeklySeries(problem.evidence);
+const split = platformSplit(problem.evidence);
+const signals = signalCounts(problem.evidence).filter((sig) => sig.count > 0);
 
 const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} from ${problem.evidence.length} app store reviews.`;
 ---
@@ -86,27 +72,21 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
         <div class="sticky">
           <ScoreDisclosure problem={problem} />
 
-          <Sparkline history={problem.history} />
+          <section class="block">
+            <h3>Evidence over time</h3>
+            <Sparkline
+              series={series}
+              scale={2}
+              label={`${series.total} of these ${problem.evidence.length} reviews arrived in the last twelve weeks.`}
+            />
+            <p class="ch-caption">Reviews per week, last twelve weeks.</p>
+          </section>
 
           <section class="block">
             <h3>App versions</h3>
             {
-              versionTimeline.length > 0 ? (
-                <ol class="timeline num">
-                  {versionTimeline.map((row) => (
-                    <li>
-                      <span class="tick" data-heat={heatStep(row.count)} aria-hidden="true" />
-                      <span class="v">{row.version}</span>
-                      <span class="when">
-                        <time datetime={row.first!}>{formatDate(row.first!)}</time>
-                      </span>
-                      <span class="n">
-                        {row.count}
-                        <span class="sr-only"> {row.count === 1 ? 'review' : 'reviews'}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+              marks.length > 0 ? (
+                <VersionTimeline marks={marks} />
               ) : (
                 <p class="muted-note">No version was reported with these reviews.</p>
               )
@@ -115,8 +95,28 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
 
           <section class="block">
             <h3>Platform</h3>
-            <p>{platformsLabel(problem.platforms)}</p>
+            <StackedBar segments={split} of="of this problem's evidence" />
           </section>
+
+          {
+            signals.length > 0 && (
+              <section class="block">
+                <h3>Signals</h3>
+                <ul class="signals num">
+                  {signals.map((sig) => (
+                    <li>
+                      <span class="sig-mark" aria-hidden="true" />
+                      <span class="sig-label">{sig.label}</span>
+                      <span class="sig-count">{sig.count}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p class="ch-caption">
+                  How many of the {problem.evidence.length} reviews carried each signal.
+                </p>
+              </section>
+            )
+          }
 
           <section class="block">
             <h3>What people do instead</h3>
@@ -170,6 +170,8 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
         </p>
 
         {evidence.map((e) => <EvidenceItem evidence={e} />)}
+
+        <RelatedStrip problem={problem} />
       </div>
       </div>
     </div>
@@ -305,49 +307,41 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
   }
 
   /*
-   * A run of releases read top to bottom. One hairline down the left, a tick
-   * per release heated by how many reviews named it, the date it was first
-   * reported and the count. No chips, no cards.
+   * Five possible signals, only the ones actually present. A mark, the phrase
+   * as the extractor recorded it, and a count — one line each, in place of the
+   * five sentences this used to be.
    */
-  .timeline {
+  .signals {
     list-style: none;
     margin: 0;
-    padding: 0 0 0 var(--space-sm);
-    border-left: var(--rule-hair) solid var(--color-rule);
+    padding: 0;
     font-size: var(--text-xs);
     color: var(--color-muted);
   }
 
-  .timeline li {
-    position: relative;
+  .signals li {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: baseline;
-    column-gap: var(--space-sm);
+    gap: var(--space-xs);
     padding-block: var(--space-3xs);
   }
 
-  .tick {
-    position: absolute;
-    left: calc(-1 * var(--space-sm) - var(--space-3xs));
-    top: 0.62em;
-    width: 5px;
-    height: 5px;
+  .signals li + li {
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .sig-mark {
+    width: 4px;
+    height: 4px;
     border-radius: 1px;
+    background: var(--color-accent);
+    translate: 0 -2px;
   }
 
-  .tick[data-heat='1'] { background: var(--heat-1); }
-  .tick[data-heat='2'] { background: var(--heat-2); }
-  .tick[data-heat='3'] { background: var(--heat-3); }
-  .tick[data-heat='4'] { background: var(--heat-4); }
-
-  .timeline .v {
+  .sig-count {
     color: var(--color-ink);
-  }
-
-  .timeline .n {
-    /* Right-aligned so the counts form a column to read down. */
-    min-width: 1rem;
+    min-width: 1.2em;
     text-align: right;
   }
 

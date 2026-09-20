@@ -1,0 +1,151 @@
+---
+/**
+ * Up to three other problems that share this one's app or category.
+ *
+ * Every problem page was a dead end: the only way out was the nav. Same app
+ * first, because that is the strongest relation, then same category across
+ * apps, which is how a reader finds that three apps all break the same way.
+ */
+import type { Problem } from '../../scripts/validate';
+import { url } from '../lib/url';
+import { getProblems, getProduct } from '../lib/data';
+import { weeklySeries } from '../lib/charts';
+import Sparkline from './charts/Sparkline.astro';
+
+interface Props {
+  problem: Problem;
+  limit?: number;
+}
+
+const { problem, limit = 3 } = Astro.props;
+
+const others = getProblems().filter((p) => p.slug !== problem.slug);
+
+const sameApp = others
+  .filter((p) => p.productSlug === problem.productSlug)
+  .sort((a, b) => b.score - a.score);
+
+const sameCategory = others
+  .filter((p) => p.productSlug !== problem.productSlug && p.category === problem.category)
+  .sort((a, b) => b.score - a.score);
+
+const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
+  problem: p,
+  app: getProduct(p.productSlug)?.name ?? p.productSlug,
+  series: weeklySeries(p.evidence),
+  relation: p.productSlug === problem.productSlug ? 'same app' : 'same category',
+}));
+---
+
+{
+  related.length > 0 && (
+    <section class="related" aria-labelledby="related-heading">
+      <h2 id="related-heading">Related problems</h2>
+      <ul>
+        {related.map(({ problem: p, app, series, relation }) => (
+          <li>
+            <div class="body">
+              <h3>
+                <a href={url(`/problems/${p.slug}`)}>{p.title}</a>
+              </h3>
+              <p class="meta num">
+                {app}, {relation}, {p.evidence.length}{' '}
+                {p.evidence.length === 1 ? 'review' : 'reviews'}
+              </p>
+            </div>
+            <div class="trend">
+              <Sparkline series={series} />
+            </div>
+            <p class="verdict">{p.verdict}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .related {
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-lg);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  h2 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+
+  ul {
+    list-style: none;
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+  }
+
+  li {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-lg);
+    padding: var(--space-sm) var(--space-sm) var(--space-sm) 0;
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  li:has(a:hover),
+  li:has(a:focus-visible) {
+    background: color-mix(in oklch, var(--color-ink) 5%, transparent);
+  }
+
+  .body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  h3 {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  h3 a {
+    text-decoration: none;
+  }
+
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .meta {
+    margin-top: var(--space-3xs);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .trend {
+    flex: none;
+    translate: 0 0.35em;
+  }
+
+  .verdict {
+    flex: none;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    min-width: 7em;
+    text-align: right;
+  }
+
+  @media (max-width: 40rem) {
+    li {
+      flex-wrap: wrap;
+      gap: var(--space-xs) var(--space-md);
+    }
+
+    .verdict {
+      text-align: left;
+      min-width: 0;
+    }
+  }
+</style>
