@@ -1,0 +1,281 @@
+---
+/**
+ * The Friction Field — the signature element.
+ *
+ * A WebGL topography of the dataset: X is the last twelve weeks, Z is the
+ * tracked problems, height is how many reviews reported that problem that
+ * week. Ridges are clickable and navigate to the problem they describe, which
+ * is what makes the 3D earn its place rather than decorate.
+ *
+ * Four paths, all of which must produce a complete page:
+ *   reduced motion  → one static frame, hover still works
+ *   no WebGL        → the 2D heat strip below, plus the list
+ *   under 768px     → the 2D heat strip; Three.js never loads
+ *   hidden/offscreen→ the frame loop cancels entirely
+ */
+import { buildField } from '../lib/field';
+import { getActiveProblems, getProduct } from '../lib/data';
+import HeatStrip from './HeatStrip.astro';
+
+const field = buildField(getActiveProblems(), (slug) => getProduct(slug)?.name ?? slug);
+
+// Serialised for the client: the heights are computed here, at build time.
+const payload = JSON.stringify(field);
+---
+
+<section class="field runs-under-nav" data-field>
+  <div class="stage">
+    {/* aria-hidden: the surface is fully duplicated by the problem list below. */}
+    <canvas data-field-canvas aria-hidden="true"></canvas>
+
+    {/* The 2D fallback. Shown under 768px and whenever WebGL is unavailable. */}
+    <div class="strip" data-field-strip>
+      <HeatStrip field={field} />
+    </div>
+
+    <div class="label" data-field-label hidden>
+      <p class="l-title" data-f-title></p>
+      <p class="l-meta num" data-f-meta></p>
+    </div>
+  </div>
+
+  <div class="overlay">
+    <div class="overlay-inner">
+      <h1 data-enter="1">Every ridge is a complaint that keeps coming back.</h1>
+      <p class="sub" data-enter="2">
+        Read from public App Store and Google Play reviews. Every score is computed in code.
+      </p>
+    </div>
+  </div>
+
+  <script is:inline type="application/json" data-field-data set:html={payload} />
+</section>
+
+<script>
+  import type { FieldHandle } from '../scripts/field';
+
+  const MOBILE_MAX = 768;
+
+  function hasWebGL(): boolean {
+    try {
+      const c = document.createElement('canvas');
+      return Boolean(c.getContext('webgl2') ?? c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  }
+
+  let handle: FieldHandle | null = null;
+
+  async function mount(): Promise<void> {
+    handle?.destroy();
+    handle = null;
+
+    const section = document.querySelector<HTMLElement>('[data-field]');
+    const canvas = document.querySelector<HTMLCanvasElement>('[data-field-canvas]');
+    const label = document.querySelector<HTMLElement>('[data-field-label]');
+    const raw = document.querySelector<HTMLScriptElement>('[data-field-data]');
+    if (!section || !canvas || !label || !raw) return;
+
+    // Under 768px Three.js never loads at all — mobile gets a fast page,
+    // not a degraded 3D one.
+    if (window.innerWidth < MOBILE_MAX || !hasWebGL()) {
+      section.dataset.mode = 'strip';
+      return;
+    }
+
+    section.dataset.mode = 'field';
+    const data = JSON.parse(raw.textContent ?? '{}');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Dynamic: the Three bundle never blocks first paint.
+    const { createField } = await import('../scripts/field');
+    handle = createField({
+      canvas,
+      data,
+      label,
+      reducedMotion,
+      onSelect(slug: string) {
+        window.location.href = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/problems/${slug}`;
+      },
+    });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    void mount();
+  });
+  document.addEventListener('astro:before-swap', () => {
+    handle?.destroy();
+    handle = null;
+  });
+</script>
+
+<style>
+  .field {
+    position: relative;
+    /* Sized before hydration so the field contributes zero layout shift. */
+    height: 72vh;
+    min-height: 30rem;
+    max-height: 54rem;
+    overflow: clip;
+  }
+
+  .stage {
+    position: absolute;
+    inset: 0;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    /* Shown only once the client confirms WebGL and a wide enough viewport. */
+    opacity: 0;
+  }
+
+  [data-mode='field'] canvas {
+    opacity: 1;
+  }
+
+  .strip {
+    position: absolute;
+    inset: auto 0 0;
+    padding: 0 var(--page-gutter) var(--space-2xl);
+  }
+
+  [data-mode='field'] .strip {
+    display: none;
+  }
+
+  /* The horizon fades into the page so the canvas has no visible edge. */
+  .stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--color-paper) 0%, transparent 26%);
+  }
+
+  .field::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 38%;
+    pointer-events: none;
+    background: linear-gradient(to top, var(--color-paper) 12%, transparent 100%);
+  }
+
+  /* ---- hover label ---- */
+
+  .label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    pointer-events: none;
+    max-width: 22rem;
+    padding: var(--space-xs) var(--space-sm);
+    background: color-mix(in oklch, var(--color-paper) 88%, transparent);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    margin: var(--space-sm) 0 0 var(--space-sm);
+  }
+
+  .l-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .l-meta {
+    margin-top: 2px;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  /* ---- statement, overlaid on the lower third ---- */
+
+  .overlay {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 2;
+    pointer-events: none;
+    padding: 0 var(--page-gutter) var(--space-2xl);
+  }
+
+  .overlay-inner {
+    max-width: 22ch;
+  }
+
+  .overlay h1 {
+    font-size: var(--text-display);
+    font-weight: 600;
+    line-height: 1.0;
+    letter-spacing: -0.035em;
+  }
+
+  .sub {
+    margin-top: var(--space-md);
+    max-width: 44ch;
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+    pointer-events: auto;
+  }
+
+  @media (max-width: 48rem) {
+    .field {
+      height: auto;
+      min-height: 0;
+      padding-top: calc(var(--nav-h) + var(--space-lg));
+    }
+
+    .stage {
+      position: static;
+    }
+
+    .stage::after,
+    .field::after {
+      display: none;
+    }
+
+    .strip {
+      position: static;
+      padding: 0 var(--page-gutter);
+    }
+
+    .overlay {
+      position: static;
+      padding: var(--space-xl) var(--page-gutter) 0;
+    }
+
+    .overlay-inner {
+      max-width: 18ch;
+    }
+  }
+
+  /* ---- entry: the statement and sub rise once, together with the proof row ---- */
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (transition-behavior: allow-discrete) {
+      [data-enter] {
+        opacity: 1;
+        translate: 0 0;
+        transition:
+          opacity var(--dur-long) var(--ease-out),
+          translate var(--dur-long) var(--ease-out);
+      }
+
+      @starting-style {
+        [data-enter] {
+          opacity: 0;
+          translate: 0 8px;
+        }
+      }
+
+      [data-enter='2'] {
+        transition-delay: 60ms;
+      }
+    }
+  }
+</style>

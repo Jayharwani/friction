@@ -1,21 +1,20 @@
 ---
 /**
- * Today.
+ * Today — Map / Diagram.
  *
- * Reading order is the whole point of this page: statement, proof, specimen,
- * list, then the grid. A stranger should be able to answer "what is this",
- * "where does it come from", "is it current" and "what does one item look
- * like" without scrolling.
+ * The Friction Field organises the page spatially: twelve weeks across, the
+ * tracked problems back, height for how often each one was reported. The
+ * statement sits over its lower third, the proof row states the figures, and
+ * the specimen shows one problem in full before the list.
  *
- * No image, no button, no signup, no call to action. There is nothing to sell.
+ * The old 2D recurrence grid is gone; the field replaces it.
  */
 import Layout from '../layouts/Layout.astro';
-import RecurrenceGrid from '../components/RecurrenceGrid.astro';
+import FrictionField from '../components/FrictionField.astro';
 import ProblemRow from '../components/ProblemRow.astro';
 import Specimen from '../components/Specimen.astro';
 import { url } from '../lib/url';
 import {
-  buildRecurrenceGrid,
   formatDate,
   getActiveProblems,
   getLatestRun,
@@ -30,50 +29,36 @@ import type { Verdict } from '../../scripts/validate';
 const all = getProblems();
 const active = getActiveProblems();
 const run = getLatestRun();
-const grid = buildRecurrenceGrid(active);
 
-// Every figure in the proof strip is read from the data, never hardcoded.
+// Every figure below is read from the data. Nothing here is invented.
 const reviewsRead = run?.funnel.fetched.total ?? 0;
 const problemsTracked = all.length;
 
 const specimen = active[0]; // getProblems() is sorted by score, descending
 const specimenProduct = specimen ? getProduct(specimen.productSlug) : undefined;
 
-// The heading says "the last scan", so the list must be that run's problems,
-// not every active record. Today both runs fall on the same date so the two
-// coincide; on a later run they would not.
-const fromRun = run ? getProblemsFromRun(run.date) : [];
-const grouped = groupByProduct(fromRun);
+const grouped = groupByProduct(run ? getProblemsFromRun(run.date) : []);
 
-// Glosses appear once per page, on each verdict's first appearance in the list.
+// A gloss appears once per verdict, on its first appearance.
 const seenVerdicts = new Set<Verdict>();
 if (specimen) seenVerdicts.add(specimen.verdict);
 ---
 
 <Layout title="Friction">
-  <div class="shell">
-    <!-- 1. The statement: the ten-second answer. -->
-    <section class="statement" data-enter="1">
-      <h1>
-        Friction reads app store reviews every week and finds the complaints that keep coming back.
-      </h1>
-      <p class="sub">
-        Every score here is computed in code, not written by a model. Open any score to see the
-        arithmetic.
-      </p>
-    </section>
+  <FrictionField />
 
-    <!-- 2. The proof strip: is it real, is it current. -->
-    <section class="proof" data-enter="2" aria-label="Current figures">
-      <div class="figure">
+  <div class="shell">
+    {/* 04 · Stat-led, directly beneath the diagram. */}
+    <section class="proof" data-enter="3" aria-label="Current figures">
+      <div class="fig">
         <p class="stat-figure">{reviewsRead.toLocaleString('en-GB')}</p>
         <p class="stat-label">reviews read</p>
       </div>
-      <div class="figure">
+      <div class="fig">
         <p class="stat-figure">{problemsTracked}</p>
         <p class="stat-label">problems tracked</p>
       </div>
-      <div class="figure">
+      <div class="fig">
         <p class="stat-figure">
           {run ? <time datetime={run.date}>{formatDate(run.date)}</time> : '—'}
         </p>
@@ -81,12 +66,9 @@ if (specimen) seenVerdicts.add(specimen.verdict);
       </div>
     </section>
 
-    <!-- 3. The specimen: what one item looks like. -->
     {
       specimen && specimenProduct && (
-        <div data-enter="3">
-          <Specimen problem={specimen} productName={specimenProduct.name} />
-        </div>
+        <Specimen problem={specimen} productName={specimenProduct.name} />
       )
     }
 
@@ -102,7 +84,6 @@ if (specimen) seenVerdicts.add(specimen.verdict);
       )
     }
 
-    <!-- 4. The list. -->
     {
       grouped.length > 0 && (
         <section class="list">
@@ -132,61 +113,29 @@ if (specimen) seenVerdicts.add(specimen.verdict);
         </section>
       )
     }
-
-    <!-- 5. The grid, demoted to a footnote. -->
-    {
-      grid.rows.length > 0 && (
-        <section class="grid-section bleed">
-          <h2>Twelve weeks at a glance</h2>
-          <RecurrenceGrid grid={grid} />
-        </section>
-      )
-    }
   </div>
 </Layout>
 
 <style>
-  .statement {
-    padding-top: var(--space-xl);
-  }
-
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(1.9rem, 3.6vw, 3rem);
-    font-weight: 500;
-    line-height: 1.12;
-    letter-spacing: -0.018em;
-    max-width: 20ch;
-  }
-
-  .sub {
-    margin-top: var(--space-md);
-    color: var(--color-muted);
-    max-width: var(--measure);
-  }
-
-  /* ---- proof strip ---- */
-
   .proof {
     display: flex;
     flex-wrap: wrap;
-    margin-top: var(--space-lg);
-    padding-block: var(--space-md);
-    border-top: 1px solid var(--color-rule);
+    padding-block: var(--space-lg);
+    border-block: var(--rule-hair) solid var(--color-rule);
   }
 
   /* Separated by hairlines, never by middle dots. */
-  .figure + .figure {
+  .fig + .fig {
     margin-left: var(--space-lg);
     padding-left: var(--space-lg);
-    border-left: 1px solid var(--color-rule);
+    border-left: var(--rule-hair) solid var(--color-rule);
   }
 
   .stat-figure {
     font-size: var(--text-xl);
     font-weight: 600;
     line-height: 1.1;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.024em;
   }
 
   .stat-label {
@@ -195,10 +144,7 @@ if (specimen) seenVerdicts.add(specimen.verdict);
     color: var(--color-muted);
   }
 
-  /* ---- list ---- */
-
-  .list,
-  .grid-section {
+  .list {
     margin-top: var(--section-gap);
   }
 
@@ -209,7 +155,6 @@ if (specimen) seenVerdicts.add(specimen.verdict);
 
   .group {
     margin-top: var(--space-xl);
-    max-width: var(--measure);
   }
 
   .app-name {
@@ -223,107 +168,43 @@ if (specimen) seenVerdicts.add(specimen.verdict);
     text-decoration: none;
   }
 
-  .app-name a:hover {
-    text-decoration: underline;
-    text-underline-offset: 0.16em;
-  }
-
   .gloss {
     padding: var(--space-xs) 0 var(--space-sm);
     font-size: var(--text-sm);
     color: var(--color-muted);
   }
 
-  .grid-section h2 {
-    margin-bottom: var(--space-md);
-  }
-
   .empty {
     margin-top: var(--space-2xl);
-    max-width: var(--measure);
     display: grid;
     gap: var(--space-sm);
   }
 
-  /* ---- entry, the first of three animated moments ---- */
-
+  /* The proof row joins the field's entry sequence as its third beat. */
   @media (prefers-reduced-motion: no-preference) {
     @supports (transition-behavior: allow-discrete) {
       [data-enter] {
         opacity: 1;
         translate: 0 0;
         transition:
-          opacity 320ms cubic-bezier(0.2, 0, 0, 1),
-          translate 320ms cubic-bezier(0.2, 0, 0, 1);
+          opacity var(--dur-long) var(--ease-out),
+          translate var(--dur-long) var(--ease-out);
+        transition-delay: 120ms;
       }
 
-      /* Content is fully readable if this never runs: the starting state only
-         exists for browsers that can transition out of it. */
       @starting-style {
         [data-enter] {
           opacity: 0;
           translate: 0 8px;
         }
       }
-
-      [data-enter='2'] {
-        transition-delay: 70ms;
-      }
-
-      [data-enter='3'] {
-        transition-delay: 140ms;
-      }
-    }
-  }
-
-  /* ---- scroll reveal, the second animated moment ----
-
-     Opacity only, no movement, and it starts from 0.4 rather than 0: the
-     brief is "barely perceptible", and a row that begins fully transparent
-     is both more noticeable and riskier if the timeline never advances.
-
-     Feature-detected. Without support the rows are simply visible, and no
-     JavaScript or IntersectionObserver is involved either way. */
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      .list :global(.row) {
-        animation: row-reveal linear both;
-        animation-timeline: view();
-        animation-range: entry 0% cover 25%;
-      }
-
-      @keyframes row-reveal {
-        from {
-          opacity: 0.4;
-        }
-        to {
-          opacity: 1;
-        }
-      }
     }
   }
 
   @media (max-width: 34rem) {
-    .statement {
-      padding-top: var(--space-md);
-    }
-
-    .sub {
-      margin-top: var(--space-sm);
-    }
-
-    .proof {
-      margin-top: var(--space-md);
-      padding-block: var(--space-sm);
-    }
-
-    .figure + .figure {
+    .fig + .fig {
       margin-left: var(--space-md);
       padding-left: var(--space-md);
-    }
-
-    .stat-figure {
-      font-size: var(--text-lg);
     }
   }
 </style>

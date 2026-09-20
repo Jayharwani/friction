@@ -1,0 +1,132 @@
+---
+/**
+ * The 2D fallback for the field.
+ *
+ * Rendered under 768px and whenever WebGL is unavailable. Same data, same
+ * five-stop OKLCH ramp, no Three.js — mobile gets a fast page rather than a
+ * degraded 3D one.
+ *
+ * A real table, so the axes carry headers for a screen reader and every cell
+ * states its count in text as well as in colour.
+ */
+import { url } from '../lib/url';
+import type { FieldData } from '../lib/field';
+
+interface Props {
+  field: FieldData;
+  /** How many rows to show; the strip is a summary, not the full list. */
+  rowCount?: number;
+}
+
+const { field, rowCount = 8 } = Astro.props;
+const rows = field.rows.slice(0, rowCount);
+
+/** Five discrete steps, matching --heat-0..4. */
+function step(count: number): number {
+  if (count <= 0) return 0;
+  return Math.min(4, Math.max(1, Math.ceil((count / field.max) * 4)));
+}
+---
+
+<figure class="strip-fig">
+  <table>
+    <caption class="sr-only">
+      Reviews per week for the {rows.length} highest-scoring problems, across the last {
+        field.weeks.length
+      } weeks. Darker means more reviews that week.
+    </caption>
+    <thead>
+      <tr>
+        <th scope="col"><span class="sr-only">Problem</span></th>
+        {
+          field.weekLabels.map((w, i) => (
+            <th scope="col" class="wk">
+              <span class="sr-only">Week of {w}</span>
+              <span aria-hidden="true" class="wk-l num">{i % 3 === 0 ? w : ''}</span>
+            </th>
+          ))
+        }
+      </tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row) => (
+          <tr>
+            <th scope="row" class="lbl">
+              <a href={url(`/problems/${row.slug}`)}>{row.title}</a>
+            </th>
+            {row.counts.map((n, i) => (
+              <td
+                class="cell"
+                data-heat={step(n)}
+                title={`${n} ${n === 1 ? 'review' : 'reviews'} in the week of ${field.weekLabels[i]}`}
+              >
+                <span class="sr-only">{n} in the week of {field.weekLabels[i]}</span>
+              </td>
+            ))}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</figure>
+
+<style>
+  .strip-fig {
+    margin: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 2px;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .lbl {
+    width: 42%;
+    max-width: 16rem;
+    font-weight: 400;
+    text-align: left;
+    font-size: var(--text-xs);
+    padding-right: var(--space-sm);
+    color: var(--color-muted);
+  }
+
+  .lbl a {
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .wk {
+    font-weight: 400;
+    vertical-align: bottom;
+  }
+
+  .wk-l {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    text-align: left;
+    line-height: 1;
+    white-space: nowrap;
+    padding-bottom: var(--space-2xs);
+  }
+
+  .cell {
+    height: 1.05rem;
+    padding: 0;
+    border-radius: 1px;
+  }
+
+  [data-heat='0'] { background: var(--heat-0); }
+  [data-heat='1'] { background: var(--heat-1); }
+  [data-heat='2'] { background: var(--heat-2); }
+  [data-heat='3'] { background: var(--heat-3); }
+  [data-heat='4'] { background: var(--heat-4); }
+</style>
