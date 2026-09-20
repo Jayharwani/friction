@@ -159,11 +159,11 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
   }
 
   .bar.ios {
-    background: var(--ink);
+    background: var(--text);
   }
 
   .bar.android {
-    background: color-mix(in oklab, var(--ink) 40%, var(--paper));
+    background: color-mix(in oklch, var(--text) 40%, var(--bg));
   }
 
   .tick {
@@ -194,11 +194,11 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
   }
 
   .swatch.ios {
-    background: var(--ink);
+    background: var(--text);
   }
 
   .swatch.android {
-    background: color-mix(in oklab, var(--ink) 40%, var(--paper));
+    background: color-mix(in oklch, var(--text) 40%, var(--bg));
   }
 
   .group {

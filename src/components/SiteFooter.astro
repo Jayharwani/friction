@@ -1,0 +1,60 @@
+---
+/**
+ * Site footer.
+ *
+ * Carries the last-scan date and a link to the exact commit this build was
+ * made from. That link is a small but real trust signal: the numbers on screen
+ * trace to a specific revision, not to "trust us".
+ */
+import { formatDate, getDataCommit, getLatestRun } from '../lib/data';
+
+const run = getLatestRun();
+const commit = getDataCommit();
+---
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="inner measure">
+      <p>
+        Friction is non-commercial and has no ads, accounts or payments. It reads publicly visible
+        app store reviews. It is not affiliated with any of the apps it tracks.
+      </p>
+
+      <p class="provenance num">
+        {
+          run && (
+            <>
+              Last scan <time datetime={run.date}>{formatDate(run.date)}</time>.{' '}
+            </>
+          )
+        }
+        Built from{' '}
+        <a href={commit.url} rel="noopener noreferrer">
+          {commit.sha ? `commit ${commit.sha}` : 'the data history'}
+        </a>
+        .
+      </p>
+
+      <p>
+        <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">
+          Source and data on GitHub
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--section-gap);
+    border-top: 1px solid var(--rule);
+    padding-block: var(--space-6) var(--space-8);
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .inner {
+    display: grid;
+    gap: var(--space-3);
+  }
+</style>

@@ -1,90 +1,133 @@
 @import "tailwindcss";
 
 /* ===================================================================
-   Friction — design tokens (spec 6.2)
+   Friction — design tokens
 
-   The subject is friction: the same small abrasion, repeated across
-   versions and platforms, until it wears through. The page should read
-   like a well-kept defect ledger that someone actually uses. Boldness is
-   spent on exactly two things — the recurrence grid and the score
-   disclosure. Everything else stays quiet.
+   Concept: an instrument, not a dashboard. A well-made measuring
+   device — precise, calm, one glowing indicator against a neutral
+   body. Everything is quiet except the data.
+
+   No cards. No shadows. No gradients. No icons. Separation comes from
+   space and hairline rules only, so the site reads as one continuous,
+   well-set document.
    =================================================================== */
 
+/* -------------------------------------------------------------------
+   Colour, in OKLCH.
+
+   OKLCH matters here specifically: the heat ramp has to be
+   perceptually even. An sRGB ramp collapses in the middle, which was
+   the actual bug in the previous grid.
+
+   Dark is the default and was designed first. The system preference
+   wins unless the reader has chosen explicitly, which is what the
+   :not([data-theme]) guard below is for.
+   ------------------------------------------------------------------- */
+
 :root {
-  /* Surfaces and text */
-  --paper: #FAFAF7;   /* page, slightly warm white, not cream */
-  --ink:   #182028;   /* text, cool slate, not tinted black */
-  --rule:  #DDE0DD;   /* hairlines and grid gaps */
-  --muted: #6B7680;   /* secondary text and metadata */
+  --bg:         oklch(0.17 0.010 255);
+  --surface:    oklch(0.21 0.010 255);
+  --rule:       oklch(0.30 0.010 255);
+  --text:       oklch(0.96 0.004 255);
+  --muted:      oklch(0.67 0.010 255);
+  --accent:     oklch(0.78 0.17 62);
+  --accent-dim: oklch(0.45 0.09 62);
 
-  /* The only colour system in the product. There is no third accent. */
-  --cold:  #4C6E8F;   /* low evidence volume, dormant */
-  --hot:   #A32B5B;   /* high evidence volume, growing */
-
-  /* An empty heat cell. Reads as absence, not as a low value. */
-  --cell-empty: #ECEDE9;
-
-  /* A tint of --ink for surfaces that must separate from --paper
-     without introducing a colour. Used sparingly. */
-  --sunken: #F2F1EC;
-
-  --font-sans:  "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
-
-  /* Prose measure. Nothing textual exceeds this except the grid. */
-  --measure: 68ch;
+  color-scheme: dark;
 }
 
-/* Same hues at adjusted lightness — not a different palette. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #12161A;
-    --ink:   #E4E8E6;
-    --rule:  #2A3138;
-    --muted: #949DA6;
+/* The light palette is written twice on purpose: one branch for the
+   system preference, one for an explicit choice. CSS cannot share a
+   declaration block across a media query and an attribute selector,
+   and the duplication is plainer than the indirection that avoids it. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:         oklch(0.98 0.004 90);
+    --surface:    oklch(0.95 0.006 90);
+    --rule:       oklch(0.88 0.008 90);
+    --text:       oklch(0.22 0.012 255);
+    --muted:      oklch(0.50 0.012 255);
+    --accent:     oklch(0.62 0.16 55);
+    --accent-dim: oklch(0.86 0.06 62);
 
-    /* Lifted for contrast against a dark ground, same hue family. */
-    --cold:  #7FA4C6;
-    --hot:   #E0728F;
-
-    --cell-empty: #1C2228;
-    --sunken: #181D22;
+    color-scheme: light;
   }
 }
 
-/* `inline` keeps generated utilities pointing at the custom property, so the
-   dark-scheme block above applies without emitting a second set of utilities. */
-@theme inline {
-  --color-paper:  var(--paper);
-  --color-ink:    var(--ink);
-  --color-rule:   var(--rule);
-  --color-muted:  var(--muted);
-  --color-cold:   var(--cold);
-  --color-hot:    var(--hot);
-  --color-sunken: var(--sunken);
+:root[data-theme="light"] {
+  --bg:         oklch(0.98 0.004 90);
+  --surface:    oklch(0.95 0.006 90);
+  --rule:       oklch(0.88 0.008 90);
+  --text:       oklch(0.22 0.012 255);
+  --muted:      oklch(0.50 0.012 255);
+  --accent:     oklch(0.62 0.16 55);
+  --accent-dim: oklch(0.86 0.06 62);
 
-  --font-sans:  var(--font-sans);
-  --font-serif: var(--font-serif);
+  color-scheme: light;
 }
 
-/* Type scale: 1.25 ratio off a 17px body (spec 6.2). */
-@theme {
-  --text-xs:   0.706rem;  /* 12px */
-  --text-sm:   0.824rem;  /* 14px */
-  --text-base: 1rem;      /* 17px */
-  --text-lg:   1.25rem;   /* 21px */
-  --text-xl:   1.588rem;  /* 27px */
-  --text-2xl:  1.941rem;  /* 33px */
-  --text-3xl:  2.471rem;  /* 42px */
+/* One accent hue for the entire product. The heat ramp is five steps
+   interpolated in OKLCH from the page surface to the accent; five
+   discrete steps read more clearly than a continuous mix at the low
+   counts this data actually produces. */
+:root {
+  --heat-0: var(--surface);
+  --heat-1: color-mix(in oklch, var(--accent) 22%, var(--surface));
+  --heat-2: color-mix(in oklch, var(--accent) 45%, var(--surface));
+  --heat-3: color-mix(in oklch, var(--accent) 70%, var(--surface));
+  --heat-4: var(--accent);
 }
 
-/* ===================================================================
+/* -------------------------------------------------------------------
+   Space. Only these values are used; no arbitrary margins anywhere.
+   ------------------------------------------------------------------- */
+
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 6rem;
+
+  /* One step of separation between sections, plus a hairline. Never a
+     blank screenful. */
+  --section-gap: var(--space-8);
+}
+
+/* -------------------------------------------------------------------
+   Type. Three roles, clearly separated.
+   ------------------------------------------------------------------- */
+
+:root {
+  --font-serif: "Newsreader", ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* The arithmetic line inside the score disclosure is read digit by
+     digit, so it gets a real monospace. System stack: no extra load. */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* 1.25 ratio off a 17px base, fluid where size actually matters. */
+  --text-xs: 0.72rem;
+  --text-sm: 0.82rem;
+  --text-base: 1rem;
+  --text-lg: clamp(1.15rem, 1.05rem + 0.4vw, 1.25rem);
+  --text-xl: clamp(1.35rem, 1.2rem + 0.75vw, 1.5625rem);
+  --text-2xl: clamp(1.6rem, 1.35rem + 1.25vw, 1.953rem);
+  --text-3xl: clamp(1.9rem, 1.5rem + 2vw, 2.441rem);
+
+  --measure: 68ch;
+}
+
+/* -------------------------------------------------------------------
    Base
-   =================================================================== */
+   ------------------------------------------------------------------- */
 
 html {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
   font-size: 17px;
   -webkit-text-size-adjust: 100%;
@@ -99,25 +142,28 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Every figure in this product is compared against another figure —
-   scores, counts, versions, dates. They must not shift horizontally. */
-:where(time, .num, td, th, .score, .version, .count) {
+/* Every figure on this site is compared against another figure.
+   They must not shift horizontally. */
+:where(time, .num, td, th, .score, .version, .count, .stat-figure) {
   font-variant-numeric: tabular-nums;
 }
 
-h1, h2, h3 {
-  line-height: 1.2;
-  text-wrap: balance;
+h1, h2, h3, h4 {
   margin: 0;
+  line-height: 1.15;
+  text-wrap: balance;
   font-weight: 600;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.012em;
 }
 
-p { margin: 0; }
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
 
 a {
   color: inherit;
-  text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+  text-decoration-color: color-mix(in oklch, currentColor 35%, transparent);
   text-underline-offset: 0.18em;
   text-decoration-thickness: from-font;
 }
@@ -126,15 +172,16 @@ a:hover {
   text-decoration-color: currentColor;
 }
 
-/* Visible focus on every interactive element. Quality floor, spec 6.2. */
+/* Drawn with outline so it never collapses a layout, and never
+   removed without replacement. */
 :focus-visible {
-  outline: 2px solid var(--hot);
-  outline-offset: 2px;
-  border-radius: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 1px;
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--hot) 22%, transparent);
+  background: color-mix(in oklch, var(--accent) 28%, transparent);
 }
 
 hr {
@@ -143,73 +190,68 @@ hr {
   margin: 0;
 }
 
-/* ===================================================================
-   Components
-   =================================================================== */
+/* -------------------------------------------------------------------
+   Layout
 
-@layer components {
-  /* The single content column. The recurrence grid is allowed out of it. */
-  .measure {
-    max-width: var(--measure);
-  }
+   The page is a grid with a named content column and a full-bleed
+   column either side. Break-out elements just switch column — no
+   negative margins, no transforms, nothing that breaks `position:
+   sticky` further down the tree.
+   ------------------------------------------------------------------- */
 
-  .shell {
-    width: 100%;
-    max-width: 78rem;
-    margin-inline: auto;
-    /* 16px gutter holds the layout together down to 360px. */
-    padding-inline: 1rem;
-  }
-
-  @media (min-width: 48rem) {
-    .shell { padding-inline: 2rem; }
-  }
-
-  /* Metadata reads as prose, comma separated. Deliberately not middle dots —
-     spec 6.2 names those as a generated-page tell. */
-  .meta {
-    color: var(--muted);
-    font-size: var(--text-sm);
-    line-height: 1.5;
-  }
-
-  /* People's words get the serif, and more line-height than the sans body. */
-  .quote {
-    font-family: var(--font-serif);
-    font-size: var(--text-lg);
-    line-height: 1.5;
-    font-weight: 400;
-    letter-spacing: -0.003em;
-  }
-
-  /* A verdict is always a word. Colour never carries it alone. */
-  .verdict {
-    font-weight: 600;
-    letter-spacing: -0.006em;
-  }
-
-  /* Hairline separation instead of a floating card with a grey shadow. */
-  .ledger-row {
-    border-top: 1px solid var(--rule);
-  }
+.shell {
+  display: grid;
+  grid-template-columns:
+    [full-start] minmax(var(--space-5), 1fr)
+    [content-start] min(var(--measure), 100% - (var(--space-5) * 2)) [content-end]
+    minmax(var(--space-5), 1fr) [full-end];
 }
 
-/* ===================================================================
+.shell > * {
+  grid-column: content;
+}
+
+/* Wider than the prose measure but still centred and still gutter-safe. */
+.shell > .bleed {
+  grid-column: full;
+  width: min(74rem, 100% - (var(--space-5) * 2));
+  margin-inline: auto;
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -------------------------------------------------------------------
    Motion
 
-   Exactly one non-interactive moment in the product: the recurrence grid
-   fills column by column on first load. Everything else responds to an
-   action.
-
    Every animation in this codebase is declared inside
-   `@media (prefers-reduced-motion: no-preference)`, so under a reduced-motion
-   preference the animation does not exist rather than being overridden. That
-   is why there is no blanket `* { animation: none }` reset here: opting in is
-   a stronger guarantee than fighting specificity after the fact.
-   =================================================================== */
+   `prefers-reduced-motion: no-preference`, so under a reduced-motion
+   preference it does not exist rather than being overridden. The block
+   below is a backstop for anything that slips through, including
+   Astro's own view transitions.
+   ------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

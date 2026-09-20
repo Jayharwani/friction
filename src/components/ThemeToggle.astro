@@ -1,0 +1,98 @@
+---
+/**
+ * Three-state theme control: System, Light, Dark.
+ *
+ * A real button group with aria-pressed, operable by keyboard, with a visible
+ * label. Text rather than icons — this site ships no icon library, and three
+ * short words are clearer than three glyphs.
+ *
+ * The choice is persisted under `friction-theme` and applied by an inline
+ * script in <head> before first paint, so there is no flash.
+ */
+---
+
+<div class="theme" role="group" aria-label="Colour theme">
+  <button type="button" data-theme-choice="system" aria-pressed="true">Auto</button>
+  <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
+  <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+</div>
+
+<script>
+  const KEY = 'friction-theme';
+
+  function read(): string {
+    try {
+      const v = localStorage.getItem(KEY);
+      return v === 'light' || v === 'dark' ? v : 'system';
+    } catch {
+      // Private mode, blocked storage: fall back to the system setting.
+      return 'system';
+    }
+  }
+
+  function apply(choice: string): void {
+    const root = document.documentElement;
+    if (choice === 'system') delete root.dataset.theme;
+    else root.dataset.theme = choice;
+
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-choice]')) {
+      button.setAttribute('aria-pressed', String(button.dataset.themeChoice === choice));
+    }
+  }
+
+  function bind(): void {
+    apply(read());
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-choice]')) {
+      button.addEventListener('click', () => {
+        const choice = button.dataset.themeChoice ?? 'system';
+        try {
+          if (choice === 'system') localStorage.removeItem(KEY);
+          else localStorage.setItem(KEY, choice);
+        } catch {
+          // Preference cannot be persisted; still apply it for this page.
+        }
+        apply(choice);
+      });
+    }
+  }
+
+  // Fires on first load and after every view transition, so the freshly
+  // swapped buttons get their listeners back.
+  document.addEventListener('astro:page-load', bind);
+</script>
+
+<style>
+  .theme {
+    display: inline-flex;
+    border: 1px solid var(--rule);
+  }
+
+  button {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-right: 1px solid var(--rule);
+    color: var(--muted);
+    font: inherit;
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    cursor: pointer;
+    line-height: 1.4;
+  }
+
+  button:last-child {
+    border-right: 0;
+  }
+
+  button:hover {
+    color: var(--text);
+    background: color-mix(in oklch, var(--text) 7%, transparent);
+  }
+
+  /* The selected state is carried by weight and surface, not by hue alone. */
+  button[aria-pressed='true'] {
+    color: var(--text);
+    font-weight: 600;
+    background: color-mix(in oklch, var(--text) 11%, transparent);
+  }
+</style>

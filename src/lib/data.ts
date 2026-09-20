@@ -64,6 +64,31 @@ export function getLatestRun(): Run | null {
   return getRuns()[0] ?? null;
 }
 
+const REPO = 'https://github.com/Jayharwani/friction';
+
+/**
+ * The commit this build was made from, so the footer can point at the exact
+ * revision the on-screen data came from.
+ *
+ * In CI the deploy job checks out the commit the scan just pushed, so
+ * GITHUB_SHA is precisely that. Locally it falls back to git, and to the
+ * data directory's history if git is unavailable.
+ */
+export const getDataCommit = memo((): { sha: string | null; url: string } => {
+  const fromCI = process.env.GITHUB_SHA;
+  if (fromCI) return { sha: fromCI.slice(0, 7), url: `${REPO}/commit/${fromCI}` };
+
+  try {
+    // execSync is imported lazily: this only ever runs at build time.
+    const { execSync } = require('node:child_process') as typeof import('node:child_process');
+    const sha = execSync('git rev-parse HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (/^[0-9a-f]{40}$/.test(sha)) return { sha: sha.slice(0, 7), url: `${REPO}/commit/${sha}` };
+  } catch {
+    // Not a git checkout, or git is not installed.
+  }
+  return { sha: null, url: `${REPO}/commits/main/data` };
+});
+
 /** Stale problems stay visible but are excluded from the homepage. */
 export function getActiveProblems(): Problem[] {
   return getProblems().filter((p) => p.status === 'active');

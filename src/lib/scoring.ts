@@ -326,7 +326,7 @@ export function isStale(lastSeen: string, now: Date | string): boolean {
 /* ------------------------------------------------------------------ */
 
 /**
- * Position on the single two-temperature scale, 0 = --cold, 1 = --hot.
+ * Position on the single accent ramp, 0 = page surface, 1 = full accent.
  * The recurrence grid and the score bars both read from this; there is
  * deliberately no third colour anywhere in the product (spec 6.2).
  */

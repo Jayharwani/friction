@@ -52,8 +52,8 @@ const summary =
     ) : (
       <>
         <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={summary} preserveAspectRatio="none">
-          <path d={path} fill="none" stroke="var(--cold)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
-          {last && <circle cx={last.x} cy={last.y} r="2.5" fill="var(--hot)" />}
+          <path d={path} fill="none" stroke="var(--accent-dim)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+          {last && <circle cx={last.x} cy={last.y} r="2.5" fill="var(--accent)" />}
         </svg>
         <p class="caption num">
           from {first!.score} to {latest!.score} over {history.length} scans
