@@ -5,6 +5,9 @@
  */
 import Layout from '../../layouts/Layout.astro';
 import ProblemRow from '../../components/ProblemRow.astro';
+import StackedBar from '../../components/charts/StackedBar.astro';
+import { url } from '../../lib/url';
+import { categoryMix, verdictMix } from '../../lib/charts';
 import {
   getProductsWithProblems,
   getProblemsForProduct,
@@ -29,16 +32,18 @@ interface Props {
 
 const { product, problems } = Astro.props;
 
-// Grouped by category, each group sorted by score.
-const categories = [...new Set(problems.map((p) => p.category))].sort();
-const grouped = categories.map((category) => ({
-  category,
-  items: problems.filter((p) => p.category === category).sort((a, b) => b.score - a.score),
-}));
-
 const trend = productTrend(problems);
 const totalEvidence = problems.reduce((n, p) => n + p.evidence.length, 0);
 const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
+
+const verdicts = verdictMix(problems);
+const cats = categoryMix(problems);
+
+// Category order, flattened. The breakdown above the list names each group
+// with its count, so a heading per group would be saying it twice.
+const ordered = cats.flatMap(({ label }) =>
+  problems.filter((p) => p.category === label).sort((a, b) => b.score - a.score),
+);
 ---
 
 <Layout
@@ -46,15 +51,39 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
   description={`Recurring problems reported in ${product.name} app store reviews, scored from public evidence.`}
 >
   <div class="shell">
-    <header class="intro">
-      <h1>{product.name}</h1>
-      <p class="meta num">
-        {product.category}, {problems.length} {problems.length === 1 ? 'problem' : 'problems'},{' '}
-        {totalEvidence} {totalEvidence === 1 ? 'review' : 'reviews'} recorded
-      </p>
+    <header class="intro bleed">
+      <div class="ident">
+        <img
+          src={url(`/icons/${product.slug}.jpg`)}
+          alt=""
+          width="72"
+          height="72"
+          class="icon"
+          transition:name={`icon-${product.slug}`}
+        />
+        <div>
+          <h1>{product.name}</h1>
+          <p class="meta num">{product.category}</p>
+        </div>
+      </div>
+
+      <dl class="figs num">
+        <div>
+          <dt>Problems</dt>
+          <dd>{problems.length}</dd>
+        </div>
+        <div>
+          <dt>Reviews recorded</dt>
+          <dd>{totalEvidence}</dd>
+        </div>
+      </dl>
+
+      <div class="verdicts">
+        <StackedBar segments={verdicts} of={`of ${product.name}'s problems`} />
+      </div>
     </header>
 
-    <section class="trend-block">
+    <section class="trend-block bleed">
       <h2>Evidence over the last twelve weeks</h2>
 
       <div class="trend" role="img" aria-label={`Weekly evidence volume for ${product.name} over the last twelve weeks, split by platform.`}>
@@ -72,7 +101,7 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
                   <div class="bar ios" style={`height:${(ios / trend.max) * 100}%`} />
                   <div class="bar android" style={`height:${(android / trend.max) * 100}%`} />
                 </div>
-                <span class="tick num">{i % 3 === 0 ? weekLabel(week) : ''}</span>
+                <span class="tick num">{weekLabel(week)}</span>
               </div>
             );
           })
@@ -86,16 +115,13 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
       </p>
     </section>
 
-    {
-      grouped.map((group) => (
-        <section class="group">
-          <h2>{group.category}</h2>
-          {group.items.map((problem) => (
-            <ProblemRow problem={problem} />
-          ))}
-        </section>
-      ))
-    }
+    <section class="problems">
+      <h2>What has been found</h2>
+      <div class="cat-mix">
+        <StackedBar segments={cats} of={`of ${product.name}'s problems`} />
+      </div>
+      {ordered.map((problem) => <ProblemRow problem={problem} />)}
+    </section>
 
     <p class="disclaimer measure">
       This page reflects publicly visible {platforms.length === 2 ? 'App Store and Google Play' : platforms[0] === 'android' ? 'Google Play' : 'App Store'} reviews
@@ -108,7 +134,10 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
 <style>
   .intro {
     padding-block: var(--space-xl) 0;
-    max-width: var(--measure);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-lg) var(--space-2xl);
   }
 
   h1 {
@@ -158,20 +187,30 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
     box-shadow: inset 0 -1px 0 0 var(--color-rule);
   }
 
+  /* The same two steps the stacked bars use, so a platform reads the same
+     colour everywhere on the site. */
   .bar.ios {
-    background: var(--color-ink);
+    background: var(--color-accent);
   }
 
   .bar.android {
-    background: color-mix(in oklch, var(--color-ink) 40%, var(--color-paper));
+    background: color-mix(in oklch, var(--color-accent) 38%, var(--color-paper-2));
   }
 
+  /*
+   * Every week is labelled, not every third. Twelve dates do not fit
+   * horizontally at this column width, so they are turned on their side —
+   * which is what an axis does when the labels are dates.
+   */
   .tick {
-    margin-top: var(--space-2xs);
+    margin-top: var(--space-xs);
     font-size: var(--text-xs);
     color: var(--color-muted);
     white-space: nowrap;
     line-height: 1;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    text-align: right;
   }
 
   .legend {
@@ -194,16 +233,63 @@ const platforms = [...new Set(problems.flatMap((p) => p.platforms))];
   }
 
   .swatch.ios {
-    background: var(--color-ink);
+    background: var(--color-accent);
   }
 
   .swatch.android {
-    background: color-mix(in oklch, var(--color-ink) 40%, var(--color-paper));
+    background: color-mix(in oklch, var(--color-accent) 38%, var(--color-paper-2));
   }
 
-  .group {
+  .problems {
     margin-top: var(--space-2xl);
     max-width: var(--measure);
+  }
+
+  .problems h2 {
+    font-size: var(--text-lg);
+  }
+
+  .cat-mix {
+    margin: var(--space-md) 0 var(--space-lg);
+  }
+
+  /* ---- band 1: identity ---- */
+
+  .ident {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .icon {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 14px;
+    flex: none;
+    background: var(--color-paper-2);
+  }
+
+  .figs {
+    display: flex;
+    gap: var(--space-xl);
+    margin: 0;
+  }
+
+  .figs dt {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .figs dd {
+    margin: 0;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .verdicts {
+    min-width: min(100%, 16rem);
+    flex: 1 1 16rem;
   }
 
   .disclaimer {
