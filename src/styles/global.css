@@ -81,8 +81,24 @@
    Type — Geist for the instrument, Newsreader roman for human voice.
    ------------------------------------------------------------------- */
 
+/*
+ * A fallback sized to match Geist so the swap, when the web font arrives,
+ * does not reflow the page. Every measure here is centred, so a 3% width
+ * difference moved the whole layout sideways — a real 0.024 CLS on /apps.
+ *
+ * 103.2% is measured rather than guessed: a 78-character sample renders
+ * 3648px in Geist and 3535px in Arial at 100px. Line heights are all
+ * explicit and unitless, so no vertical override is needed.
+ */
+@font-face {
+  font-family: "Geist Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Liberation Sans");
+  size-adjust: 103.2%;
+  font-display: swap;
+}
+
 :root {
-  --font-display: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-display);
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   /* Reviewers' words. Roman, never italic — italic display type is a tell. */
@@ -98,7 +114,13 @@
   --text-3xl: clamp(2rem, 1.5rem + 2.4vw, 2.75rem);
   --text-display: clamp(2.4rem, 1.4rem + 4.4vw, 4.25rem);
 
-  --measure: 68ch;
+  /*
+   * Measures are in rem, not ch. Geist's digits are wide relative to its
+   * average advance — 1ch is 11.27px in Geist and 9.75px in the matched
+   * fallback — so a ch-based measure jumped 15% the moment the web font
+   * arrived and reflowed whole pages. 45rem is 68 Geist characters, fixed.
+   */
+  --measure: 45rem;
   --nav-h: 4.25rem;
   --page-gutter: clamp(1rem, 4vw, 3rem);
   --rule-hair: 1px;

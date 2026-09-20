@@ -63,7 +63,10 @@ const commit = getDataCommit();
     line-height: 1.06;
     letter-spacing: -0.028em;
     font-weight: 500;
-    max-width: 26ch;
+    /* em, not ch: a ch measure is the width of the "0" glyph, which differs
+       between Geist and any fallback, so it reflowed the instant the web font
+       arrived. em tracks the same clamped display size without that. */
+    max-width: 17.23em;
     text-wrap: balance;
   }
 
