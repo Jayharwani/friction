@@ -10,6 +10,7 @@
  * a link that disappoints.
  */
 import Layout from '../layouts/Layout.astro';
+import AppCard from '../components/AppCard.astro';
 import { url } from '../lib/url';
 import { getProblems, getProducts } from '../lib/data';
 
@@ -30,21 +31,70 @@ const rows = products
 
 const tracked = products.length;
 const withFindings = rows.filter((r) => r.problemCount > 0).length;
+
+const categories = [...new Set(products.map((p) => p.category))].sort();
 ---
 
 <Layout
   title="Apps"
   description="Every app Friction tracks, with the number of recurring problems found in its public store reviews."
 >
-  <div class="shell">
+  <div class="shell" data-apps data-view="grid">
     <header class="intro">
       <h1>Apps</h1>
       <p class="lede">
         Friction tracks {tracked} apps. {withFindings} of them currently have at least one recurring
-        problem with enough evidence to record. An app with nothing listed is not a clean bill of
-        health — it means nothing cleared the filters in the scans so far.
+        problem with enough evidence to record.
       </p>
     </header>
+
+    <div class="controls bleed" role="group" aria-label="Sort, filter and view">
+      <fieldset class="seg">
+        <legend>Sort</legend>
+        <label><input type="radio" name="apps-sort" value="problems" checked /><span>Problems</span></label>
+        <label><input type="radio" name="apps-sort" value="reviews" /><span>Reviews</span></label>
+        <label><input type="radio" name="apps-sort" value="name" /><span>A–Z</span></label>
+      </fieldset>
+
+      <p class="field">
+        <label for="apps-platform">Platform</label>
+        <select id="apps-platform" data-filter-platform>
+          <option value="all">Both stores</option>
+          <option value="ios">iOS</option>
+          <option value="android">Android</option>
+        </select>
+      </p>
+
+      <p class="field">
+        <label for="apps-category">Category</label>
+        <select id="apps-category" data-filter-category>
+          <option value="all">All categories</option>
+          {categories.map((c) => <option value={c}>{c}</option>)}
+        </select>
+      </p>
+
+      <p class="count num" data-apps-count aria-live="polite">{tracked} apps</p>
+
+      <fieldset class="seg view">
+        <legend>View</legend>
+        <label><input type="radio" name="apps-view" value="grid" checked /><span>Cards</span></label>
+        <label><input type="radio" name="apps-view" value="table" /><span>Table</span></label>
+      </fieldset>
+    </div>
+
+    <div class="grid bleed" data-apps-grid>
+      {
+        rows.map(({ product }) => (
+          <AppCard product={product} problems={problems.filter((p) => p.productSlug === product.slug)} />
+        ))
+      }
+    </div>
+
+    <p class="ch-caption grid-note bleed">
+      An app with nothing listed is not a clean bill of health — it means nothing cleared the
+      filters in the scans so far. App icons are the property of their owners, shown here only to
+      identify the app; Friction is not affiliated with any of them.
+    </p>
 
     <table>
       <thead>
@@ -75,14 +125,175 @@ const withFindings = rows.filter((r) => r.problemCount > 0).length;
       </tbody>
     </table>
 
-    <p class="note">
+    <p class="note table-note">
       "Reviews" counts the pieces of evidence stored against that app's problems, not every review
       read. The <a href={url('/methodology')}>methodology</a> explains the difference.
     </p>
   </div>
 </Layout>
 
+<script>
+  import { initAppsControls } from '../scripts/apps-controls';
+
+  document.addEventListener('astro:page-load', initAppsControls);
+</script>
+
 <style>
+
+  /* ---- controls ---- */
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-md) var(--space-lg);
+    margin-top: var(--space-xl);
+    padding-bottom: var(--space-md);
+  }
+
+  fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+
+  legend,
+  .field label {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    margin-bottom: var(--space-2xs);
+    padding: 0;
+  }
+
+  /* A segmented control built from radios, so it is keyboard-operable by
+     default and works with no JavaScript at all. */
+  .seg {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .seg > label {
+    display: inline-flex;
+  }
+
+  .seg label:has(input) {
+    cursor: pointer;
+  }
+
+  .seg > label + label {
+    margin-left: 0;
+  }
+
+  .seg :global(input) {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .seg span {
+    display: block;
+    padding: var(--space-2xs) var(--space-sm);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-right-width: 0;
+  }
+
+  .seg label:last-of-type span {
+    border-right-width: var(--rule-hair);
+  }
+
+  .seg label:hover span {
+    color: var(--color-ink);
+  }
+
+  .seg input:checked + span {
+    color: var(--color-ink);
+    font-weight: 600;
+    background: color-mix(in oklch, var(--color-ink) 8%, transparent);
+  }
+
+  .seg input:focus-visible + span {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* The radios sit in a row; the legend stacks above them. */
+  .seg {
+    display: grid;
+    grid-template-columns: auto;
+  }
+
+  .seg > label {
+    grid-row: 2;
+  }
+
+  .seg > label:nth-of-type(1) { grid-column: 1; }
+  .seg > label:nth-of-type(2) { grid-column: 2; }
+  .seg > label:nth-of-type(3) { grid-column: 3; }
+
+  .seg legend {
+    grid-row: 1;
+    grid-column: 1 / -1;
+  }
+
+  select {
+    font: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 4px;
+    padding: var(--space-2xs) var(--space-xs);
+  }
+
+  select:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .field {
+    margin: 0;
+  }
+
+  .count {
+    margin: 0 0 var(--space-2xs) auto;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  /* ---- the grid ---- */
+
+  /*
+   * Three up on a wide screen, one on a phone. The track minimum is stated
+   * explicitly rather than left as auto, so the cards' images cannot push a
+   * track wider than the viewport.
+   */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    column-gap: var(--space-2xl);
+  }
+
+  /* ---- view switch ---- */
+
+  [data-view='grid'] table,
+  [data-view='grid'] .table-note {
+    display: none;
+  }
+
+  [data-view='table'] .grid,
+  [data-view='table'] .grid-note {
+    display: none;
+  }
+
+  .grid-note {
+    margin-top: var(--space-xl);
+    max-width: 48em;
+  }
+
   .intro {
     padding-top: var(--space-xl);
   }

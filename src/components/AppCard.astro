@@ -1,0 +1,190 @@
+---
+/**
+ * One app in the grid: what it is, how much has been found, and the shape of
+ * that evidence over twelve weeks.
+ *
+ * The icon is used small and unaltered, to identify the app beside its name.
+ * It is served from this origin, never hotlinked, and the page carries the
+ * non-affiliation notice.
+ */
+import type { Problem, Product } from '../../scripts/validate';
+import { url } from '../lib/url';
+import { verdictMix, weeklySeries } from '../lib/charts';
+import Sparkline from './charts/Sparkline.astro';
+import StackedBar from './charts/StackedBar.astro';
+
+interface Props {
+  product: Product;
+  problems: Problem[];
+}
+
+const { product, problems } = Astro.props;
+
+const reviewCount = problems.reduce((n, p) => n + p.evidence.length, 0);
+const evidence = problems.flatMap((p) => p.evidence);
+const series = weeklySeries(evidence);
+const mix = verdictMix(problems);
+const has = problems.length > 0;
+
+const href = url(`/products/${product.slug}`);
+const platforms = [...new Set(evidence.map((e) => e.platform))];
+---
+
+<article
+  class="card"
+  data-app
+  data-name={product.name}
+  data-category={product.category}
+  data-problems={problems.length}
+  data-reviews={reviewCount}
+  data-platforms={platforms.join(' ')}
+>
+  <div class="head">
+    <img
+      src={url(`/icons/${product.slug}.jpg`)}
+      alt=""
+      width="48"
+      height="48"
+      loading="lazy"
+      decoding="async"
+      class="icon"
+      transition:name={`icon-${product.slug}`}
+    />
+    <div class="names">
+      <h2>
+        {
+          has ? (
+            <a href={href}>{product.name}</a>
+          ) : (
+            /* No findings means no product page worth linking to. */
+            <span>{product.name}</span>
+          )
+        }
+      </h2>
+      <p class="cat">{product.category}</p>
+    </div>
+  </div>
+
+  {
+    has ? (
+      <>
+        <dl class="figs num">
+          <div>
+            <dt>Problems</dt>
+            <dd>{problems.length}</dd>
+          </div>
+          <div>
+            <dt>Reviews recorded</dt>
+            <dd>{reviewCount}</dd>
+          </div>
+        </dl>
+
+        <div class="trend">
+          <Sparkline
+            series={series}
+            label={`${series.total} of ${product.name}'s ${reviewCount} recorded reviews arrived in the last twelve weeks.`}
+          />
+          <span class="trend-label">last 12 weeks</span>
+        </div>
+
+        <StackedBar segments={mix} of={`of ${product.name}'s problems`} />
+      </>
+    ) : (
+      <p class="none">Nothing has cleared the filters for this app yet.</p>
+    )
+  }
+</article>
+
+<style>
+  .card {
+    display: grid;
+    gap: var(--space-md);
+    align-content: start;
+    padding: var(--space-lg) 0;
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 10px;
+    flex: none;
+    /* The artwork is the app's, not this site's: no filter, no overlay. */
+    background: var(--color-paper-2);
+  }
+
+  .names {
+    min-width: 0;
+  }
+
+  h2 {
+    font-size: var(--text-md);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  h2 a {
+    text-decoration: none;
+  }
+
+  /* The whole card is the target, with one link in the tree. */
+  h2 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .card:has(a) {
+    position: relative;
+  }
+
+  .card:has(a:hover),
+  .card:has(a:focus-visible) {
+    background: color-mix(in oklch, var(--color-ink) 5%, transparent);
+  }
+
+  .cat {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .figs {
+    display: flex;
+    gap: var(--space-lg);
+    margin: 0;
+  }
+
+  .figs dt {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .figs dd {
+    margin: 0;
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  .trend {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .trend-label {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .none {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+</style>

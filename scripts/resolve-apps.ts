@@ -12,7 +12,7 @@
  * Every candidate Apple returns is printed with its score so the choice can be
  * audited by eye rather than trusted blindly.
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import gplay from 'google-play-scraper';
@@ -21,6 +21,14 @@ import { ProductsFileSchema, blockedAppReason, type Product } from './validate';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PRODUCTS_PATH = join(HERE, '..', 'data', 'products.json');
+const ICON_DIR = join(HERE, '..', 'public', 'icons');
+
+/**
+ * Icons are displayed at 72px at most, so 144 covers a 2x screen exactly.
+ * Apple's CDN takes the rendition size in the path, so this asks for the size
+ * that will be shown rather than downloading 512 and scaling it down.
+ */
+const ICON_PX = 144;
 
 /** Spec 5: one request per second per host, serialised. */
 const RATE_LIMIT_MS = 1000;
@@ -108,9 +116,55 @@ interface Outcome {
   blocked: string | null;
 }
 
+/**
+ * Download an app's icon once, into public/icons/.
+ *
+ * Used small, unaltered, to identify the app beside its name — the same basis
+ * a review site operates on, alongside the non-affiliation notice the site
+ * carries. Never hotlinked: the file is served from this origin.
+ *
+ * Returns what happened, for the report.
+ */
+async function fetchIcon(slug: string, appleId: string | null): Promise<string> {
+  if (!appleId) return 'no apple id';
+
+  const dest = join(ICON_DIR, `${slug}.jpg`);
+  if (existsSync(dest)) return 'cached';
+
+  const url = `https://itunes.apple.com/lookup?id=${appleId}&entity=software&country=us`;
+  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
+  if (!res.ok) return `lookup ${res.status}`;
+
+  const json = (await res.json()) as { results?: { artworkUrl512?: string }[] };
+  const art = json.results?.[0]?.artworkUrl512;
+  if (!art) return 'no artwork in response';
+
+  // .../512x512bb.jpg -> .../144x144bb.jpg. The path carries the rendition
+  // size; the file is a JPEG despite the .png earlier in the URL.
+  const sized = art.replace(/\/\d+x\d+bb\.jpg$/, `/${ICON_PX}x${ICON_PX}bb.jpg`);
+  const img = await fetch(sized, { headers: { 'User-Agent': USER_AGENT } });
+  if (!img.ok) return `artwork ${img.status}`;
+
+  mkdirSync(ICON_DIR, { recursive: true });
+  writeFileSync(dest, Buffer.from(await img.arrayBuffer()));
+  return `saved ${Math.round(Number(img.headers.get('content-length') ?? 0) / 1024)}kb`;
+}
+
 async function main(): Promise<void> {
   const dryRun = process.argv.includes('--dry');
+  const iconsOnly = process.argv.includes('--icons-only');
   const products = ProductsFileSchema.parse(JSON.parse(readFileSync(PRODUCTS_PATH, 'utf8')));
+
+  if (iconsOnly) {
+    console.log(`Fetching icons for ${products.length} products
+`);
+    for (const product of products) {
+      const note = await fetchIcon(product.slug, product.appleId ?? null);
+      console.log(`${product.slug.padEnd(16)}${note}`);
+      if (note !== 'cached' && note !== 'no apple id') await sleep(RATE_LIMIT_MS);
+    }
+    return;
+  }
 
   console.log(`Resolving ${products.length} products${dryRun ? ' (dry run)' : ''}\n`);
 
