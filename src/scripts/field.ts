@@ -54,6 +54,8 @@ const SETTLE_MS = 900;
 const COL_DELAY_MS = 18;
 
 export interface FieldHandle {
+  /** Re-read the colour tokens; call after a theme change. */
+  refreshTheme(): void;
   destroy(): void;
 }
 
@@ -84,7 +86,8 @@ function readStop(name: string, fallback: RampStop): RampStop {
 export function createField({ canvas, data, label, reducedMotion, onSelect }: Options): FieldHandle {
   const cols = data.weeks.length;
   const rows = data.rows.length;
-  if (cols < 2 || rows < 2) return { destroy() {} };
+  // Too little data to make a surface: hand back an inert handle.
+  if (cols < 2 || rows < 2) return { refreshTheme() {}, destroy() {} };
 
   const segX = (cols - 1) * SUB_X;
   const segZ = (rows - 1) * SUB_Z;
@@ -136,27 +139,41 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   const colAt = new Float32Array(count); // 0..1 across the week axis, for the settle
   const colours = new Float32Array(count * 3);
 
-  const low = readStop('--color-paper-2', { L: 0.18, C: 0.012, h: 45 });
-  const high = readStop('--color-accent', { L: 0.76, C: 0.17, h: 55 });
-
   for (let i = 0; i < count; i++) {
     const gx = (pos.getX(i) + PLANE_W / 2) / PLANE_W;
     const gz = (pos.getZ(i) + PLANE_D / 2) / PLANE_D;
-    const h = sample(gx, gz);
-
-    targetY[i] = h * PEAK_H;
+    targetY[i] = sample(gx, gz) * PEAK_H;
     colAt[i] = gx;
-
-    // Bias the ramp so low ground still separates from the page.
-    const [r, g, b] = rampLinearRgb(Math.pow(h, 0.72), low, high);
-    colours[i * 3] = r;
-    colours[i * 3 + 1] = g;
-    colours[i * 3 + 2] = b;
-
     pos.setY(i, reducedMotion ? targetY[i]! : 0);
   }
 
-  geometry.setAttribute('color', new Float32BufferAttribute(colours, 3));
+  const colourAttr = new Float32BufferAttribute(colours, 3);
+  geometry.setAttribute('color', colourAttr);
+
+  /**
+   * Read the ramp off the document and paint it onto the vertices.
+   *
+   * Called again whenever the theme changes: the field is coloured from CSS
+   * tokens, and without this a light/dark switch left the terrain holding the
+   * other theme's palette until the next full page load.
+   */
+  function paintTheme(): void {
+    const low = readStop('--color-paper-2', { L: 0.18, C: 0.012, h: 45 });
+    const high = readStop('--color-accent', { L: 0.76, C: 0.17, h: 55 });
+    for (let i = 0; i < count; i++) {
+      // Bias the ramp so low ground still separates from the page.
+      const [r, g, b] = rampLinearRgb(Math.pow(targetY[i]! / PEAK_H, 0.72), low, high);
+      colourAttr.setXYZ(i, r, g, b);
+    }
+    colourAttr.needsUpdate = true;
+
+    const stop = readStop('--color-paper', { L: 0.14, C: 0.01, h: 45 });
+    const [fr, fg, fb] = rampLinearRgb(0, stop, stop);
+    (scene.fog as Fog).color.setRGB(fr, fg, fb);
+    renderer.setClearColor((scene.fog as Fog).color, 0);
+  }
+
+  paintTheme();
   geometry.computeVertexNormals();
 
   // No emissive: a flat white emissive term washes the ramp out entirely.
@@ -263,6 +280,7 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   const tilt = { x: 0, y: 0 };
   const tiltTarget = { x: 0, y: 0 };
   const raycaster = new Raycaster();
+  let pointerMoved = false;
   let hoverRow = -1;
   let hoverCol = -1;
   let hasPointer = false;
@@ -272,10 +290,11 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     pointer.x = ((ev.clientX - r.left) / r.width) * 2 - 1;
     pointer.y = -((ev.clientY - r.top) / r.height) * 2 + 1;
     hasPointer = true;
+    pointerMoved = true;
     // Under reduced motion the camera never moves, but hovering still reads
     // the surface — the labels are the point, the parallax is the decoration.
     if (reducedMotion) {
-      updateLabel();
+      updateLabel(0);
       return;
     }
     tiltTarget.x = pointer.x * TILT_DEG;
@@ -310,8 +329,15 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     };
   }
 
-  function updateLabel(): void {
+  /**
+   * Raycasting every frame costs more than it is worth: the pointer is still
+   * most of the time. Pick when it has moved, and once every tenth frame
+   * otherwise, so the label still keeps up with the drifting surface.
+   */
+  function updateLabel(frame: number): void {
     if (!hasPointer || settleT < 1) return;
+    if (!pointerMoved && frame % 10 !== 0) return;
+    pointerMoved = false;
     const cell = pick();
     if (!cell) {
       hideLabel();
@@ -357,6 +383,7 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   /** Animation time consumed before the current run, so a pause is a pause. */
   let elapsedBase = 0;
   let elapsed = 0;
+  let frameNo = 0;
   let settleT = reducedMotion ? 1 : 0;
 
   function frame(now: number): void {
@@ -384,7 +411,8 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     tilt.y += (tiltTarget.y - tilt.y) * SPRING;
 
     placeCamera(BASE_AZ + driftAz + tilt.x, BASE_EL - tilt.y);
-    updateLabel();
+    frameNo += 1;
+    updateLabel(frameNo);
     renderer.render(scene, camera);
 
     raf = requestAnimationFrame(frame);
@@ -433,6 +461,12 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   }
 
   return {
+    refreshTheme() {
+      paintTheme();
+      // Repaint immediately: under reduced motion no frame is coming.
+      renderer.render(scene, camera);
+    },
+
     destroy() {
       pause();
       io.disconnect();

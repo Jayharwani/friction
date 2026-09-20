@@ -105,6 +105,16 @@ const payload = JSON.stringify(field);
   document.addEventListener('astro:page-load', () => {
     void mount();
   });
+
+  // The ramp and the fog come from CSS tokens, so a theme change has to be
+  // pushed into the scene. Repainting beats remounting: no reallocation, and
+  // the settle does not replay.
+  document.addEventListener('friction:themechange', () => handle?.refreshTheme());
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addEventListener('change', () => {
+      if (!document.documentElement.dataset.theme) handle?.refreshTheme();
+    });
   document.addEventListener('astro:before-swap', () => {
     handle?.destroy();
     handle = null;

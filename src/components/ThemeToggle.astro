@@ -38,6 +38,10 @@
     for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-choice]')) {
       button.setAttribute('aria-pressed', String(button.dataset.themeChoice === choice));
     }
+
+    // Anything that read a colour token at load — the field's ramp and fog —
+    // needs to know. CSS alone cannot reach into a WebGL scene.
+    document.dispatchEvent(new CustomEvent('friction:themechange'));
   }
 
   function bind(): void {
