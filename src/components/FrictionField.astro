@@ -125,9 +125,9 @@ const payload = JSON.stringify(field);
   .field {
     position: relative;
     /* Sized before hydration so the field contributes zero layout shift. */
-    height: 72vh;
-    min-height: 30rem;
-    max-height: 54rem;
+    height: 78vh;
+    min-height: 32rem;
+    max-height: 56rem;
     overflow: clip;
   }
 
@@ -220,14 +220,22 @@ const payload = JSON.stringify(field);
   }
 
   .overlay-inner {
-    max-width: 15.9em;
+    /* The statement sets its own measure below, at its own size. */
+    max-width: none;
   }
 
   .overlay h1 {
-    font-size: clamp(1.9rem, 1rem + 2.4vw, 2.9rem);
+    font-size: clamp(1.6rem, 0.7rem + 2.6vw, 2.9rem);
     font-weight: 600;
-    line-height: 1.0;
+    line-height: 1.02;
     letter-spacing: -0.035em;
+    /*
+     * Two lines, never six. The measure is in em so it tracks the clamped
+     * display size: at any width this holds roughly twenty-five characters
+     * per line, which is what breaks the statement where it should break.
+     */
+    max-width: 13em;
+    text-wrap: balance;
   }
 
   .sub {
@@ -264,8 +272,10 @@ const payload = JSON.stringify(field);
       padding: var(--space-xl) var(--page-gutter) 0;
     }
 
+    /* The statement keeps its own em measure here too. A fixed container
+       width put it on six lines at 768px and four at 390px. */
     .overlay-inner {
-      max-width: 11.93em;
+      max-width: none;
     }
   }
 

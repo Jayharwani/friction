@@ -15,7 +15,7 @@ import {
   Color,
   DirectionalLight,
   Float32BufferAttribute,
-  Fog,
+  FogExp2,
   LineBasicMaterial,
   LineSegments,
   Mesh,
@@ -38,9 +38,33 @@ import { rampLinearRgb, type FieldData, type RampStop } from '../lib/ramp';
 const SUB_X = 4;
 const SUB_Z = 3;
 
-const PLANE_W = 11;
-const PLANE_D = 9;
-const PEAK_H = 2.15;
+/*
+ * The data occupies PLANE_W x PLANE_D. The geometry is larger by APRON, and
+ * everything outside the data region tapers to zero height — a flat plain
+ * around the terrain, rendered in the same near-paper colour as the valleys.
+ *
+ * That apron is what removes the rectangular edge. Widening the plane alone
+ * did not: the camera sits low and close, so the silhouette of the left edge
+ * still cut across the frame. The apron runs past the frustum on every side
+ * and the far distance is dissolved by fog, so the surface has no boundary
+ * anywhere — which is what stops it reading as a brown quadrilateral.
+ */
+const PLANE_W = 17;
+const PLANE_D = 12;
+const APRON = 1.9;
+const GEO_W = PLANE_W * APRON;
+const GEO_D = PLANE_D * APRON;
+
+/** The outer fraction of the data region over which heights ease to zero. */
+const TAPER = 0.07;
+
+/**
+ * Tallest peak, as a fraction of the plane's width. The heights themselves are
+ * normalised against the busiest week in the current dataset, so the field has
+ * the same relief whether it is carrying seven reviews or seven hundred.
+ */
+const PEAK_RATIO = 0.18;
+const PEAK_H = PLANE_W * PEAK_RATIO;
 
 /** Total orbit, degrees. Barely perceptible by design. */
 const DRIFT_DEG = 6;
@@ -71,6 +95,9 @@ interface Options {
 const rad = (deg: number) => (deg * Math.PI) / 180;
 const clamp01 = (n: number) => Math.min(Math.max(n, 0), 1);
 
+/** Hermite ease, for the apron taper. */
+const smoothstep = (t: number) => t * t * (3 - 2 * t);
+
 /** Smooth, monotonic ease for the settle. */
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
@@ -89,12 +116,23 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   // Too little data to make a surface: hand back an inert handle.
   if (cols < 2 || rows < 2) return { refreshTheme() {}, destroy() {} };
 
-  const segX = (cols - 1) * SUB_X;
-  const segZ = (rows - 1) * SUB_Z;
+  const segX = Math.round((cols - 1) * SUB_X * APRON);
+  const segZ = Math.round((rows - 1) * SUB_Z * APRON);
 
   /* ---- heights, sampled bilinearly from the real counts ---- */
 
+  /**
+   * Height at a point in data space, 0..1 on both axes.
+   *
+   * Outside that range there is no data, so the height is zero — the apron.
+   * The last few per cent of each edge eases down rather than dropping, so
+   * the terrain meets the plain without a crease.
+   */
   function sample(gx: number, gz: number): number {
+    if (gx < 0 || gx > 1 || gz < 0 || gz > 1) return 0;
+    const edge = Math.min(gx, 1 - gx, gz, 1 - gz);
+    const taper = edge >= TAPER ? 1 : smoothstep(edge / TAPER);
+
     const x = clamp01(gx) * (cols - 1);
     const z = clamp01(gz) * (rows - 1);
     const x0 = Math.floor(x);
@@ -107,7 +145,7 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     const c = (r: number, k: number) => data.rows[r]!.counts[k]! / data.max;
     const a = c(z0, x0) * (1 - fx) + c(z0, x1) * fx;
     const b = c(z1, x0) * (1 - fx) + c(z1, x1) * fx;
-    return a * (1 - fz) + b * fz;
+    return (a * (1 - fz) + b * fz) * taper;
   }
 
   /* ---- scene ---- */
@@ -121,7 +159,13 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   const [pr, pg, pb] = rampLinearRgb(0, paperStop, paperStop);
   const paper = new Color().setRGB(pr, pg, pb);
 
-  scene.fog = new Fog(paper, 14, 32);
+  /*
+   * Exponential, not linear. Linear fog has a start plane, and at this camera
+   * angle that plane was visible as a band across the surface. Exp2 thickens
+   * smoothly from the camera outward, so the far edge dissolves into the page
+   * with no boundary of its own.
+   */
+  scene.fog = new FogExp2(paper, 0.045);
 
   const camera = new PerspectiveCamera(38, 1, 0.1, 100);
 
@@ -130,7 +174,7 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
 
   /* ---- geometry ---- */
 
-  const geometry = new PlaneGeometry(PLANE_W, PLANE_D, segX, segZ);
+  const geometry = new PlaneGeometry(GEO_W, GEO_D, segX, segZ);
   geometry.rotateX(-Math.PI / 2);
 
   const pos = geometry.attributes.position!;
@@ -143,7 +187,7 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     const gx = (pos.getX(i) + PLANE_W / 2) / PLANE_W;
     const gz = (pos.getZ(i) + PLANE_D / 2) / PLANE_D;
     targetY[i] = sample(gx, gz) * PEAK_H;
-    colAt[i] = gx;
+    colAt[i] = clamp01(gx);
     pos.setY(i, reducedMotion ? targetY[i]! : 0);
   }
 
@@ -169,11 +213,24 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
 
     const stop = readStop('--color-paper', { L: 0.14, C: 0.01, h: 45 });
     const [fr, fg, fb] = rampLinearRgb(0, stop, stop);
-    (scene.fog as Fog).color.setRGB(fr, fg, fb);
-    renderer.setClearColor((scene.fog as Fog).color, 0);
+    (scene.fog as FogExp2).color.setRGB(fr, fg, fb);
+    renderer.setClearColor((scene.fog as FogExp2).color, 0);
+
+    /*
+     * The hairlines run from the page colour in the valleys to the ink colour
+     * on the ridges, so they brighten over a peak on a dark page and darken
+     * over one on a light page. A fixed white line disappeared entirely in
+     * light mode.
+     */
+    const inkStop = readStop('--color-ink', { L: 0.95, C: 0.006, h: 60 });
+    const [ir, ig, ib] = rampLinearRgb(1, inkStop, inkStop);
+    for (let i = 0; i < gridShades.length; i++) {
+      const k = gridShades[i]!;
+      gridColourAttr.setXYZ(i, fr + (ir - fr) * k, fg + (ig - fg) * k, fb + (ib - fb) * k);
+    }
+    gridColourAttr.needsUpdate = true;
   }
 
-  paintTheme();
   geometry.computeVertexNormals();
 
   // No emissive: a flat white emissive term washes the ramp out entirely.
@@ -190,61 +247,101 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
   /* ---- hairline grid along the week and problem axes ---- */
 
   const gridPositions: number[] = [];
+  /** Per-vertex 0..1, how high that point sits. The theme supplies the hue. */
+  const gridShades: number[] = [];
   const LIFT = 0.012;
+
+  /**
+   * A line segment on the surface, shaded by how high it sits.
+   *
+   * The hairlines are what give the surface scale — without them it is a
+   * smooth brown shape with no sense that it is a grid of measurements. They
+   * stay near-invisible in the valleys and brighten over the ridges, so they
+   * read as contour rather than as a wireframe laid on top.
+   */
+  function pushSegment(gx0: number, gz0: number, gx1: number, gz1: number): void {
+    const h0 = sample(gx0, gz0);
+    const h1 = sample(gx1, gz1);
+    gridPositions.push(
+      (gx0 - 0.5) * PLANE_W, h0 * PEAK_H + LIFT, (gz0 - 0.5) * PLANE_D,
+      (gx1 - 0.5) * PLANE_W, h1 * PEAK_H + LIFT, (gz1 - 0.5) * PLANE_D,
+    );
+    for (const h of [h0, h1]) {
+      gridShades.push(0.1 + 0.9 * Math.pow(h, 0.55));
+    }
+  }
+
+  // Along the week axis.
   for (let c = 0; c < cols; c++) {
     const gx = c / (cols - 1);
     for (let s = 0; s < segZ; s++) {
-      const gz0 = s / segZ;
-      const gz1 = (s + 1) / segZ;
-      gridPositions.push(
-        (gx - 0.5) * PLANE_W, sample(gx, gz0) * PEAK_H + LIFT, (gz0 - 0.5) * PLANE_D,
-        (gx - 0.5) * PLANE_W, sample(gx, gz1) * PEAK_H + LIFT, (gz1 - 0.5) * PLANE_D,
-      );
+      pushSegment(gx, s / segZ, gx, (s + 1) / segZ);
     }
   }
+  // Along the problem axis.
   for (let r = 0; r < rows; r++) {
     const gz = r / (rows - 1);
     for (let s = 0; s < segX; s++) {
-      const gx0 = s / segX;
-      const gx1 = (s + 1) / segX;
-      gridPositions.push(
-        (gx0 - 0.5) * PLANE_W, sample(gx0, gz) * PEAK_H + LIFT, (gz - 0.5) * PLANE_D,
-        (gx1 - 0.5) * PLANE_W, sample(gx1, gz) * PEAK_H + LIFT, (gz - 0.5) * PLANE_D,
-      );
+      pushSegment(s / segX, gz, (s + 1) / segX, gz);
     }
   }
 
   const gridGeo = new BufferGeometry();
   gridGeo.setAttribute('position', new Float32BufferAttribute(gridPositions, 3));
-  const gridMat = new LineBasicMaterial({ color: new Color(0xffffff), transparent: true, opacity: 0.07 });
+  const gridColourAttr = new Float32BufferAttribute(new Float32Array(gridShades.length * 3), 3);
+  gridGeo.setAttribute('color', gridColourAttr);
+  const gridMat = new LineBasicMaterial({
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.34,
+  });
   const gridLines = new LineSegments(gridGeo, gridMat);
+  paintTheme();
   gridLines.visible = reducedMotion;
   scene.add(gridLines);
 
   /* ---- lighting: one key from upper left, one dim warm fill behind ---- */
 
-  const key = new DirectionalLight(0xfff1e2, 1.35);
-  key.position.set(-6, 7, 4);
+  /*
+   * One key from the upper left at about 33 degrees, and a dim warm rim from
+   * behind the horizon. The low key is what makes the valleys go genuinely
+   * dark — ambient is kept down to 0.05 for the same reason. Contrast between
+   * a lit ridge and a shadowed valley is the only thing that reads as depth;
+   * an emissive surface cannot fake it.
+   */
+  const key = new DirectionalLight(0xfff1e2, 1.9);
+  key.position.set(-7, 5.4, 4.5);
   scene.add(key);
 
-  const fill = new DirectionalLight(0xff9a4d, 0.32);
-  fill.position.set(3, 1.2, -8);
-  scene.add(fill);
+  const rim = new DirectionalLight(0xff9a4d, 0.5);
+  rim.position.set(2.5, 0.6, -9);
+  scene.add(rim);
 
-  scene.add(new AmbientLight(0xffffff, 0.14));
+  scene.add(new AmbientLight(0xffffff, 0.05));
 
   /* ---- camera ---- */
 
   const BASE_AZ = -18;
-  const BASE_EL = 31;
-  const DIST = 14;
+  /*
+   * Twenty degrees above the horizon. At the old thirty-one the surface was
+   * being looked down on, which flattens every ridge into a stain; down here
+   * the peaks occlude each other and the thing reads as terrain.
+   */
+  const BASE_EL = 20;
+  const DIST = 11.2;
   /**
    * The camera looks at a point left of the surface, which pushes the surface
    * right of centre and clear of the statement. Close enough that the terrain
    * runs off the right edge: a landscape continuing past the frame, not an
    * object sitting in the middle of one.
    */
-  const TARGET = { x: -1.35, y: 0.3, z: 0 };
+  /*
+   * Aimed right of the surface's centre. The data thins toward the older
+   * weeks on the left, so this brings the busy recent end into the middle of
+   * the frame and lets the quiet end run off to the left, under the
+   * statement, where flat dark terrain is exactly what is wanted.
+   */
+  const TARGET = { x: 2.4, y: 0.7, z: 0.4 };
 
   function placeCamera(azDeg: number, elDeg: number): void {
     const az = rad(azDeg);
@@ -321,8 +418,14 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     const hit = raycaster.intersectObject(mesh, false)[0];
     if (!hit) return null;
     const p = hit.point;
-    const gx = clamp01((p.x + PLANE_W / 2) / PLANE_W);
-    const gz = clamp01((p.z + PLANE_D / 2) / PLANE_D);
+    const gx = (p.x + PLANE_W / 2) / PLANE_W;
+    const gz = (p.z + PLANE_D / 2) / PLANE_D;
+    /*
+     * The apron is geometry with no data behind it. Clamping a hit there to
+     * the nearest cell would label empty plain with a real problem, and make
+     * a click on it navigate — so a hit outside the data region is a miss.
+     */
+    if (gx < 0 || gx > 1 || gz < 0 || gz > 1) return null;
     return {
       col: Math.round(gx * (cols - 1)),
       row: Math.round(gz * (rows - 1)),
