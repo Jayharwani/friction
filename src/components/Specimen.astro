@@ -12,6 +12,8 @@ import type { Problem } from '../../scripts/validate';
 import { url } from '../lib/url';
 import { formatDate, platformsLabel } from '../lib/data';
 import { VERDICT_GLOSS } from '../lib/scoring';
+import { weeklySeries } from '../lib/charts';
+import Sparkline from './charts/Sparkline.astro';
 
 interface Props {
   problem: Problem;
@@ -26,6 +28,8 @@ const quote = [...problem.evidence].sort((a, b) => b.reviewedAt.localeCompare(a.
 const reviews = problem.evidence.length;
 const weeks = problem.inputs.weeksWithEvidence;
 const reviewers = problem.inputs.uniqueReviewers;
+
+const series = weeklySeries(problem.evidence);
 
 const stats = [
   `${reviewers} distinct ${reviewers === 1 ? 'reviewer' : 'reviewers'}`,
@@ -57,9 +61,12 @@ const COUNTRY: Record<string, string> = {
 
   <p class="summary">{problem.summary}</p>
 
-  <ul class="stats num">
-    {stats.map((s) => <li>{s}</li>)}
-  </ul>
+  <div class="stat-row">
+    <ul class="stats num">
+      {stats.map((s) => <li>{s}</li>)}
+    </ul>
+    <Sparkline series={series} label={`${series.total} of these ${series.total === 1 ? 'review' : 'reviews'} arrived in the last twelve weeks.`} />
+  </div>
 
   <figure class="quote-block">
     <blockquote>{quote.quote}</blockquote>
@@ -129,6 +136,13 @@ const COUNTRY: Record<string, string> = {
   }
 
   /* Plain figures separated by hairlines, not pills. */
+  .stat-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-lg);
+  }
+
   .stats {
     display: flex;
     flex-wrap: wrap;

@@ -13,6 +13,8 @@
 import type { Problem } from '../../scripts/validate';
 import { url } from '../lib/url';
 import { platformsLabel } from '../lib/data';
+import { weeklySeries } from '../lib/charts';
+import Sparkline from './charts/Sparkline.astro';
 
 interface Props {
   problem: Problem;
@@ -20,6 +22,10 @@ interface Props {
 
 const { problem } = Astro.props;
 const reviews = problem.evidence.length;
+
+// Twelve weeks of this problem's evidence, between the metadata and the
+// verdict. It is what turns a list of titles into something scannable.
+const series = weeklySeries(problem.evidence);
 ---
 
 <article class="row">
@@ -33,6 +39,10 @@ const reviews = problem.evidence.length;
       {problem.category}, {platformsLabel(problem.platforms)}, {reviews}{' '}
       {reviews === 1 ? 'review' : 'reviews'}
     </p>
+  </div>
+
+  <div class="trend">
+    <Sparkline series={series} />
   </div>
 
   <div class="figures">
@@ -62,6 +72,20 @@ const reviews = problem.evidence.length;
 
   .body {
     min-width: 0;
+    /* Takes the slack, so the sparkline and figures stay a fixed width. */
+    flex: 1 1 auto;
+  }
+
+  /* Between the metadata and the verdict, aligned with the baseline of both. */
+  .trend {
+    flex: none;
+    translate: 0 0.35em;
+  }
+
+  @media (max-width: 52rem) {
+    .trend {
+      display: none;
+    }
   }
 
   h3 {
@@ -98,6 +122,9 @@ const reviews = problem.evidence.length;
   .figures {
     flex: none;
     text-align: right;
+    /* Fixed, so "Thin evidence" and "Recurring" do not move the sparkline
+       column between one row and the next. */
+    min-width: 7.5em;
   }
 
   /* The word first, at full opacity. */
@@ -125,6 +152,13 @@ const reviews = problem.evidence.length;
       display: flex;
       align-items: baseline;
       gap: var(--space-sm);
+      min-width: 0;
+    }
+
+    /* Back on a phone, under the metadata where there is room for it. */
+    .trend {
+      display: block;
+      translate: 0;
     }
 
     .score {
