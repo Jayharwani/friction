@@ -43,7 +43,7 @@ const signals = signalLabels.filter(([key]) => evidence.signals[key]).map(([, la
 ---
 
 <article class="evidence">
-  <blockquote class="quote">{evidence.quote}</blockquote>
+  <blockquote>{evidence.quote}</blockquote>
 
   <p class="meta">
     {platformLabel(evidence.platform)}, {version}, {stars}, {country},{' '}
@@ -78,8 +78,14 @@ const signals = signalLabels.filter(([key]) => evidence.signals[key]).map(([, la
     padding-block: var(--space-5);
   }
 
+  /* People's words get the serif, and the italic. Styled here rather than via
+     a global class so the rule lives beside the markup it applies to. */
   blockquote {
     margin: 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--text-lg);
+    line-height: 1.5;
     /* A quiet vertical rule marks quoted material without a card or a shadow. */
     border-left: 2px solid var(--rule);
     padding-left: var(--space-4);

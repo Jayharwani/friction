@@ -25,7 +25,13 @@ import {
   THRESHOLD_PERCENTILE,
   WEIGHTS,
 } from '../lib/scoring';
-import { APP_DENYLIST, CRISIS_PATTERNS } from '../../scripts/validate';
+import {
+  APP_DENYLIST,
+  CANDIDATE_CAP,
+  CRISIS_PATTERNS,
+  MAX_AGE_DAYS,
+  MIN_TEXT_LENGTH,
+} from '../../scripts/validate';
 
 const problems = getProblems();
 const active = getActiveProblems();
@@ -36,6 +42,18 @@ const products = getProducts();
 
 const worthBuilding = active.filter((p) => p.verdict === 'Strong signal').length;
 const playGaps = run?.products.filter((p) => !p.playOk) ?? [];
+
+// Storefront list is read from the tracked apps so it cannot drift.
+const STOREFRONT_NAMES: Record<string, string> = {
+  us: 'the United States', gb: 'the United Kingdom', ca: 'Canada',
+  au: 'Australia', nz: 'New Zealand', ie: 'Ireland', sg: 'Singapore',
+};
+const storefronts = [...new Set(products.flatMap((p) => p.countries))];
+const storefrontList = storefronts.map((c) => STOREFRONT_NAMES[c] ?? c.toUpperCase());
+const storefrontSentence =
+  storefrontList.length > 1
+    ? `${storefrontList.slice(0, -1).join(', ')} and ${storefrontList.at(-1)}`
+    : (storefrontList[0] ?? '');
 
 const componentMeaning: Record<string, string> = {
   distinctUsers: 'How many different people reported it, counted by a salted hash of the reviewer name.',
@@ -71,9 +89,9 @@ const componentMeaning: Record<string, string> = {
     <h3>Apple App Store</h3>
     <p>
       Apple publishes a customer reviews feed for each app in each storefront. Friction reads up to
-      ten pages per app per storefront, at one request per second, from the United States, United
-      Kingdom, Canada and Australia. Each review carries a star rating, an app version, a country
-      and a date. This is the backbone of the project.
+      ten pages per app per storefront, at one request per second, from {storefrontSentence}. Each
+      review carries a star rating, an app version, a country and a date. This is the backbone of
+      the project.
     </p>
 
     <h3>Google Play</h3>
@@ -97,11 +115,12 @@ const componentMeaning: Record<string, string> = {
 
     <p>
       Most of the filtering is deterministic and happens before any model sees anything. A review is
-      rejected outright if it has already been processed, if it is older than 180 days, if the title
-      and body together run under 80 characters, or if it matches the crisis language screen below.
+      rejected outright if it has already been processed, if it is older than {MAX_AGE_DAYS} days, if
+      the title and body together run under {MIN_TEXT_LENGTH} characters, or if it matches the
+      crisis language screen below.
       What survives is kept only when it is rated three stars or lower and contains at least one of
       a fixed list of complaint markers. The survivors are ranked by marker count, then star rating,
-      then recency, and capped at sixty per run.
+      then recency, and capped at {CANDIDATE_CAP} per run.
     </p>
 
     {
@@ -118,7 +137,7 @@ const componentMeaning: Record<string, string> = {
     }
 
     <p>
-      Those sixty go to a language model with one job: group reviews that describe the same
+      Those go to a language model with one job: group reviews that describe the same
       underlying problem, and copy a short verbatim quote from each. The model is explicitly
       forbidden from producing a score, a rank or a priority of any kind. Its output is then parsed
       against a strict schema and every quote is checked, character by character, against the review
@@ -204,7 +223,7 @@ const componentMeaning: Record<string, string> = {
 
     <h3>Coverage is narrow</h3>
     <p>
-      English-language reviews, four Apple storefronts, one Play storefront, mobile apps only, and
+      English-language reviews, {storefronts.length} Apple storefronts, one Play storefront, mobile apps only, and
       only the {products.length} apps currently tracked. A quiet app produces a small sample, and a
       small sample produces an unreliable score. Treat a scored problem as a starting point for your
       own research, not as a conclusion.

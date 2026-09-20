@@ -12,13 +12,13 @@ Tools in this category hide their evidence and their scoring behind a paywall, a
 
 ## How it works
 
-The homepage hero is the data itself: rows are the highest-scoring active problems, columns are the last twelve ISO weeks, and each cell is shaded by how much evidence arrived that week.
+The homepage opens with a plain statement of what the site does, three figures proving it is live, and one problem shown in full.
 
 ![The homepage recurrence grid: twelve problems by twelve weeks, shaded by evidence volume](docs/homepage.png)
 
-1. **Fetch.** Every run reads up to ten pages of Apple's public customer reviews feed for each tracked app across four storefronts, plus recent Google Play reviews, at one request per second. Roughly 30,000 reviews come in.
-2. **Screen and filter.** Deterministic rules, in code, drop anything already processed, older than 180 days, too short, or matching a crisis-language screen. What survives is kept only if it is rated three stars or lower and contains a complaint marker. The survivors are ranked and capped at sixty.
-3. **Group.** Those sixty go to Claude with one job: group reviews describing the same underlying problem and copy a short verbatim quote from each. It is explicitly forbidden from producing any number.
+1. **Fetch.** Every run reads up to ten pages of Apple's public customer reviews feed for each tracked app across seven storefronts, plus recent Google Play reviews, at one request per second. Roughly 30,000 reviews come in.
+2. **Screen and filter.** Deterministic rules, in code, drop anything already processed, older than 180 days, too short, or matching a crisis-language screen. What survives is kept only if it is rated three stars or lower and contains a complaint marker. The survivors are ranked and capped at 150.
+3. **Group.** Those go to Claude with one job: group reviews describing the same underlying problem and copy a short verbatim quote from each. It is explicitly forbidden from producing any number.
 4. **Validate.** The output is parsed against a strict schema, and every quote is checked character by character against the review it claims to come from. Any failure exits non-zero and nothing is written, leaving the previous data intact.
 5. **Score and publish.** Seven weighted components are computed in TypeScript, a verdict is assigned, the records are committed, and the static site is rebuilt.
 
@@ -113,7 +113,7 @@ src/
 
 Read these before treating anything here as a conclusion.
 
-- **English-language reviews only,** from four Apple storefronts and one Google Play storefront.
+- **English-language reviews only,** from seven Apple storefronts and one Google Play storefront.
 - **Mobile apps only,** and only the fifteen currently tracked. Desktop and web complaints are invisible to this method.
 - **No permanent link to any individual review.** Neither store provides one. Evidence links to the app's review listing and carries the date it was captured; the git history of this repository is the audit trail. You cannot click through and re-read the original review.
 - **Play data is read from public review pages,** not an API, so it is occasionally incomplete and can break without warning. The pipeline treats Play as optional and continues on Apple data alone when it fails.

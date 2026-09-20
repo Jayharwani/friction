@@ -6,6 +6,7 @@
  * missing or empty data so the site still builds before the first scan.
  */
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 
 import {
@@ -79,9 +80,10 @@ export const getDataCommit = memo((): { sha: string | null; url: string } => {
   if (fromCI) return { sha: fromCI.slice(0, 7), url: `${REPO}/commit/${fromCI}` };
 
   try {
-    // execSync is imported lazily: this only ever runs at build time.
-    const { execSync } = require('node:child_process') as typeof import('node:child_process');
-    const sha = execSync('git rev-parse HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const sha = execSync('git rev-parse HEAD', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
     if (/^[0-9a-f]{40}$/.test(sha)) return { sha: sha.slice(0, 7), url: `${REPO}/commit/${sha}` };
   } catch {
     // Not a git checkout, or git is not installed.

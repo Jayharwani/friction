@@ -29,6 +29,9 @@ import {
   type Run,
   type FunnelStage,
   type Seen,
+  CANDIDATE_CAP,
+  MAX_AGE_DAYS,
+  MIN_TEXT_LENGTH,
 } from './validate';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -47,9 +50,8 @@ const RETRIES = 2;
 /** Apple caps the customer reviews feed at ten pages; page 11 returns HTTP 400. */
 const MAX_PAGES = 10;
 
-const CANDIDATE_CAP = 60;
-const MAX_AGE_DAYS = 180;
-const MIN_TEXT_LENGTH = 80;
+// Raised from 60: eight problems across fifteen apps read as a prototype.
+// Imported so the methodology page cannot quote a stale number.
 const BODY_TRUNCATE = 1200;
 
 const USER_AGENT =

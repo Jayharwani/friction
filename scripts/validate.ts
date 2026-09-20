@@ -43,6 +43,17 @@ export const VERDICTS = [
 
 export const PLATFORMS = ['ios', 'android'] as const;
 
+/* ------------------------------------------------------------------ */
+/* Pipeline tunables quoted by the site                                */
+/* ------------------------------------------------------------------ */
+
+/** Reviews carried forward to the model each run. */
+export const CANDIDATE_CAP = 150;
+/** Reviews older than this are never considered. */
+export const MAX_AGE_DAYS = 180;
+/** Title plus body must reach this many characters. */
+export const MIN_TEXT_LENGTH = 80;
+
 export const CategorySchema = z.enum(CATEGORIES);
 export const VerdictSchema = z.enum(VERDICTS);
 export const PlatformSchema = z.enum(PLATFORMS);
