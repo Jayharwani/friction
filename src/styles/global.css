@@ -219,7 +219,8 @@ a {
   text-decoration-color: color-mix(in oklch, currentColor 32%, transparent);
   text-underline-offset: 0.18em;
   text-decoration-thickness: from-font;
-  transition: text-decoration-color var(--dur-micro) var(--ease-out);
+  /* The underline changes colour instantly. Six moments move on this site
+     and a link hover is not one of them. */
 }
 
 a:hover {
@@ -335,6 +336,27 @@ body::after {
 :root[data-theme="light"] body::after {
   opacity: 0.02;
 }
+
+/* ===================================================================
+   Motion inventory
+
+   Six moments move on this site, and nothing else does. Adding a seventh
+   is a decision, not a detail.
+
+     1  The field settles on load, column by column, once.
+     2  The field drifts, and leans toward the pointer. Both are capped
+        at a few degrees and both stop when it scrolls out of view.
+     3  The statement, its line beneath, and the proof row rise once as
+        the page paints. @starting-style, no scroll trigger.
+     4  The header takes a backdrop past 64px of scroll.
+     5  A problem title carries between the list and its own page.
+     6  The score disclosure opens, its bars growing from zero.
+
+   Everything is transform or opacity, except the disclosure's height,
+   which no other property can express. Three easings, three durations,
+   all named below. Every one of them is declared inside
+   `prefers-reduced-motion: no-preference`.
+   =================================================================== */
 
 /* ===================================================================
    Motion off-switch

@@ -189,8 +189,8 @@ const verdictNote: Record<string, string> = {
         block-size: 0;
         overflow: hidden;
         transition:
-          block-size 240ms cubic-bezier(0.2, 0, 0, 1),
-          content-visibility 240ms allow-discrete;
+          block-size var(--dur-short) var(--ease-out),
+          content-visibility var(--dur-short) allow-discrete;
       }
 
       .disclosure[open]::details-content {
@@ -199,7 +199,7 @@ const verdictNote: Record<string, string> = {
 
       /* Bars grow from zero as the panel opens, 30ms apart. */
       .disclosure[open] .fill {
-        animation: grow 240ms cubic-bezier(0.2, 0, 0, 1) backwards;
+        animation: grow var(--dur-short) var(--ease-out) backwards;
         animation-delay: calc(var(--row) * 30ms);
         transform-origin: left center;
       }

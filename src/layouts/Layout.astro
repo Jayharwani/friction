@@ -162,10 +162,16 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     inset: 0 0 auto;
     z-index: 5;
     border-bottom: var(--rule-hair) solid transparent;
-    transition:
-      background-color var(--dur-short) var(--ease-out),
-      border-color var(--dur-short) var(--ease-out),
-      backdrop-filter var(--dur-short) var(--ease-out);
+  }
+
+  /* Under reduced motion the backdrop simply appears. */
+  @media (prefers-reduced-motion: no-preference) {
+    .site-header {
+      transition:
+        background-color var(--dur-short) var(--ease-out),
+        border-color var(--dur-short) var(--ease-out),
+        backdrop-filter var(--dur-short) var(--ease-out);
+    }
   }
 
   /* Engages past 64px of scroll — one of the six sanctioned moments. */
