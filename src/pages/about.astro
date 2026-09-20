@@ -1,7 +1,15 @@
 ---
 /**
- * About (spec 6.1): two paragraphs — what this is, and why store reviews are a
- * better evidence base than forum posts for this particular question.
+ * About: what this is, and why store reviews are a better evidence base than
+ * forum posts for this particular question.
+ *
+ * The argument used to be a forty-word paragraph. It is now two columns of
+ * fields, because the asymmetry between what a forum post carries and what a
+ * store review carries IS the argument, and it reads in a second.
+ *
+ * Neither column quotes anything. They list the fields each source carries —
+ * inventing a specimen review or forum post to illustrate a point would be
+ * fabricated content on a site whose whole claim is that it does not do that.
  */
 import Layout from '../layouts/Layout.astro';
 import { url } from '../lib/url';
@@ -20,22 +28,77 @@ const products = getProducts();
     <p>
       Friction is a free, public index of recurring complaints about widely used mobile apps. It
       reads publicly visible App Store and Google Play reviews for {products.length} apps, groups
-      the ones describing the same underlying problem, scores each problem from evidence, and
-      publishes the working. It is built for product designers and PMs who want evidence of what is
-      actually broken in a product, and for founders deciding whether a problem is worth solving.
-      There is no signup, no payment and nothing to buy.
+      the ones describing the same underlying problem, scores each from evidence, and publishes the
+      working — for anyone deciding what is worth fixing, or worth building.
     </p>
 
-    <p>
-      Store reviews are a better evidence base than forum posts for this question, and the reason is
-      metadata. A forum thread tells you someone was annoyed. A store review tells you the star
-      rating, the app version, the country and the date. That means this project can answer
-      questions a forum-based tool structurally cannot: whether a complaint started after a specific
-      release, whether it affects one platform or both, and whether it is getting worse or fading.
-      Those are the questions that decide whether a problem is worth anyone's time. The cost of that
-      metadata is that individual reviews have no permanent public link, which the{' '}
-      <a href={url('/methodology')}>methodology</a> is honest about.
-    </p>
+    <section class="compare" aria-labelledby="compare-heading">
+      <h2 id="compare-heading">Why store reviews</h2>
+      <p class="lede">
+        A forum thread tells you someone was annoyed. A store review tells you who, when, on what,
+        and how badly. The difference is metadata, and it is the whole reason this project reads
+        stores rather than forums.
+      </p>
+
+      <div class="cols">
+        <div class="col">
+          <p class="col-name">A forum post carries</p>
+          <ul class="chips">
+            <li>a date</li>
+            <li>an author</li>
+          </ul>
+          <p class="col-note">
+            Enough to know it happened. Not enough to know whether it is spreading, or which
+            release caused it.
+          </p>
+        </div>
+
+        <div class="col">
+          <p class="col-name">A store review carries</p>
+          <ul class="chips strong">
+            <li>a date</li>
+            <li>a star rating</li>
+            <li>an app version</li>
+            <li>a country</li>
+            <li>a platform</li>
+            <li>a reviewer identity</li>
+          </ul>
+          <p class="col-note">
+            Enough to ask whether a complaint started after a specific release, whether it affects
+            one platform or both, and whether it is getting worse or fading.
+          </p>
+        </div>
+      </div>
+
+      <p class="cost">
+        The cost of that metadata is that individual reviews have no permanent public link, which
+        the <a href={url('/methodology')}>methodology</a> is honest about.
+      </p>
+    </section>
+
+    <section class="isnot" aria-labelledby="isnot-heading">
+      <h2 id="isnot-heading">What this is, and is not</h2>
+      <div class="cols">
+        <div class="col">
+          <p class="col-name">It is</p>
+          <ul class="plain">
+            <li>free and public</li>
+            <li>non-commercial</li>
+            <li>auditable, line by line</li>
+            <li>computed in code, never by a model</li>
+          </ul>
+        </div>
+        <div class="col">
+          <p class="col-name">It is not</p>
+          <ul class="plain struck">
+            <li>affiliated with any app it tracks</li>
+            <li>a ranking of apps</li>
+            <li>a conclusion</li>
+            <li>a substitute for your own research</li>
+          </ul>
+        </div>
+      </div>
+    </section>
 
     <p class="sig">
       Built by <a href="https://github.com/Jayharwani" rel="noopener noreferrer">Jay Harwani</a>.
@@ -46,6 +109,92 @@ const products = getProducts();
 </Layout>
 
 <style>
+
+  h2 {
+    font-size: var(--text-lg);
+  }
+
+  .compare,
+  .isnot {
+    margin-top: var(--space-2xl);
+    max-width: none;
+  }
+
+  .lede {
+    max-width: var(--measure);
+  }
+
+  .cols {
+    display: grid;
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+    max-width: 52rem;
+  }
+
+  @media (min-width: 40rem) {
+    .cols {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2xl);
+    }
+  }
+
+  .col-name {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .col-note {
+    margin-top: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+    font-size: var(--text-xs);
+  }
+
+  .chips li {
+    padding: var(--space-3xs) var(--space-xs);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 999px;
+    color: var(--color-muted);
+  }
+
+  /* The side with more to say is drawn at full strength. */
+  .chips.strong li {
+    color: var(--color-ink);
+    border-color: color-mix(in oklch, var(--color-accent) 45%, transparent);
+  }
+
+  .plain {
+    list-style: none;
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+
+  .plain li {
+    padding-block: var(--space-2xs);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .plain.struck li {
+    color: var(--color-muted);
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in oklch, var(--color-muted) 55%, transparent);
+  }
+
+  .cost {
+    max-width: var(--measure);
+  }
+
   .prose {
     padding-block: var(--space-xl) 0;
   }

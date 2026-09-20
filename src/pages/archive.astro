@@ -3,11 +3,26 @@
  * Archive (spec 6.1): every run from runs.json with funnel numbers, newest first.
  */
 import Layout from '../layouts/Layout.astro';
+import Funnel from '../components/charts/Funnel.astro';
 import { url } from '../lib/url';
 import { formatDate, getRuns } from '../lib/data';
 import { CANDIDATE_CAP } from '../../scripts/validate';
 
 const runs = getRuns();
+
+// Newest first for reading; the timeline runs oldest to newest.
+const byDate = [...runs].sort((a, b) => a.date.localeCompare(b.date));
+
+/*
+ * Cumulative problems tracked, one step per scan. With a single scan this is
+ * one point, and it says so rather than drawing a line through nothing.
+ */
+const cumulative = byDate.map((run) => ({
+  date: run.date,
+  total: run.problemsTotal ?? 0,
+  added: run.problemsNew ?? 0,
+}));
+const peak = Math.max(1, ...cumulative.map((c) => c.total));
 ---
 
 <Layout title="Archive" description="Every Friction scan, with the funnel numbers for each run.">
@@ -27,6 +42,74 @@ const runs = getRuns();
           <a href={url('/methodology')}>methodology</a> explains what each number means.
         </p>
       ) : (
+        <section class="timeline-block" aria-labelledby="runs-heading">
+          <h2 id="runs-heading">Every scan</h2>
+
+          {
+            runs.length === 1 ? (
+              <p class="sparse">
+                One scan so far, on{' '}
+                <time datetime={runs[0]!.date}>{formatDate(runs[0]!.date)}</time>. This page gets
+                more useful every week.
+              </p>
+            ) : (
+              <p class="sparse num">
+                {runs.length} scans, from {formatDate(byDate[0]!.date)} to{' '}
+                {formatDate(byDate.at(-1)!.date)}.
+              </p>
+            )
+          }
+
+          <ol class="runs">
+            {
+              [...runs].map((run) => (
+                <li>
+                  <p class="run-date num">
+                    <time datetime={run.date}>{formatDate(run.date)}</time>
+                    <span class="run-added">
+                      {run.problemsTotal ?? 0} tracked
+                      {run.problemsNew ? `, ${run.problemsNew} new` : ''}
+                    </span>
+                  </p>
+                  <Funnel
+                    compact
+                    stages={[
+                      { label: 'Read', value: run.funnel.fetched.total },
+                      { label: 'Screened', value: run.funnel.screened.total },
+                      { label: 'Complaints', value: run.funnel.filtered.total },
+                      { label: 'Carried', value: run.funnel.capped.total },
+                    ]}
+                  />
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+
+        <section class="cumulative" aria-labelledby="cumulative-heading">
+          <h2 id="cumulative-heading">Problems tracked over time</h2>
+          <ol class="steps num">
+            {
+              cumulative.map((c) => (
+                <li>
+                  <span class="step-date">{formatDate(c.date)}</span>
+                  <span class="step-bar" aria-hidden="true">
+                    <span class="step-fill ch-wipe" style={`--w:${(c.total / peak) * 100}%`} />
+                  </span>
+                  <span class="step-total">{c.total}</span>
+                </li>
+              ))
+            }
+          </ol>
+          {
+            cumulative.length === 1 && (
+              <p class="ch-caption">
+                One point, because there has been one scan. A second scan adds a second step.
+              </p>
+            )
+          }
+        </section>
+
         <div class="scroller bleed">
           <table>
             <thead>
@@ -80,6 +163,98 @@ const runs = getRuns();
 </Layout>
 
 <style>
+
+  /* ---- the run timeline ---- */
+
+  .timeline-block,
+  .cumulative {
+    margin-top: var(--space-2xl);
+    max-width: var(--measure);
+  }
+
+  h2 {
+    font-size: var(--text-lg);
+  }
+
+  .sparse {
+    margin-top: var(--space-xs);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .runs {
+    list-style: none;
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .runs li {
+    padding-top: var(--space-md);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .run-date {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+  }
+
+  .run-added {
+    font-weight: 400;
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+
+  /* ---- cumulative steps ---- */
+
+  .steps {
+    list-style: none;
+    margin: var(--space-md) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .steps li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-xs);
+  }
+
+  .step-date {
+    color: var(--color-muted);
+    min-width: 6.5em;
+  }
+
+  .step-bar {
+    display: block;
+    height: 0.45rem;
+    background: var(--color-paper-2);
+    border-radius: 2px;
+  }
+
+  .step-fill {
+    display: block;
+    height: 100%;
+    width: var(--w);
+    background: var(--color-accent);
+    border-radius: 2px;
+    transform-origin: left;
+  }
+
+  .step-total {
+    font-weight: 600;
+    min-width: 2em;
+    text-align: right;
+  }
+
   .intro {
     padding-block: var(--space-xl) 0;
   }
