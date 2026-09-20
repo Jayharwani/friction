@@ -1,0 +1,19 @@
+{
+  "runs": [
+    {
+      "date": "2026-09-20",
+      "brief": "Friction — Redesign Pass 2",
+      "macrostructure": "Map / Diagram",
+      "nav": "N9",
+      "footer": "Ft5",
+      "theme": "custom, OKLCH anchor hue 45",
+      "knobs": {
+        "field": "webgl-topography",
+        "axes": "weeks x problems x review-count",
+        "statement": "lower-left over the canvas",
+        "proof": "inline hairline row"
+      },
+      "note": "A later run must not repeat Map / Diagram without changing at least one knob."
+    }
+  ]
+}

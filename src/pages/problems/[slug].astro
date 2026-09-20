@@ -285,7 +285,8 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
   @container (min-width: 64rem) {
     .sticky {
       position: sticky;
-      top: 1.5rem;
+      /* Below the fixed header, never under it. */
+      top: calc(var(--nav-h) + var(--space-md));
     }
   }
 
@@ -323,12 +324,12 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
     grid-template-columns: 1fr auto auto;
     align-items: baseline;
     column-gap: var(--space-sm);
-    padding-block: 3px;
+    padding-block: var(--space-3xs);
   }
 
   .tick {
     position: absolute;
-    left: calc(-1 * var(--space-sm) - 2px);
+    left: calc(-1 * var(--space-sm) - var(--space-3xs));
     top: 0.62em;
     width: 5px;
     height: 5px;

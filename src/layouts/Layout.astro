@@ -59,8 +59,13 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     <meta property="og:site_name" content="Friction" />
     <meta name="twitter:card" content="summary" />
 
-    <meta name="theme-color" content="#f9f7f4" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1a1714" media="(prefers-color-scheme: dark)" />
+    <!--
+      The only colours in the project written as hex: a meta tag cannot take a
+      var(). Both are --color-paper converted, light then dark, and verified
+      against a sampled pixel of the rendered page.
+    -->
+    <meta name="theme-color" content="#faf4ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0806" media="(prefers-color-scheme: dark)" />
 
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="Friction" href={url('/rss.xml')} />
@@ -211,7 +216,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
   nav a {
     color: var(--color-muted);
     text-decoration: none;
-    padding-block: 2px;
+    padding-block: var(--space-3xs);
   }
 
   nav a:hover {

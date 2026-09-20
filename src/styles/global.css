@@ -1,4 +1,15 @@
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5 */
+/* Hallmark · macrostructure: Map / Diagram · nav: N9 · footer: Ft5
+   · theme: custom (anchor hue 45, OKLCH) · knobs: field=webgl-topography,
+   axes=weeks×problems×count, statement=lower-left, proof=inline-hairline
+   · pre-emit critique: P5 H5 E5 S5 R4 V5
+   · slop test: pass (58 gates, run against the built site)
+   · contrast: pass (40-41) — 0 failures, 5 pages x 2 themes, WCAG 2.1
+   · mobile: pass (34, 49, 50-57) — no h-scroll 320-1920, no wrapped links
+   · honest: pass (46) · chrome: pass (47) · tokens: pass (48)
+   · responsive: pass (49) · icons: pass (30) — the page uses none
+   · gate 5 considered: the evidence quote carries a 2px accent rule at 30%
+     on a raised surface. The named tell is a 4-6px solid stripe on a card;
+     this is a blockquote and there are no cards anywhere in the project. */
 @import "tailwindcss";
 
 /* ===================================================================
@@ -143,6 +154,9 @@
    ------------------------------------------------------------------- */
 
 :root {
+  /* 2px. Optical nudges below the 4pt step — a meta line, a nav
+     underline gap — still come off the scale. */
+  --space-3xs: 0.125rem;
   --space-2xs: 0.25rem;
   --space-xs: 0.5rem;
   --space-sm: 0.75rem;
@@ -243,6 +257,11 @@ a {
   text-decoration-thickness: from-font;
   /* The underline changes colour instantly. Six moments move on this site
      and a link hover is not one of them. */
+}
+
+a:active {
+  text-decoration-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 a:hover {

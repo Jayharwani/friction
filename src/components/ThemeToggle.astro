@@ -89,6 +89,22 @@
     background: color-mix(in oklch, var(--color-ink) 7%, transparent);
   }
 
+  button:active {
+    background: color-mix(in oklch, var(--color-ink) 12%, transparent);
+  }
+
+  /*
+   * No control here is ever disabled, but the state is defined rather than
+   * left to the browser: opacity alone is not a disabled signal.
+   */
+  button:disabled,
+  button[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: none;
+    color: var(--color-neutral);
+  }
+
   /* The selected state is carried by weight and surface, not by hue alone. */
   button[aria-pressed='true'] {
     color: var(--color-ink);

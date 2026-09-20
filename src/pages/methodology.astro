@@ -415,7 +415,8 @@ const componentMeaning: Record<string, string> = {
   }
 
   .toc-title {
-    color: var(--color-neutral);
+    /* --color-neutral is 4.27:1 at this size; muted clears 4.5. */
+    color: var(--color-muted);
     margin-bottom: var(--space-xs);
   }
 
@@ -431,7 +432,7 @@ const componentMeaning: Record<string, string> = {
     color: var(--color-muted);
     text-decoration: none;
     display: block;
-    padding: 2px 0 2px var(--space-sm);
+    padding: var(--space-3xs) 0 var(--space-3xs) var(--space-sm);
     border-left: var(--rule-hair) solid var(--color-rule);
     text-wrap: pretty;
   }
