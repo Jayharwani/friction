@@ -1,0 +1,360 @@
+---
+/**
+ * The scoring formula, made draggable.
+ *
+ * Every control sets one of the counts the pipeline extracts from reviews.
+ * The score, the bars and the verdict are recomputed by importing the real
+ * functions from lib/scoring.ts — `componentsFromInputs`, `computeScore` and
+ * `decideVerdict`, the same three the pipeline runs. Nothing is reimplemented
+ * here, and `scoring.test.ts` asserts the two agree for every committed
+ * problem.
+ *
+ * The initial state is rendered at build time from a real problem, so the
+ * section is complete and correct before any JavaScript runs.
+ */
+import type { Problem } from '../../scripts/validate';
+import {
+  COMPONENT_LABELS,
+  COMPONENT_ORDER,
+  WEIGHTS,
+  componentsFromInputs,
+  computeScore,
+  decideVerdict,
+} from '../lib/scoring';
+
+interface Props {
+  problem: Problem;
+  productName: string;
+  threshold: number;
+}
+
+const { problem, productName, threshold } = Astro.props;
+
+const start = problem.inputs;
+const components = componentsFromInputs(start);
+const score = computeScore(components);
+const verdict = decideVerdict({
+  uniqueReviewers: start.uniqueReviewers,
+  existingSolutionsCount: problem.existingSolutions.length,
+  score,
+  buildThreshold: threshold,
+});
+
+/**
+ * Each control, with the range it can be dragged over and what it means in
+ * the reviews. Maxima sit a little above the value that already earns full
+ * marks, so a reader can see the component flatten out.
+ */
+const controls = [
+  { id: 'uniqueReviewers', label: 'Distinct reviewers', min: 0, max: 16, step: 1, value: start.uniqueReviewers, unit: '' },
+  { id: 'weeksWithEvidence', label: 'Weeks carrying evidence', min: 0, max: 12, step: 1, value: start.weeksWithEvidence, unit: '' },
+  { id: 'daysSinceLastSeen', label: 'Days since last reported', min: 0, max: 180, step: 1, value: start.daysSinceLastSeen, unit: '' },
+  { id: 'meanRating', label: 'Mean star rating', min: 1, max: 5, step: 0.1, value: Math.round(start.meanRating * 10) / 10, unit: '' },
+  { id: 'churnReviewers', label: 'Reviewers who said they were leaving', min: 0, max: 6, step: 1, value: start.churnReviewers, unit: '' },
+  { id: 'distinctVersions', label: 'Distinct app versions', min: 0, max: 8, step: 1, value: start.distinctVersions, unit: '' },
+];
+
+const rows = COMPONENT_ORDER.map((key) => ({
+  key,
+  label: COMPONENT_LABELS[key],
+  weight: WEIGHTS[key],
+  value: components[key],
+  points: components[key] * WEIGHTS[key] * 100,
+}));
+
+const seed = {
+  ...start,
+  meanRating: Math.round(start.meanRating * 10) / 10,
+  existingSolutionsCount: problem.existingSolutions.length,
+  threshold,
+};
+---
+
+<section
+  class="calc"
+  data-calc
+  data-seed={JSON.stringify(seed)}
+  aria-labelledby="calc-heading"
+>
+  <h3 id="calc-heading">Try it</h3>
+  <p class="intro">
+    These are {productName}'s real numbers. Move any of them and the score, the
+    components and the verdict recompute — using the same functions the pipeline
+    runs, not a copy of them.
+  </p>
+
+  <div class="layout">
+    <div class="controls">
+      {
+        controls.map((c) => (
+          <p class="control">
+            <label for={`calc-${c.id}`}>{c.label}</label>
+            <input
+              type="range"
+              id={`calc-${c.id}`}
+              name={c.id}
+              min={c.min}
+              max={c.max}
+              step={c.step}
+              value={c.value}
+              data-calc-input
+            />
+            <output class="num" for={`calc-${c.id}`} data-calc-out={c.id}>{c.value}</output>
+          </p>
+        ))
+      }
+
+      <p class="control check">
+        <label for="calc-crossPlatform">
+          Reported on both stores
+          {/* Binary, so a checkbox rather than a two-position slider. */}
+        </label>
+        <input
+          type="checkbox"
+          id="calc-crossPlatform"
+          name="crossPlatform"
+          checked={start.platforms.length === 2}
+          data-calc-input
+        />
+      </p>
+
+      <p class="control">
+        <label for="calc-existingSolutionsCount">
+          Existing products that already solve it
+        </label>
+        <input
+          type="range"
+          id="calc-existingSolutionsCount"
+          name="existingSolutionsCount"
+          min="0"
+          max="5"
+          step="1"
+          value={problem.existingSolutions.length}
+          data-calc-input
+        />
+        <output class="num" for="calc-existingSolutionsCount" data-calc-out="existingSolutionsCount">
+          {problem.existingSolutions.length}
+        </output>
+      </p>
+      <p class="hint">
+        The last one changes the verdict, not the score: three or more and the
+        problem is Already solved whatever it scores.
+      </p>
+
+      <button type="button" data-calc-reset>Reset to {productName}'s numbers</button>
+    </div>
+
+    <div class="readout">
+      <p class="score num" data-calc-score aria-live="polite">{score}</p>
+      <p class="verdict" data-calc-verdict>{verdict}</p>
+      <p class="thresh num">threshold {threshold.toFixed(1)}</p>
+
+      <ol class="parts">
+        {
+          rows.map((r) => (
+            <li data-calc-row={r.key}>
+              <span class="p-label">{r.label}</span>
+              <span class="p-bar" aria-hidden="true">
+                <span class="p-fill" style={`--v:${(r.value * 100).toFixed(1)}%`} />
+              </span>
+              <span class="p-points num" data-calc-points={r.key}>
+                {r.points.toFixed(1)}
+                <span class="p-of"> of {(r.weight * 100).toFixed(0)}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .calc {
+    margin: var(--space-xl) 0;
+    padding: var(--space-lg);
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 6px;
+  }
+
+  h3 {
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  .intro {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    max-width: 44em;
+  }
+
+  .layout {
+    display: grid;
+    gap: var(--space-xl);
+    margin-top: var(--space-lg);
+  }
+
+  @media (min-width: 50rem) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  /* ---- controls ---- */
+
+  .control {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0 var(--space-sm);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .control label {
+    grid-column: 1 / -1;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  input[type='range'] {
+    width: 100%;
+    accent-color: var(--color-accent);
+  }
+
+  input:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  output {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    min-width: 2.6em;
+    text-align: right;
+  }
+
+  .check {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .check label {
+    grid-column: 1;
+  }
+
+  .check input {
+    accent-color: var(--color-accent);
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .hint {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    margin-bottom: var(--space-md);
+    max-width: 40em;
+  }
+
+  button {
+    font: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    background: none;
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 4px;
+    padding: var(--space-2xs) var(--space-sm);
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: color-mix(in oklch, var(--color-ink) 7%, transparent);
+  }
+
+  button:active {
+    background: color-mix(in oklch, var(--color-ink) 12%, transparent);
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  /* ---- readout ---- */
+
+  .score {
+    font-size: var(--text-3xl);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .verdict {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  .thresh {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .parts {
+    list-style: none;
+    margin: var(--space-md) 0 0;
+    padding: 0;
+    font-size: var(--text-xs);
+  }
+
+  .parts li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3xs) var(--space-sm);
+    padding-block: var(--space-2xs);
+  }
+
+  @media (min-width: 26rem) {
+    .parts li {
+      grid-template-columns: minmax(0, 8em) minmax(0, 1fr) auto;
+      align-items: center;
+    }
+  }
+
+  .parts li + li {
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .p-label {
+    color: var(--color-muted);
+  }
+
+  .p-bar {
+    display: block;
+    height: 0.4rem;
+    background: var(--color-paper-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .p-fill {
+    display: block;
+    height: 100%;
+    width: var(--v);
+    background: var(--color-accent);
+  }
+
+  .p-points {
+    text-align: right;
+    min-width: 5em;
+  }
+
+  .p-of {
+    color: var(--color-muted);
+  }
+</style>

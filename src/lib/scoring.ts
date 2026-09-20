@@ -177,28 +177,6 @@ export function computeComponents(evidence: Evidence[], now: Date | string): Sco
   );
   const daysSinceLastSeen = newest ? daysBetween(new Date(newest), now) : EVIDENCE_WINDOW_DAYS;
 
-  // Decays linearly from 1 at 14 days to exactly 0 at 180 days.
-  const recency =
-    daysSinceLastSeen <= RECENCY_GRACE_DAYS
-      ? 1
-      : Math.max(
-          0,
-          1 -
-            (daysSinceLastSeen - RECENCY_GRACE_DAYS) /
-              (EVIDENCE_WINDOW_DAYS - RECENCY_GRACE_DAYS),
-        );
-
-  const components: Components = {
-    distinctUsers: clamp01(uniqueReviewers / USERS_FOR_FULL_MARKS),
-    recurrence: clamp01(weeksWithEvidence / WEEKS_FOR_FULL_MARKS),
-    recency,
-    // 1 star -> 1.0, 5 star -> 0
-    severity: win.length ? clamp01((5 - meanRating) / 4) : 0,
-    churnIntent: clamp01(churnReviewers / CHURN_FOR_FULL_MARKS),
-    versionPersistence: clamp01(distinctVersions / VERSIONS_FOR_FULL_MARKS),
-    crossPlatform: platforms.length === 2 ? 1 : 0,
-  };
-
   const inputs: ComponentInputs = {
     uniqueReviewers,
     weeksWithEvidence,
@@ -210,7 +188,43 @@ export function computeComponents(evidence: Evidence[], now: Date | string): Sco
     evidenceInWindow: win.length,
   };
 
+  const components = componentsFromInputs(inputs);
   return { components, inputs, score: computeScore(components) };
+}
+
+/**
+ * The seven components, from the counts behind them.
+ *
+ * Extracted so there is exactly one implementation of the normalisation.
+ * `computeComponents` reads evidence and produces these inputs; the
+ * calculator on the methodology page lets a reader set the inputs directly.
+ * Both go through here, so the page cannot drift away from the pipeline —
+ * `scoring.test.ts` asserts they agree for every real problem.
+ *
+ * No formula, weight or threshold changed in the extraction.
+ */
+export function componentsFromInputs(i: ComponentInputs): Components {
+  // Decays linearly from 1 at 14 days to exactly 0 at 180 days.
+  const recency =
+    i.daysSinceLastSeen <= RECENCY_GRACE_DAYS
+      ? 1
+      : Math.max(
+          0,
+          1 -
+            (i.daysSinceLastSeen - RECENCY_GRACE_DAYS) /
+              (EVIDENCE_WINDOW_DAYS - RECENCY_GRACE_DAYS),
+        );
+
+  return {
+    distinctUsers: clamp01(i.uniqueReviewers / USERS_FOR_FULL_MARKS),
+    recurrence: clamp01(i.weeksWithEvidence / WEEKS_FOR_FULL_MARKS),
+    recency,
+    // 1 star -> 1.0, 5 star -> 0
+    severity: i.evidenceInWindow ? clamp01((5 - i.meanRating) / 4) : 0,
+    churnIntent: clamp01(i.churnReviewers / CHURN_FOR_FULL_MARKS),
+    versionPersistence: clamp01(i.distinctVersions / VERSIONS_FOR_FULL_MARKS),
+    crossPlatform: i.platforms.length === 2 ? 1 : 0,
+  };
 }
 
 /** Weighted sum, scaled to 0-100 and rounded. */

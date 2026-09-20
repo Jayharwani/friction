@@ -7,10 +7,15 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
 
 import type { Evidence, Signals } from './validate';
+import type { ComponentInputs } from './validate';
 import {
+  COMPONENT_ORDER,
   WEIGHTS,
+  componentsFromInputs,
   computeComponents,
   computeScore,
   computeBuildThreshold,
@@ -488,4 +493,38 @@ test('computeScore depends only on components', () => {
     }),
     25,
   );
+});
+
+/*
+ * The methodology page's calculator drives componentsFromInputs directly,
+ * while the pipeline reaches it through computeComponents. If those ever
+ * disagreed, the page would be showing arithmetic the site does not use.
+ *
+ * Every committed problem carries the inputs the pipeline saw and the
+ * components it derived from them. Feeding those inputs back through the
+ * function the calculator uses must reproduce both, exactly.
+ */
+test('the calculator and the pipeline agree for identical inputs', () => {
+  const dir = join(import.meta.dirname, '..', 'data', 'problems');
+  const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
+  assert.ok(files.length > 0, 'no committed problems to check against');
+
+  for (const file of files) {
+    const problem = JSON.parse(readFileSync(join(dir, file), 'utf8')) as {
+      slug: string;
+      inputs: ComponentInputs;
+      components: Record<string, number>;
+      score: number;
+    };
+
+    const derived = componentsFromInputs(problem.inputs);
+    for (const key of COMPONENT_ORDER) {
+      assert.equal(
+        derived[key],
+        problem.components[key],
+        `${problem.slug}: ${key} differs between the calculator and the pipeline`,
+      );
+    }
+    assert.equal(computeScore(derived), problem.score, `${problem.slug}: score differs`);
+  }
 });

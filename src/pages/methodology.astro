@@ -6,6 +6,11 @@
  * itself, so the page cannot drift out of step with what the site actually did.
  */
 import Layout from '../layouts/Layout.astro';
+import ScoreCalculator from '../components/ScoreCalculator.astro';
+import Funnel from '../components/charts/Funnel.astro';
+import Flow from '../components/charts/Flow.astro';
+import Histogram from '../components/charts/Histogram.astro';
+import { scoreBuckets } from '../lib/charts';
 import { url } from '../lib/url';
 import {
   formatDate,
@@ -14,6 +19,7 @@ import {
   getLatestRun,
   getPassRate,
   getProblems,
+  getProduct,
   getProducts,
 } from '../lib/data';
 import {
@@ -28,7 +34,6 @@ import {
 import {
   APP_DENYLIST,
   CANDIDATE_CAP,
-  CRISIS_PATTERNS,
   MAX_AGE_DAYS,
   MIN_TEXT_LENGTH,
 } from '../../scripts/validate';
@@ -56,6 +61,25 @@ const run = getLatestRun();
 const products = getProducts();
 
 const worthBuilding = active.filter((p) => p.verdict === 'Strong signal').length;
+
+// The calculator starts from a real problem: the highest-scoring active one.
+const seedProblem = active[0];
+const seedProduct = seedProblem ? getProduct(seedProblem.productSlug) : undefined;
+
+/*
+ * The live population at each branch of decideVerdict, in the order the
+ * function tests them. Recomputed here so the diagram cannot go stale.
+ */
+const thin = active.filter((p) => p.inputs.uniqueReviewers < 4);
+const solved = active.filter((p) => !thin.includes(p) && p.existingSolutions.length >= 3);
+const strong = active.filter(
+  (p) => !thin.includes(p) && !solved.includes(p) && p.score >= threshold,
+);
+const recurring = active.filter(
+  (p) => !thin.includes(p) && !solved.includes(p) && p.score < threshold,
+);
+
+const buckets = scoreBuckets(active.map((p) => p.score));
 const playGaps = run?.products.filter((p) => !p.playOk) ?? [];
 
 // Storefront list is read from the tracked apps so it cannot drift.
@@ -106,6 +130,34 @@ const componentMeaning: Record<string, string> = {
     </p>
 
     <h2 id="where-the-data-comes-from">Where the data comes from</h2>
+
+    <div class="sources">
+      <div class="source">
+        <p class="src-name">Apple App Store</p>
+        <p class="src-what">Every review carries</p>
+        <ul class="chips">
+          <li>star rating</li>
+          <li>app version</li>
+          <li>country</li>
+          <li>date</li>
+          <li>title</li>
+        </ul>
+        <p class="src-note num">
+          up to 10 pages per app, {storefronts.length} storefronts
+        </p>
+      </div>
+
+      <div class="source">
+        <p class="src-name">Google Play</p>
+        <p class="src-what">Every review carries</p>
+        <ul class="chips">
+          <li>rating</li>
+          <li>date</li>
+          <li class="faint">version, sometimes</li>
+        </ul>
+        <p class="src-note num">most recent English reviews, one storefront</p>
+      </div>
+    </div>
 
     <p>
       Two sources, both public, neither requiring credentials or an agreement.
@@ -161,6 +213,19 @@ const componentMeaning: Record<string, string> = {
       )
     }
 
+    {
+      run && (
+        <Funnel
+          stages={[
+            { label: 'Read', value: run.funnel.fetched.total, note: 'Every review pulled from both stores, including ones already processed in an earlier scan.' },
+            { label: 'Screened', value: run.funnel.screened.total, note: 'Survived deduplication, the age limit, the length floor and the crisis screen.' },
+            { label: 'Complaints', value: run.funnel.filtered.total, note: 'Rated three stars or lower and carrying at least one complaint marker.' },
+            { label: 'Carried', value: run.funnel.capped.total, note: `Ranked by marker count, then rating, then recency, and capped at ${CANDIDATE_CAP}.` },
+          ]}
+        />
+      )
+    }
+
     <p>
       Those go to a language model with one job: group reviews that describe the same
       underlying problem, and copy a short verbatim quote from each. The model is explicitly
@@ -176,6 +241,16 @@ const componentMeaning: Record<string, string> = {
       Seven components, each normalised to a value between 0 and 1 over evidence from the last{' '}
       {EVIDENCE_WINDOW_DAYS} days, multiplied by the weights below, and scaled to 0–100.
     </p>
+
+    {
+      seedProblem && seedProduct && (
+        <ScoreCalculator
+          problem={seedProblem}
+          productName={seedProduct.name}
+          threshold={threshold}
+        />
+      )
+    }
 
     {/*
       The same arithmetic the prose describes, set as an equation. The weights
@@ -218,6 +293,18 @@ const componentMeaning: Record<string, string> = {
 
     <h2 id="the-verdict-and-why-most-problems-fail">The verdict, and why most problems fail</h2>
 
+    <Flow
+      steps={[
+        { test: 'Fewer than four distinct reviewers', verdict: 'Thin evidence', count: thin.length },
+        { test: 'Three or more existing products already solve it', verdict: 'Already solved', count: solved.length },
+        { test: `Scores at or above the threshold of ${threshold.toFixed(1)}`, verdict: 'Strong signal', count: strong.length },
+      ]}
+      fallthrough={{ verdict: 'Recurring', count: recurring.length }}
+    />
+    <p class="ch-caption">
+      Where the {active.length} active problems currently sit, tested in this order.
+    </p>
+
     <p>
       The verdict is decided in a fixed order. Fewer than four distinct reviewers is
       <strong>Thin evidence</strong>, whatever the score. Three or more existing products that already
@@ -238,6 +325,12 @@ const componentMeaning: Record<string, string> = {
           </>
         )
       }
+    </p>
+
+    <Histogram buckets={buckets} threshold={threshold} markScore={seedProblem?.score} />
+    <p class="ch-caption">
+      Every active problem's score, in buckets of five. The heavier mark is{' '}
+      {seedProduct?.name ?? 'the top problem'}'s.
     </p>
 
     <p>
@@ -299,15 +392,15 @@ const componentMeaning: Record<string, string> = {
       and the tracked list is not exempt from it. An app matching any of these terms is excluded:
     </p>
 
-    <p class="terms">{APP_DENYLIST.join(', ')}</p>
+    <ul class="chips struck" aria-label="Excluded app subjects">
+      {APP_DENYLIST.map((term) => <li>{term}</li>)}
+    </ul>
 
     <p>
       Separately, any individual review whose text matches crisis language is dropped before it
       enters the pipeline. Such a review is never stored, never quoted and never counted towards any
-      score. The terms are:
+      score. The list of terms lives in the source rather than on this page.
     </p>
-
-    <p class="terms">{CRISIS_PATTERNS.join(', ')}</p>
 
     <p>
       Both screens match inflected forms as well as the exact words. They are deliberately broad.
@@ -336,6 +429,8 @@ const componentMeaning: Record<string, string> = {
 </Layout>
 
 <script>
+  import { initCalculator } from '../scripts/calculator';
+
   /**
    * Marks the section being read in the margin contents. An
    * IntersectionObserver, never a scroll listener, and it only sets an
@@ -375,10 +470,82 @@ const componentMeaning: Record<string, string> = {
     document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true });
   }
 
-  document.addEventListener('astro:page-load', watchSections);
+  document.addEventListener('astro:page-load', () => {
+    watchSections();
+    initCalculator();
+  });
 </script>
 
 <style>
+
+  /* ---- the two sources ---- */
+
+  .sources {
+    display: grid;
+    gap: var(--space-lg);
+    margin: var(--space-lg) 0;
+  }
+
+  @media (min-width: 34rem) {
+    .sources {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .source {
+    padding: var(--space-md);
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 6px;
+  }
+
+  .src-name {
+    font-weight: 600;
+    font-size: var(--text-sm);
+  }
+
+  .src-what {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .src-note {
+    margin-top: var(--space-sm);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  /* ---- chips ---- */
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    margin: var(--space-xs) 0 0;
+    padding: 0;
+    font-size: var(--text-xs);
+  }
+
+  .chips li {
+    padding: var(--space-3xs) var(--space-xs);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 999px;
+    color: var(--color-muted);
+  }
+
+  .chips .faint {
+    opacity: 0.6;
+  }
+
+  /* Excluded subjects: struck through, so the list reads as a list of
+     things that are not here. */
+  .struck li {
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in oklch, var(--color-muted) 60%, transparent);
+  }
+
 
   /* ---- margin contents ---- */
 
