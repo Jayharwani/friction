@@ -16,6 +16,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
+import gplay from 'google-play-scraper';
 
 import {
   ProductsFileSchema,
@@ -232,6 +233,80 @@ async function fetchApple(
 }
 
 /* ------------------------------------------------------------------ */
+/* Google Play                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * google-play-scraper ships typings that declare the default export's `sort`
+ * as the enum's *value* type rather than `typeof sort`, so `gplay.sort.NEWEST`
+ * does not typecheck even though it is correct at runtime — verified directly:
+ * `gplay.sort` is `{ NEWEST: 2, RATING: 3, HELPFULNESS: 1 }`.
+ *
+ * Narrow cast through the real runtime shape, so the call site reads as the
+ * documented API rather than a magic 2. Deviation noted per rule 0.1.
+ */
+const SORT_NEWEST = (gplay.sort as unknown as Record<string, unknown>)
+  .NEWEST as typeof gplay.sort;
+
+/**
+ * Pull the most recent Play reviews for one app.
+ *
+ * There is no public API for reading reviews of apps you do not own, so this
+ * reads publicly visible review pages via google-play-scraper. The library's
+ * `throttle` option is requests per second and applies to its internal
+ * pagination, which is the only place the rate can actually be controlled.
+ *
+ * The whole thing is wrapped by the caller: Play failing is a gap to record,
+ * never a reason to fail the run (spec 5.2). Apple alone is a valid run.
+ */
+async function fetchPlay(
+  product: Product,
+  capturedAt: string,
+  salt: string,
+): Promise<SourceResult> {
+  try {
+    const res = await gplay.reviews({
+      appId: product.playPackage!,
+      sort: SORT_NEWEST,
+      num: 300,
+      lang: 'en',
+      country: 'us',
+      throttle: 1,
+    });
+
+    // reviews() returns { data, nextPaginationToken }, not a bare array.
+    const rows = Array.isArray(res) ? res : (res.data ?? []);
+    const candidates: Candidate[] = [];
+
+    for (const r of rows) {
+      const text = typeof r.text === 'string' ? r.text : '';
+      const rating = Number(r.score);
+      if (!r.id || !r.userName || !r.date || !Number.isFinite(rating)) continue;
+
+      candidates.push({
+        id: `play:${r.id}`,
+        productSlug: product.slug,
+        platform: 'android',
+        country: 'us',
+        rating,
+        // Play has no review titles.
+        title: '',
+        body: text.slice(0, BODY_TRUNCATE),
+        // The field is sometimes an empty string rather than null.
+        version: r.version ? String(r.version) : null,
+        reviewedAt: new Date(r.date).toISOString(),
+        capturedAt,
+        reviewerHash: hashReviewer(String(r.userName), 'android', salt),
+      });
+    }
+
+    return { candidates, ok: true, error: null };
+  } catch (err) {
+    return { candidates: [], ok: false, error: (err as Error).message };
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Screen and filter (spec 5.3)                                        */
 /* ------------------------------------------------------------------ */
 
@@ -345,6 +420,13 @@ async function main(): Promise<void> {
   }
 
   const raw = process.argv.includes('--raw');
+  /** Proves the pipeline still produces a valid run on Apple data alone. */
+  const noPlay = process.argv.includes('--no-play');
+  /**
+   * Print the funnel but write nothing. Without this a test run would mark
+   * reviews as seen and quietly exclude them from the next real run.
+   */
+  const dry = process.argv.includes('--dry');
   const onlySlugs = flag('only')?.split(',').map((s) => s.trim());
   const maxPages = Number(flag('pages') ?? MAX_PAGES);
   const countryOverride = flag('countries')?.split(',').map((s) => s.trim());
@@ -396,7 +478,34 @@ async function main(): Promise<void> {
       console.log(`${product.slug.padEnd(14)} apple     — no appleId`);
     }
 
-    productStatus.push({ slug: product.slug, appleOk, playOk: false, playError: 'play not implemented yet' });
+    let playOk = false;
+    let playError: string | null = null;
+
+    if (noPlay) {
+      playError = 'skipped via --no-play';
+      console.log(`${' '.repeat(14)} play      — skipped`);
+    } else if (!product.playPackage) {
+      playError = 'no package configured';
+    } else {
+      const result = await fetchPlay(product, capturedAt, salt);
+      fetched.push(...result.candidates);
+      playOk = result.ok && result.candidates.length > 0;
+
+      // A missing package returns an empty list rather than throwing, so
+      // record an explicit reason — otherwise runs.json cannot tell a real
+      // failure apart from an app that genuinely has no reviews.
+      playError = result.error ?? (playOk ? null : 'returned no reviews');
+
+      if (playOk) {
+        console.log(`${' '.repeat(14)} play  ${String(result.candidates.length).padStart(5)} reviews`);
+      } else {
+        // Non-fatal by design: keep the Apple data and log the gap.
+        console.warn(`${' '.repeat(14)} play      ! ${playError}`);
+      }
+      await sleep(RATE_LIMIT_MS);
+    }
+
+    productStatus.push({ slug: product.slug, appleOk, playOk, playError });
   }
 
   /* ---- raw dump for hand inspection ---- */
@@ -428,7 +537,17 @@ async function main(): Promise<void> {
   console.log(`  filtered  ${String(funnel.filtered.total).padStart(6)}   (ios ${funnel.filtered.ios}, android ${funnel.filtered.android})`);
   console.log(`  capped    ${String(funnel.capped.total).padStart(6)}   (ios ${funnel.capped.ios}, android ${funnel.capped.android})`);
 
+  console.log('\nPlay coverage');
+  for (const p of productStatus) {
+    console.log(`  ${p.slug.padEnd(14)} apple ${p.appleOk ? 'ok  ' : 'FAIL'}   play ${p.playOk ? 'ok' : `— ${p.playError ?? 'no data'}`}`);
+  }
+
   /* ---- write ---- */
+  if (dry) {
+    console.log('\nDry run: nothing written.');
+    return;
+  }
+
   mkdirSync(join(DATA, 'candidates'), { recursive: true });
   const candidatesPath = join(DATA, 'candidates', `${runDate}.json`);
   writeFileSync(candidatesPath, `${JSON.stringify(capped, null, 2)}\n`);
