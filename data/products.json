@@ -1,0 +1,197 @@
+[
+  {
+    "slug": "notion",
+    "name": "Notion",
+    "category": "Notes and docs",
+    "appleId": "1232780281",
+    "playPackage": "notion.id",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "slack",
+    "name": "Slack",
+    "category": "Team messaging",
+    "appleId": "618783545",
+    "playPackage": "com.Slack",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "zoom",
+    "name": "Zoom",
+    "category": "Video meetings",
+    "appleId": "546505307",
+    "playPackage": "us.zoom.videomeetings",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "canva",
+    "name": "Canva",
+    "category": "Design",
+    "appleId": "897446215",
+    "playPackage": "com.canva.editor",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "duolingo",
+    "name": "Duolingo",
+    "category": "Language learning",
+    "appleId": "570060128",
+    "playPackage": "com.duolingo",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "spotify",
+    "name": "Spotify",
+    "category": "Music",
+    "appleId": "324684580",
+    "playPackage": "com.spotify.music",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "airbnb",
+    "name": "Airbnb",
+    "category": "Travel and stays",
+    "appleId": "401626263",
+    "playPackage": "com.airbnb.android",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "uber",
+    "name": "Uber",
+    "category": "Rides and delivery",
+    "appleId": "368677368",
+    "playPackage": "com.ubercab",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "strava",
+    "name": "Strava",
+    "category": "Fitness tracking",
+    "appleId": "426826309",
+    "playPackage": "com.strava",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "venmo",
+    "name": "Venmo",
+    "category": "Payments",
+    "appleId": "351727428",
+    "playPackage": "com.venmo",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "ticketmaster",
+    "name": "Ticketmaster",
+    "category": "Tickets and events",
+    "appleId": "500003565",
+    "playPackage": "com.ticketmaster.mobile.android.na",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "expedia",
+    "name": "Expedia",
+    "category": "Travel booking",
+    "appleId": "427916203",
+    "playPackage": "com.expedia.bookings",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "teams",
+    "name": "Microsoft Teams",
+    "category": "Team messaging",
+    "appleId": "1113153706",
+    "playPackage": "com.microsoft.teams",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "lightroom",
+    "name": "Adobe Lightroom",
+    "category": "Photo editing",
+    "appleId": "878783582",
+    "playPackage": "com.adobe.lrmobile",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  },
+  {
+    "slug": "robinhood",
+    "name": "Robinhood",
+    "category": "Investing",
+    "appleId": "938003185",
+    "playPackage": "com.robinhood.android",
+    "countries": [
+      "us",
+      "gb",
+      "ca",
+      "au"
+    ]
+  }
+]

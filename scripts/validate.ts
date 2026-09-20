@@ -58,6 +58,97 @@ const isoDate = z
   .regex(/^\d{4}-\d{2}-\d{2}(T[\d:.]+(Z|[+-]\d{2}:\d{2}))?$/, 'must be an ISO date');
 
 /* ------------------------------------------------------------------ */
+/* Screening (spec 1.4)                                                */
+/*                                                                     */
+/* These live here, beside the schemas, because admissibility is a     */
+/* data rule and because the validation gate itself has to re-check    */
+/* the crisis screen against every stored quote. One implementation.   */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Apps whose subject matter is personal distress or health are never tracked.
+ * Matched as case-insensitive substrings against the app name, the developer
+ * name and the store category. Several entries are deliberate stems
+ * ("pregnan", "depress", "diagnos") so substring matching is the intent.
+ *
+ * Over-blocking is the safe direction: a false positive drops one app and is
+ * reported loudly by resolve-apps, whereas a false negative tracks an app this
+ * project has no business tracking.
+ */
+export const APP_DENYLIST = [
+  'mental health', 'therapy', 'counsel', 'mood', 'depress', 'anxiety', 'suicide', 'crisis',
+  'addiction', 'recovery', 'sober', 'quit smoking', 'rehab',
+  'calorie', 'diet', 'weight loss', 'fasting', 'eating', 'macro', 'bmi',
+  'period', 'fertility', 'pregnan', 'medical', 'symptom', 'diagnos', 'telehealth', 'pharmacy',
+  'dating', 'hookup',
+] as const;
+
+/**
+ * A review matching any of these is dropped before it enters the pipeline:
+ * never stored, never quoted, never counted (spec 1.4).
+ *
+ * These nine terms are the canonical list, kept as plain strings because the
+ * methodology page prints them verbatim.
+ */
+export const CRISIS_PATTERNS = [
+  'kill myself', 'end my life', 'suicide', 'want to die', 'self harm',
+  'cutting myself', 'starve', 'purge', 'relapse',
+] as const;
+
+/**
+ * What the screen actually matches on: the nine terms above plus their natural
+ * inflections.
+ *
+ * Deviation from the spec's literal list, deliberately. Plain substring
+ * matching lets "ending my life" and "suicidal" through, which is the wrong
+ * direction for a safety screen to fail in. Each regex below covers exactly
+ * one listed term; nothing new is screened for, only inflected forms of what
+ * the spec already names.
+ */
+const CRISIS_REGEXES: RegExp[] = [
+  /kill(?:ing|ed)? myself/i,          // kill myself
+  /end(?:ing|ed)? my life/i,          // end my life
+  /suicid(?:e|al)/i,                  // suicide
+  /want(?:ing|ed|s)? to die/i,        // want to die
+  /self[ -]?harm/i,                   // self harm
+  /cut(?:ting)? myself/i,             // cutting myself
+  /starv(?:e|ed|ing)/i,               // starve
+  /purg(?:e|ed|ing)/i,                // purge
+  /relaps(?:e|ed|ing)/i,              // relapse
+];
+
+/**
+ * Returns the denylist term that blocks this app, or null if it is allowed.
+ * Returning the term rather than a boolean so callers can report *why*.
+ */
+export function blockedAppReason(fields: {
+  name?: string | null;
+  developer?: string | null;
+  storeCategory?: string | null;
+}): string | null {
+  const haystack = [fields.name, fields.developer, fields.storeCategory]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+  return APP_DENYLIST.find((term) => haystack.includes(term)) ?? null;
+}
+
+/** True when the app must not be tracked. */
+export function isBlockedApp(fields: {
+  name?: string | null;
+  developer?: string | null;
+  storeCategory?: string | null;
+}): boolean {
+  return blockedAppReason(fields) !== null;
+}
+
+/** True when review text contains crisis language and must be dropped entirely. */
+export function containsCrisisLanguage(...parts: (string | null | undefined)[]): boolean {
+  const text = parts.filter(Boolean).join(' ');
+  return CRISIS_REGEXES.some((re) => re.test(text));
+}
+
+/* ------------------------------------------------------------------ */
 /* 4.1 Product                                                         */
 /* ------------------------------------------------------------------ */
 
