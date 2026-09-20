@@ -1,0 +1,121 @@
+name: Scan
+
+# Manual only for now. The schedule below is commented out deliberately: the
+# spec calls for proving a manual run produces good output before letting it
+# run unattended. Uncomment it once that has happened.
+#
+# Note that GitHub may delay scheduled runs during periods of high load, so the
+# Monday 07:00 UTC slot is a request rather than a guarantee.
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '0 7 * * 1'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Unit tests gate the run: the scoring formula and the screening rules are
+      # not things to discover are broken after data has been written.
+      - name: Run tests
+        run: npm test
+
+      - name: Fetch reviews
+        env:
+          AUTHOR_SALT: ${{ secrets.AUTHOR_SALT }}
+        run: npm run fetch
+
+      # If nothing survived filtering there is nothing for the model to do.
+      # That is a normal outcome, not a failure, so the job ends green without
+      # committing anything.
+      - name: Check for candidates
+        id: candidates
+        run: |
+          FILE="data/candidates/$(date -u +%F).json"
+          if [ ! -f "$FILE" ]; then
+            echo "No candidates file at $FILE."
+            echo "count=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          COUNT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('$FILE','utf8')).length)")
+          echo "Candidates this run: $COUNT"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Extract problems
+        if: steps.candidates.outputs.count != '0'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Read the file scripts/extract-prompt.md in this repository and carry out
+            the instructions in it exactly. Follow every hard requirement it states.
+            Write only the single output file it names and change no other file.
+          claude_args: '--allowedTools Read,Write,Glob,Grep'
+
+      # Hard gate. Anything wrong with the model's output stops the run here,
+      # before any of it reaches data/problems/ (spec 0.5).
+      - name: Validate
+        if: steps.candidates.outputs.count != '0'
+        run: npm run validate
+
+      - name: Score
+        if: steps.candidates.outputs.count != '0'
+        run: npm run score
+
+      # Enforces the promise that raw review text does not persist past 30 days.
+      - name: Prune old files
+        if: steps.candidates.outputs.count != '0'
+        run: npm run prune
+
+      - name: Commit data
+        id: commit
+        if: steps.candidates.outputs.count != '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "No data changes."
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          PROBLEMS=$(ls data/problems/*.json 2>/dev/null | wc -l | tr -d ' ')
+          NEW=$(node -e "
+            const fs=require('fs');
+            const runs=JSON.parse(fs.readFileSync('data/runs.json','utf8'));
+            console.log(runs.at(-1)?.problemsNew ?? 0);
+          ")
+          git commit -m "scan: $(date -u +%F) ($PROBLEMS problems, $NEW new)"
+          git push
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+
+  # Called directly rather than relying on the push trigger in deploy.yml,
+  # which the scan's own GITHUB_TOKEN commit cannot fire.
+  #
+  # Skipped when the scan changed nothing: a run that found no new evidence has
+  # nothing new to publish, and a push to main deploys on its own trigger.
+  deploy:
+    needs: scan
+    if: needs.scan.outputs.committed == 'true'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

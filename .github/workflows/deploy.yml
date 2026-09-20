@@ -1,0 +1,45 @@
+name: Deploy
+
+# workflow_call matters: a commit made with the default GITHUB_TOKEN does not
+# trigger other workflows, so the push trigger below never fires for the scan's
+# own commit. scan.yml calls this workflow directly, and that is what makes the
+# published site actually update.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a deploy in flight: a half-finished Pages deployment is worse
+# than a slightly stale one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # Installs dependencies, runs the build, and uploads the Pages artifact.
+      # `npm run build` runs astro check first, so a type error fails the deploy.
+      - name: Build site
+        uses: withastro/action@v6
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
