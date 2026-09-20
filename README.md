@@ -12,6 +12,10 @@ Tools in this category hide their evidence and their scoring behind a paywall, a
 
 ## How it works
 
+The homepage hero is the data itself: rows are the highest-scoring active problems, columns are the last twelve ISO weeks, and each cell is shaded by how much evidence arrived that week.
+
+![The homepage recurrence grid: twelve problems by twelve weeks, shaded by evidence volume](docs/homepage.png)
+
 1. **Fetch.** Every run reads up to ten pages of Apple's public customer reviews feed for each tracked app across four storefronts, plus recent Google Play reviews, at one request per second. Roughly 30,000 reviews come in.
 2. **Screen and filter.** Deterministic rules, in code, drop anything already processed, older than 180 days, too short, or matching a crisis-language screen. What survives is kept only if it is rated three stars or lower and contains a complaint marker. The survivors are ranked and capped at sixty.
 3. **Group.** Those sixty go to Claude with one job: group reviews describing the same underlying problem and copy a short verbatim quote from each. It is explicitly forbidden from producing any number.
