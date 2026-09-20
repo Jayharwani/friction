@@ -14,7 +14,7 @@ Tools in this category hide their evidence and their scoring behind a paywall, a
 
 The homepage opens with a plain statement of what the site does, three figures proving it is live, and one problem shown in full.
 
-![The homepage recurrence grid: twelve problems by twelve weeks, shaded by evidence volume](docs/homepage.png)
+![The homepage: a plain statement of what the site does, three figures proving it is current, and one problem shown in full](docs/homepage.png)
 
 1. **Fetch.** Every run reads up to ten pages of Apple's public customer reviews feed for each tracked app across seven storefronts, plus recent Google Play reviews, at one request per second. Roughly 30,000 reviews come in.
 2. **Screen and filter.** Deterministic rules, in code, drop anything already processed, older than 180 days, too short, or matching a crisis-language screen. What survives is kept only if it is rated three stars or lower and contains a complaint marker. The survivors are ranked and capped at 150.
@@ -24,6 +24,7 @@ The homepage opens with a plain statement of what the site does, three figures p
 
 ## Design decisions worth defending
 
+- **The verdict describes the evidence, not the opportunity.** "Thin evidence", "Recurring", "Strong signal" and "Already solved" say how much support a complaint has. Labels that judged the complaint itself read as the site dismissing the person who wrote it.
 - **The score is computed in code and shown in full.** Open "How this score is calculated" on any problem page and you get all seven components, the raw count behind each one, the weight applied, and arithmetic that sums to the published number.
 - **The model never produces a number.** It extracts and groups. Every score, rank and verdict comes from `src/lib/scoring.ts`, which has exactly one implementation and is imported by both the build scripts and the site.
 - **Most problems are rejected.** The "Strong signal" threshold is the higher of 70 and the 80th percentile of active scores, which holds the pass rate near one in five. A site where everything looks promising is worth nothing.
@@ -75,7 +76,7 @@ npm run dev
 | Scheduler | GitHub Actions |
 | Hosting | GitHub Pages |
 
-No React, no client-side router, no state library, no database. The only client-side JavaScript is what a native `<details>` element does on its own.
+No React, no state library, no database, no icon library. The only client-side JavaScript is the theme toggle. The score disclosure is a native `<details>` element, and every animation is CSS behind a feature query with a working fallback.
 
 The spec this was built from pins Astro 5; Astro 7 is current and its Tailwind setup is what the current docs prescribe, so that is what is used. The deviation is noted in `astro.config.mjs`.
 
