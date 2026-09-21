@@ -71,6 +71,9 @@ for (let i = 0; i < 26; i++) {
 
 // A gloss appears once per verdict, on its first appearance.
 const seenVerdicts = new Set<Verdict>();
+
+/* The definitions are attached to the first row only. */
+let taught = false;
 if (specimen) seenVerdicts.add(specimen.verdict);
 ---
 
@@ -109,7 +112,7 @@ if (specimen) seenVerdicts.add(specimen.verdict);
         <p class="stat-figure">
           {run ? <time datetime={run.date}>{formatDate(run.date)}</time> : '—'}
         </p>
-        <p class="stat-label">last scan</p>
+        <p class="stat-label">last checked</p>
       </div>
     </section>
 
@@ -134,7 +137,7 @@ if (specimen) seenVerdicts.add(specimen.verdict);
     {
       grouped.length > 0 && (
         <section class="list">
-          <h2>Everything found in the last scan</h2>
+          <h2>Problems found this week</h2>
 
           {grouped.map((group) => (
             <div class="group">
@@ -144,9 +147,11 @@ if (specimen) seenVerdicts.add(specimen.verdict);
               {group.problems.map((problem) => {
                 const first = !seenVerdicts.has(problem.verdict);
                 seenVerdicts.add(problem.verdict);
+                const teach = !taught;
+                taught = true;
                 return (
                   <>
-                    <ProblemRow problem={problem} />
+                    <ProblemRow problem={problem} teach={teach} />
                     {first && (
                       <p class="gloss">
                         {problem.verdict} — {VERDICT_GLOSS[problem.verdict]}

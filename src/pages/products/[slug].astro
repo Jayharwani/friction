@@ -124,7 +124,7 @@ const ordered = cats.flatMap(({ label }) =>
       <div class="cat-mix">
         <StackedBar segments={cats} of={`of ${product.name}'s problems`} />
       </div>
-      {ordered.map((problem) => <ProblemRow problem={problem} />)}
+      {ordered.map((problem, i) => <ProblemRow problem={problem} teach={i === 0} />)}
     </section>
 
     <p class="disclaimer measure">

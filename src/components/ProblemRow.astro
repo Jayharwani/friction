@@ -14,13 +14,21 @@ import type { Problem } from '../../scripts/validate';
 import { url } from '../lib/url';
 import { platformsLabel } from '../lib/data';
 import { weeklySeries } from '../lib/charts';
+import { TERMS } from '../lib/terms';
 import Sparkline from './charts/Sparkline.astro';
+import Term from './Term.astro';
 
 interface Props {
   problem: Problem;
+  /**
+   * Mark the verdict and the score with their definitions. Set on the first
+   * row of a list only: a page where all twenty-five rows carry a dotted
+   * underline is noise.
+   */
+  teach?: boolean;
 }
 
-const { problem } = Astro.props;
+const { problem, teach = false } = Astro.props;
 const reviews = problem.evidence.length;
 
 // Twelve weeks of this problem's evidence, between the metadata and the
@@ -46,8 +54,19 @@ const series = weeklySeries(problem.evidence);
   </div>
 
   <div class="figures">
-    <p class="verdict">{problem.verdict}</p>
-    <p class="score num">score {problem.score}</p>
+    <p class="verdict">
+      {
+        teach ? (
+          <Term label={problem.verdict} definition={TERMS[problem.verdict] ?? ''} />
+        ) : (
+          problem.verdict
+        )
+      }
+    </p>
+    <p class="score num">
+      {teach ? <Term label="evidence score" definition={TERMS.score!} /> : 'evidence score'}
+      {' '}{problem.score}
+    </p>
   </div>
 </article>
 

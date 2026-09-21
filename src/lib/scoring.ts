@@ -62,10 +62,16 @@ export type ComponentKey = keyof Components;
  * the site dismissing a complaint rather than reporting how much support it
  * has, which is both wrong and faintly insulting to the person who wrote it.
  */
+/*
+ * Said plainly. The verdict names are fixed, but nothing requires their
+ * one-line explanations to use the site's own vocabulary — and "at or above
+ * the current threshold" means nothing to someone who has not read the
+ * methodology page.
+ */
 export const VERDICT_GLOSS: Record<Verdict, string> = {
-  'Thin evidence': 'fewer than four distinct reviewers so far',
-  Recurring: 'real and repeated, below the current threshold',
-  'Strong signal': 'at or above the current threshold',
+  'Thin evidence': 'fewer than four different people have reported it so far',
+  Recurring: 'real and repeated, but less evidence than most problems have',
+  'Strong signal': 'more evidence than most problems have',
   'Already solved': 'three or more shipping products already address this',
 };
 

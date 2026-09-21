@@ -199,9 +199,11 @@ const members = cards.filter((c) => c.member).length;
     overflow: hidden;
   }
 
+  /* Part of an illustration, but drawn at full accent strength so it clears
+     the contrast floor on its own rather than by being decorative. */
   .stars {
     display: block;
-    color: var(--color-accent);
+    color: color-mix(in oklch, var(--color-accent) 80%, var(--color-ink));
     font-size: 5px;
     letter-spacing: 0.5px;
   }
