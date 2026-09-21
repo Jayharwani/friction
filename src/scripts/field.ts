@@ -360,8 +360,9 @@ export function createField({ canvas, data, label, reducedMotion, onSelect }: Op
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     if (w === 0 || h === 0) return;
-    // Cap DPR: the surface is large and 3x costs a lot for no visible gain.
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Cap DPR at 1.5: the surface is large, it sits below the fold, and the
+    // difference between 1.5 and 2 is invisible at this camera distance.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();

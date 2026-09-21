@@ -23,15 +23,12 @@ const field = buildField(getActiveProblems(), (slug) => getProduct(slug)?.name ?
 const payload = JSON.stringify(field);
 ---
 
-<section class="field runs-under-nav" data-field>
-  {/* First in the DOM: on a phone these stack, and the statement leads. */}
-  <div class="overlay">
-    <div class="overlay-inner">
-      <h1 class="display-line" data-enter="1">Every ridge is a complaint that keeps coming back.</h1>
-      <p class="sub" data-enter="2">
-        Read from public App Store and Google Play reviews. Every score is computed in code.
-      </p>
-    </div>
+<section class="field" data-field aria-labelledby="field-heading">
+  <div class="intro">
+    <h2 id="field-heading">Twelve weeks of complaints, by problem</h2>
+    <p class="caption">
+      Taller ridges are problems more people reported that week. Hover one to see which.
+    </p>
   </div>
 
   <div class="stage">
@@ -47,6 +44,16 @@ const payload = JSON.stringify(field);
       <p class="l-title" data-f-title></p>
       <p class="l-meta num" data-f-meta></p>
     </div>
+
+    {/* The axes, in words. Without them the surface is texture. */}
+    <p class="axis axis-x num" aria-hidden="true">
+      <span>{field.weekLabels[0]}</span>
+      <span class="axis-name">twelve weeks</span>
+      <span>{field.weekLabels.at(-1)}</span>
+    </p>
+    <p class="axis axis-z" aria-hidden="true">
+      <span class="axis-name">{field.rows.length} problems</span>
+    </p>
   </div>
 
   <script is:inline type="application/json" data-field-data set:html={payload} />
@@ -55,7 +62,12 @@ const payload = JSON.stringify(field);
 <script>
   import type { FieldHandle } from '../scripts/field';
 
-  const MOBILE_MAX = 768;
+  /*
+   * Three.js does not load at all below this. The field is a wide-screen
+   * summary; on a phone it is 133KB of JavaScript for something the heat
+   * strip says better.
+   */
+  const MOBILE_MAX = 900;
 
   function hasWebGL(): boolean {
     try {
@@ -78,14 +90,13 @@ const payload = JSON.stringify(field);
     const raw = document.querySelector<HTMLScriptElement>('[data-field-data]');
     if (!section || !canvas || !label || !raw) return;
 
-    // Under 768px Three.js never loads at all — mobile gets a fast page,
+    // Under 900px Three.js never loads at all — a phone gets a fast page,
     // not a degraded 3D one.
     if (window.innerWidth < MOBILE_MAX || !hasWebGL()) {
       section.dataset.mode = 'strip';
       return;
     }
 
-    section.dataset.mode = 'field';
     const data = JSON.parse(raw.textContent ?? '{}');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -102,9 +113,46 @@ const payload = JSON.stringify(field);
     });
   }
 
-  document.addEventListener('astro:page-load', () => {
-    void mount();
-  });
+  /**
+   * Wait until the field is near the viewport before importing anything.
+   *
+   * The field sits below the whole problem list now, five screens down, but
+   * the import still ran on arrival — measured as a 647ms long task on a page
+   * the visitor had not scrolled. The IntersectionObserver was gating the
+   * frame loop; it now gates the 133KB import as well.
+   */
+  let armed: IntersectionObserver | null = null;
+
+  function arm(): void {
+    armed?.disconnect();
+    armed = null;
+
+    const section = document.querySelector<HTMLElement>('[data-field]');
+    if (!section) return;
+
+    // Decide the mode now, even though the import waits. Leaving it undecided
+    // left the heat strip laid out and visible on desktop until the visitor
+    // scrolled five screens down to the field.
+    if (window.innerWidth < MOBILE_MAX || !hasWebGL()) {
+      section.dataset.mode = 'strip';
+      return;
+    }
+    section.dataset.mode = 'field';
+
+    armed = new IntersectionObserver(
+      (entries, io) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        armed = null;
+        void mount();
+      },
+      // One viewport of warning, so it is ready by the time it is looked at.
+      { rootMargin: '100% 0px' },
+    );
+    armed.observe(section);
+  }
+
+  document.addEventListener('astro:page-load', arm);
 
   // The ramp and the fog come from CSS tokens, so a theme change has to be
   // pushed into the scene. Repainting beats remounting: no reallocation, and
@@ -116,6 +164,8 @@ const payload = JSON.stringify(field);
       if (!document.documentElement.dataset.theme) handle?.refreshTheme();
     });
   document.addEventListener('astro:before-swap', () => {
+    armed?.disconnect();
+    armed = null;
     handle?.destroy();
     handle = null;
   });
@@ -124,16 +174,32 @@ const payload = JSON.stringify(field);
 <style>
   .field {
     position: relative;
-    /* Sized before hydration so the field contributes zero layout shift. */
-    height: 78vh;
-    min-height: 32rem;
-    max-height: 56rem;
-    overflow: clip;
+    margin-top: var(--section-gap);
+  }
+
+  .intro {
+    padding: 0 var(--page-gutter);
+    max-width: 52rem;
+  }
+
+  .intro h2 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .caption {
+    margin-top: var(--space-2xs);
+    color: var(--color-muted);
   }
 
   .stage {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    margin-top: var(--space-md);
+    /* Sized before hydration so the field contributes zero layout shift. */
+    height: 52vh;
+    min-height: 22rem;
+    max-height: 34rem;
+    overflow: clip;
   }
 
   /*
@@ -168,16 +234,38 @@ const payload = JSON.stringify(field);
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(to bottom, var(--color-paper) 0%, transparent 26%);
+    background:
+      linear-gradient(to bottom, var(--color-paper) 0%, transparent 22%),
+      linear-gradient(to top, var(--color-paper) 6%, transparent 30%);
   }
 
-  .field::after {
-    content: '';
+  /* ---- axes ---- */
+
+  .axis {
     position: absolute;
-    inset: auto 0 0;
-    height: 38%;
+    z-index: 2;
     pointer-events: none;
-    background: linear-gradient(to top, var(--color-paper) 12%, transparent 100%);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .axis-x {
+    inset: auto var(--page-gutter) var(--space-sm);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-sm);
+  }
+
+  .axis-z {
+    inset: 50% auto auto var(--space-sm);
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+    translate: 0 -50%;
+  }
+
+  .axis-name {
+    color: var(--color-ink);
   }
 
   /* ---- hover label ---- */
@@ -209,104 +297,27 @@ const payload = JSON.stringify(field);
     color: var(--color-muted);
   }
 
-  /* ---- statement, overlaid on the lower third ---- */
-
-  .overlay {
-    position: absolute;
-    inset: auto 0 0;
-    z-index: 2;
-    pointer-events: none;
-    padding: 0 var(--page-gutter) var(--space-2xl);
-  }
-
-  .overlay-inner {
-    /* The statement sets its own measure below, at its own size. */
-    max-width: none;
-  }
-
-  .overlay h1 {
-    font-size: clamp(1.6rem, 0.7rem + 2.6vw, 2.9rem);
-    font-weight: 600;
-    line-height: 1.02;
-    letter-spacing: -0.035em;
-    /*
-     * Two lines, never six. The measure is in em so it tracks the clamped
-     * display size: at any width this holds roughly twenty-five characters
-     * per line, which is what breaks the statement where it should break.
-     */
-    max-width: 13em;
-    text-wrap: balance;
-  }
-
-  .sub {
-    margin-top: var(--space-md);
-    max-width: 29.16em;
-    color: var(--color-muted);
-    font-size: var(--text-sm);
-    pointer-events: auto;
-  }
-
   /*
-   * 767.98px, not 48rem. The root font is 17px, so 48rem is 816px, and the
-   * mount script falls back to the strip at innerWidth < 768 — which left a
-   * 48px band getting the stacked mobile layout with a live canvas in it.
-   * The two thresholds have to be the same number.
+   * Below 900px the canvas never mounts, so this is the heat strip's layout:
+   * the stage stops being a fixed-height stage and becomes whatever the strip
+   * needs.
    */
-  @media (max-width: 767.98px) {
-    .field {
+  @media (max-width: 899.98px) {
+    .stage {
       height: auto;
       min-height: 0;
-      padding-top: calc(var(--nav-h) + var(--space-lg));
-    }
-
-    .stage {
-      position: static;
+      max-height: none;
+      overflow: visible;
     }
 
     .stage::after,
-    .field::after {
+    .axis {
       display: none;
     }
 
     .strip {
       position: static;
       padding: 0 var(--page-gutter);
-    }
-
-    .overlay {
-      position: static;
-      padding: var(--space-xl) var(--page-gutter) 0;
-    }
-
-    /* The statement keeps its own em measure here too. A fixed container
-       width put it on six lines at 768px and four at 390px. */
-    .overlay-inner {
-      max-width: none;
-    }
-  }
-
-  /* ---- entry: the statement and sub rise once, together with the proof row ---- */
-
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (transition-behavior: allow-discrete) {
-      [data-enter] {
-        opacity: 1;
-        translate: 0 0;
-        transition:
-          opacity var(--dur-long) var(--ease-out),
-          translate var(--dur-long) var(--ease-out);
-      }
-
-      @starting-style {
-        [data-enter] {
-          opacity: 0;
-          translate: 0 8px;
-        }
-      }
-
-      [data-enter='2'] {
-        transition-delay: 60ms;
-      }
     }
   }
 </style>

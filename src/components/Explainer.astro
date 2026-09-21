@@ -1,0 +1,332 @@
+---
+/**
+ * What this site does, in three pictures.
+ *
+ * The finding that produced this component: first-time visitors could not tell
+ * what the site was without reading the About page. Every term on the old
+ * first screen — ridges, problems, scores, verdicts — was a term of art the
+ * visitor had not been taught.
+ *
+ * So the three panels teach the unit before any output appears: many reviews
+ * come in, the ones describing the same thing get grouped, that group becomes
+ * one problem with a score. Built from real reviews and a real problem, at
+ * build time, so it is an explanation rather than an illustration.
+ *
+ * Static first. All three panels are complete and correct with no JavaScript
+ * and no motion; the sequence only adds timing.
+ */
+import type { Problem } from '../../scripts/validate';
+import { url } from '../lib/url';
+
+interface Props {
+  /** The problem the third panel resolves into. */
+  problem: Problem;
+  productName: string;
+  /** Reviews read in the most recent check. */
+  reviewsRead: number;
+  /** Short excerpts from real reviews, for the scatter. */
+  excerpts: { text: string; rating: number; member: boolean }[];
+}
+
+const { problem, productName, reviewsRead, excerpts } = Astro.props;
+
+/*
+ * Positions for the scatter. Fixed, not random: a random layout changes on
+ * every build and can put two cards on top of each other. These were chosen
+ * to look strewn and to leave the middle clear for the cluster in panel two.
+ */
+const SPOTS = [
+  [4, 6], [26, 2], [52, 8], [74, 3], [88, 14], [12, 22], [38, 18], [62, 26],
+  [82, 32], [2, 38], [22, 44], [46, 36], [68, 46], [90, 52], [8, 58], [30, 62],
+  [54, 56], [76, 66], [16, 76], [40, 72], [60, 80], [86, 78], [6, 88], [34, 90],
+  [58, 94], [80, 92],
+];
+
+const cards = excerpts.slice(0, SPOTS.length).map((e, i) => ({
+  ...e,
+  i,
+  x: SPOTS[i]![0],
+  y: SPOTS[i]![1],
+  /*
+   * In panel two the members converge into an overlapping stack near the
+   * centre — overlap is the point, it is what makes a pile read as one thing —
+   * and everything else drifts out past the edge.
+   */
+  toX: e.member ? 26 + ((i * 7) % 18) : SPOTS[i]![0] + (SPOTS[i]![0] < 50 ? -38 : 38),
+  toY: e.member ? 22 + ((i * 11) % 34) : SPOTS[i]![1] + (SPOTS[i]![1] < 50 ? -30 : 30),
+}));
+
+const members = cards.filter((c) => c.member).length;
+---
+
+<section class="explainer bleed" data-explainer data-chart aria-labelledby="explainer-heading">
+  <h2 id="explainer-heading" class="sr-only">How Friction works</h2>
+
+  <ol class="panels">
+    <li class="panel" data-step="1">
+      <p class="step"><span class="num">1</span> Thousands of reviews come in</p>
+
+      <div class="stage scatter" aria-hidden="true">
+        {
+          cards.map((c) => (
+            <span class="card" style={`left:${c.x}%; top:${c.y}%; --i:${c.i}`}>
+              <span class="stars">{'★'.repeat(c.rating)}</span>
+              <span class="text">{c.text}</span>
+            </span>
+          ))
+        }
+      </div>
+
+      <p class="cap num">{reviewsRead.toLocaleString('en-GB')} reviews read this week.</p>
+    </li>
+
+    <li class="panel" data-step="2">
+      <p class="step"><span class="num">2</span> The ones describing the same thing get grouped</p>
+
+      <div class="stage group" aria-hidden="true">
+        {
+          cards.map((c) => (
+            <span
+              class="card"
+              data-member={c.member ? '' : undefined}
+              style={`left:${c.toX}%; top:${c.toY}%; --i:${c.i}; --dx:${(c.x - c.toX).toFixed(1)}; --dy:${(c.y - c.toY).toFixed(1)}`}
+            >
+              <span class="stars">{'★'.repeat(c.rating)}</span>
+              <span class="text">{c.text}</span>
+            </span>
+          ))
+        }
+      </div>
+
+      <p class="cap num">{members} of them describe the same problem.</p>
+    </li>
+
+    <li class="panel" data-step="3">
+      <p class="step"><span class="num">3</span> That becomes one problem, with a score</p>
+
+      <div class="stage result">
+        <a class="result-card" href={url(`/problems/${problem.slug}`)}>
+          <span class="r-app">{productName}</span>
+          <span class="r-title">{problem.title}</span>
+          <span class="r-foot">
+            <span class="r-score num">{problem.score}</span>
+            <span class="r-of num">evidence score, out of 100</span>
+          </span>
+        </a>
+      </div>
+
+      <p class="cap">The score is how much evidence there is — not how bad it is.</p>
+    </li>
+  </ol>
+</section>
+
+<style>
+  .explainer {
+    margin-top: var(--space-2xl);
+  }
+
+  .panels {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2xl);
+  }
+
+  @media (min-width: 56.25rem) {
+    .panels {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-xl);
+    }
+  }
+
+  .step {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    font-size: var(--text-md);
+    font-weight: 600;
+    text-wrap: balance;
+    /* Two lines reserved, so the three stages start on the same line. */
+    min-height: 2.8em;
+  }
+
+  .step .num {
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-paper-3);
+    color: var(--color-ink);
+    font-size: var(--text-xs);
+  }
+
+  .stage {
+    position: relative;
+    /* Sized, so the cards' travel can be expressed in container units and
+       resolve against the panel rather than against each card. */
+    container-type: size;
+    height: 11rem;
+    margin-top: var(--space-md);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 6px;
+    background: var(--color-paper-2);
+    overflow: hidden;
+  }
+
+  .cap {
+    margin-top: var(--space-sm);
+    min-height: 2.8em;
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  /* ---- the review cards ---- */
+
+  .card {
+    position: absolute;
+    width: 5.2rem;
+    padding: var(--space-3xs) var(--space-2xs);
+    border-radius: 3px;
+    background: var(--color-paper-3);
+    font-size: 6px;
+    line-height: 1.35;
+    color: var(--color-muted);
+    /* Deliberately unreadable as a group: the point of panel one is volume. */
+    overflow: hidden;
+  }
+
+  .stars {
+    display: block;
+    color: var(--color-accent);
+    font-size: 5px;
+    letter-spacing: 0.5px;
+  }
+
+  .text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* In panel two the group is lit and everything else recedes. */
+  .group .card {
+    opacity: 0.12;
+  }
+
+  .group .card[data-member] {
+    opacity: 1;
+    background: color-mix(in oklch, var(--color-accent) 24%, var(--color-paper-3));
+    color: var(--color-ink);
+    /* Ringed in the panel colour so a stack of them still reads as separate
+       reviews rather than one block. */
+    box-shadow: 0 0 0 1px var(--color-paper-2);
+  }
+
+  /* ---- the resolved problem ---- */
+
+  .result {
+    display: grid;
+    place-items: center;
+    padding: var(--space-md);
+  }
+
+  .result-card {
+    display: grid;
+    gap: var(--space-2xs);
+    width: 100%;
+    max-width: 15rem;
+    padding: var(--space-md);
+    border-radius: 6px;
+    background: var(--color-paper-3);
+    border: var(--rule-hair) solid color-mix(in oklch, var(--color-accent) 40%, transparent);
+    text-decoration: none;
+  }
+
+  .result-card:hover,
+  .result-card:focus-visible {
+    background: color-mix(in oklch, var(--color-accent) 10%, var(--color-paper-3));
+  }
+
+  .r-app {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .r-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .r-foot {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+    margin-top: var(--space-2xs);
+    padding-top: var(--space-2xs);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .r-score {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .r-of {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  /* ---- the sequence ----
+     One orchestrated run, once, on entry. Everything above is already the
+     finished state, so with motion off the three pictures still explain it. */
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-explainer][data-revealed] .scatter .card {
+      animation: ex-in var(--dur-short) var(--ease-out) backwards;
+      animation-delay: calc(var(--i) * 18ms);
+    }
+
+    [data-explainer][data-revealed] .group .card {
+      animation: ex-move var(--dur-long) var(--ease-in-out) backwards;
+      animation-delay: calc(700ms + var(--i) * 10ms);
+    }
+
+    [data-explainer][data-revealed] .result-card {
+      animation: ex-land var(--dur-long) var(--ease-out) backwards;
+      animation-delay: 1500ms;
+    }
+  }
+
+  @keyframes ex-in {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+  }
+
+  /*
+   * Each card starts at its panel-one position and travels to its panel-two
+   * one — the members inward, the rest outward. --dx and --dy are that
+   * journey, in container units, so it is one transform and nothing else.
+   */
+  @keyframes ex-move {
+    from {
+      transform: translate(calc(var(--dx, 0) * 1cqw), calc(var(--dy, 0) * 1cqh));
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes ex-land {
+    from {
+      opacity: 0;
+      transform: scale(0.94);
+    }
+  }
+</style>

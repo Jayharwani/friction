@@ -13,6 +13,7 @@ import Layout from '../layouts/Layout.astro';
 import FrictionField from '../components/FrictionField.astro';
 import ProblemRow from '../components/ProblemRow.astro';
 import Specimen from '../components/Specimen.astro';
+import Explainer from '../components/Explainer.astro';
 import { url } from '../lib/url';
 import {
   formatDate,
@@ -39,15 +40,61 @@ const specimenProduct = specimen ? getProduct(specimen.productSlug) : undefined;
 
 const grouped = groupByProduct(run ? getProblemsFromRun(run.date) : []);
 
+/*
+ * Excerpts for the explainer's scatter. Real review text, trimmed to a few
+ * words: the cards are deliberately too small to read, so this is texture
+ * made of the actual thing rather than lorem.
+ *
+ * `member` marks the ones belonging to the problem panel three resolves into,
+ * so the grouping the animation shows is the grouping the pipeline made.
+ */
+const specimenQuotes = (specimen?.evidence ?? []).map((e) => ({
+  text: e.quote,
+  rating: e.rating,
+  member: true,
+}));
+const otherQuotes = all
+  .filter((p) => p.slug !== specimen?.slug)
+  .flatMap((p) => p.evidence)
+  .filter((e) => e.rating <= 2)
+  .map((e) => ({ text: e.quote, rating: e.rating, member: false }));
+
+// Interleaved, so the members are strewn through the scatter rather than
+// sitting together before the grouping step has happened.
+const excerpts: { text: string; rating: number; member: boolean }[] = [];
+for (let i = 0; i < 26; i++) {
+  const fromMembers = i % 4 === 1 && specimenQuotes.length > 0;
+  const pool = fromMembers ? specimenQuotes : otherQuotes;
+  const pick = pool[Math.floor(i / (fromMembers ? 4 : 1.35)) % pool.length];
+  if (pick) excerpts.push(pick);
+}
+
 // A gloss appears once per verdict, on its first appearance.
 const seenVerdicts = new Set<Verdict>();
 if (specimen) seenVerdicts.add(specimen.verdict);
 ---
 
 <Layout title="Friction">
-  <FrictionField />
-
   <div class="shell">
+    <header class="hero bleed">
+      <h1 data-enter="1">See what people complain about in the apps they use every day.</h1>
+      <p class="how" data-enter="2">
+        Friction reads public App Store and Google Play reviews every week, groups the complaints
+        that keep repeating, and shows you the evidence behind each one.
+      </p>
+    </header>
+
+    {
+      specimen && specimenProduct && (
+        <Explainer
+          problem={specimen}
+          productName={specimenProduct.name}
+          reviewsRead={reviewsRead}
+          excerpts={excerpts}
+        />
+      )
+    }
+
     {/* 04 · Stat-led, directly beneath the diagram. */}
     <section class="proof" data-enter="3" aria-label="Current figures">
       <div class="fig">
@@ -114,9 +161,44 @@ if (specimen) seenVerdicts.add(specimen.verdict);
       )
     }
   </div>
+
+  {/* The spatial overview, where an overview belongs: after the thing it
+      summarises, not before the visitor knows what a problem is. */}
+  <FrictionField />
 </Layout>
 
 <style>
+
+  /* ---- hero ---- */
+
+  .hero {
+    padding-block: var(--space-3xl) 0;
+  }
+
+  .hero h1 {
+    /* The measure sits on the heading, in em, so it tracks the clamped
+       display size and holds two lines at every width. */
+    max-width: 16em;
+    font-size: clamp(1.9rem, 1rem + 2.6vw, 3.1rem);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.032em;
+    text-wrap: balance;
+  }
+
+  /*
+   * The sentence that actually explains the site. It used to be 10px of
+   * muted grey; it is body size and full contrast now, because it is the
+   * most useful sentence here.
+   */
+  .how {
+    margin-top: var(--space-md);
+    font-size: var(--text-md);
+    line-height: 1.5;
+    max-width: 46em;
+    text-wrap: pretty;
+  }
+
   .proof {
     display: flex;
     flex-wrap: wrap;
