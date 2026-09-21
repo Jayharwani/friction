@@ -56,8 +56,16 @@ Each is commented at its call site. Do not "fix" these back.
   to its average advance, so a `ch` measure reflowed every page the moment the
   web font arrived. `"Geist Fallback"` carries a measured `size-adjust` for
   the same reason. Together they are what holds CLS at zero.
-- Six moments move, and they are listed at the top of `global.css`. Adding a
-  seventh is a decision, not a detail.
+- The motion inventory is listed at the top of `global.css`. Adding to it is a
+  decision, not a detail.
+- Explanations are graphics first. Anything the site explains in a paragraph
+  that could be shown as a working graphic is the graphic, with the prose
+  demoted beneath it — `.detail` on the methodology page is what that looks
+  like. No page runs more than three consecutive paragraphs without one.
+- The chart kit is `src/components/charts/`: Sparkline, StackedBar, Histogram,
+  Funnel, VersionTimeline, Flow, DotMatrix, RecordCard, CoverageGrid. All
+  build-time SVG or HTML from `data/`, no chart library, ~150 bytes of client
+  JS in total. A thousand dots is drawn as four paths, not a thousand nodes.
 - Every animation lives inside `@media (prefers-reduced-motion: no-preference)`
   so it does not exist under a reduced-motion preference. There is deliberately
   no blanket `animation: none` reset; the one `animation: none` present is

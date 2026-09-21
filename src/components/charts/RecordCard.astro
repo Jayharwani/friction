@@ -1,0 +1,140 @@
+---
+/**
+ * What one review actually carries, drawn as the record it is.
+ *
+ * A filled slot is a field the store supplies; an empty one is a field it does
+ * not. Put an Apple record beside a Play record and the asymmetry that decides
+ * this whole project is visible without reading a word.
+ *
+ * Nothing here is a specimen review. The slots carry field names and, where a
+ * value is shown, it comes from real evidence in data/.
+ */
+interface Field {
+  name: string;
+  /** A real value from the dataset, or null when the store omits the field. */
+  value: string | null;
+  /** Supplied sometimes but not reliably. */
+  partial?: boolean;
+}
+
+interface Props {
+  source: string;
+  fields: Field[];
+  note?: string;
+  /** Drawn at full strength: the side with more to say. */
+  strong?: boolean;
+}
+
+const { source, fields, note, strong = false } = Astro.props;
+
+const present = fields.filter((f) => f.value !== null).length;
+const alt = `A ${source} review carries ${present} of ${fields.length} fields: ${fields
+  .map((f) => `${f.name}${f.value === null ? ' (absent)' : f.partial ? ' (sometimes)' : ''}`)
+  .join(', ')}.`;
+---
+
+<figure class="rec" data-chart data-strong={strong ? '' : undefined}>
+  <figcaption class="src">
+    <span class="src-name">{source}</span>
+    <span class="src-count num">
+      {present} of {fields.length} fields
+    </span>
+  </figcaption>
+
+  <ol class="slots">
+    {
+      fields.map((f, i) => (
+        <li
+          class="ch-fade slot"
+          data-state={f.value === null ? 'absent' : f.partial ? 'partial' : 'present'}
+          style={`--ch-i:${i}; --ch-step:50ms`}
+        >
+          <span class="f-name">{f.name}</span>
+          <span class="f-value num">
+            {f.value === null ? <span class="f-absent">not supplied</span> : f.value}
+          </span>
+        </li>
+      ))
+    }
+  </ol>
+
+  {note && <p class="ch-caption">{note}</p>}
+  <span class="sr-only">{alt}</span>
+</figure>
+
+<style>
+  .rec {
+    margin: 0;
+    padding: var(--space-md);
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 6px;
+  }
+
+  .src {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding-bottom: var(--space-xs);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .src-name {
+    font-weight: 600;
+    font-size: var(--text-sm);
+  }
+
+  .src-count {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .slots {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .slot {
+    display: grid;
+    grid-template-columns: minmax(0, 7em) minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-sm);
+    padding-block: var(--space-2xs);
+    font-size: var(--text-xs);
+  }
+
+  .slot + .slot {
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .f-name {
+    color: var(--color-muted);
+  }
+
+  /* A present field is ink; an absent one is struck, so the gap is visible
+     rather than merely unmentioned. */
+  .f-value {
+    color: var(--color-ink);
+  }
+
+  [data-state='partial'] .f-value {
+    color: var(--color-muted);
+  }
+
+  [data-state='absent'] .f-value {
+    color: var(--color-muted);
+  }
+
+  .f-absent {
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in oklch, var(--color-muted) 55%, transparent);
+  }
+
+  /* The richer record is bordered in the accent, so the two read as unequal
+     before either is read. */
+  [data-strong] {
+    border-color: color-mix(in oklch, var(--color-accent) 45%, transparent);
+  }
+</style>

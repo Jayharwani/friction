@@ -13,9 +13,22 @@
  */
 import Layout from '../layouts/Layout.astro';
 import { url } from '../lib/url';
-import { getProducts } from '../lib/data';
+import RecordCard from '../components/charts/RecordCard.astro';
+import { formatDate, getProblems, getProducts } from '../lib/data';
 
 const products = getProducts();
+
+/*
+ * One real review of each kind. The comparison is the fields each source
+ * supplies, never a specimen of either — a fabricated forum post on a site
+ * whose claim is that it fabricates nothing would be the worst possible joke.
+ */
+const everyEvidence = getProblems().flatMap((p) => p.evidence);
+const apple = everyEvidence.find((e) => e.platform === 'ios' && e.version && e.title);
+const COUNTRY: Record<string, string> = {
+  us: 'United States', gb: 'United Kingdom', ca: 'Canada',
+  au: 'Australia', nz: 'New Zealand', ie: 'Ireland', sg: 'Singapore',
+};
 ---
 
 <Layout
@@ -41,33 +54,32 @@ const products = getProducts();
       </p>
 
       <div class="cols">
-        <div class="col">
-          <p class="col-name">A forum post carries</p>
-          <ul class="chips">
-            <li>a date</li>
-            <li>an author</li>
-          </ul>
-          <p class="col-note">
-            Enough to know it happened. Not enough to know whether it is spreading, or which
-            release caused it.
-          </p>
-        </div>
+        <RecordCard
+          source="A forum post"
+          fields={[
+            { name: 'date', value: 'supplied' },
+            { name: 'author', value: 'supplied' },
+            { name: 'star rating', value: null },
+            { name: 'app version', value: null },
+            { name: 'country', value: null },
+            { name: 'platform', value: null },
+          ]}
+          note="Enough to know it happened. Not enough to know whether it is spreading, or which release caused it."
+        />
 
-        <div class="col">
-          <p class="col-name">A store review carries</p>
-          <ul class="chips strong">
-            <li>a date</li>
-            <li>a star rating</li>
-            <li>an app version</li>
-            <li>a country</li>
-            <li>a platform</li>
-            <li>a reviewer identity</li>
-          </ul>
-          <p class="col-note">
-            Enough to ask whether a complaint started after a specific release, whether it affects
-            one platform or both, and whether it is getting worse or fading.
-          </p>
-        </div>
+        <RecordCard
+          source="A store review"
+          strong
+          fields={[
+            { name: 'date', value: apple ? formatDate(apple.reviewedAt) : 'supplied' },
+            { name: 'author', value: 'hashed on read' },
+            { name: 'star rating', value: apple ? `${apple.rating} of 5` : '1 of 5' },
+            { name: 'app version', value: apple?.version ?? '1.7.338' },
+            { name: 'country', value: apple ? (COUNTRY[apple.country] ?? apple.country.toUpperCase()) : 'United States' },
+            { name: 'platform', value: 'iOS or Android' },
+          ]}
+          note="Enough to ask whether a complaint started after a specific release, whether it affects one platform or both, and whether it is getting worse or fading."
+        />
       </div>
 
       <p class="cost">

@@ -4,8 +4,9 @@
  */
 import Layout from '../layouts/Layout.astro';
 import Funnel from '../components/charts/Funnel.astro';
+import CoverageGrid from '../components/charts/CoverageGrid.astro';
 import { url } from '../lib/url';
-import { formatDate, getRuns } from '../lib/data';
+import { formatDate, getProduct, getRuns } from '../lib/data';
 import { CANDIDATE_CAP } from '../../scripts/validate';
 
 const runs = getRuns();
@@ -23,16 +24,25 @@ const cumulative = byDate.map((run) => ({
   added: run.problemsNew ?? 0,
 }));
 const peak = Math.max(1, ...cumulative.map((c) => c.total));
+
+/*
+ * The axis runs twelve weeks from the first scan whatever has happened yet, so
+ * a single point sits at the left of a mostly empty axis. That emptiness is
+ * the honest picture and it is the only thing on the page that says, without
+ * saying it, that this chart is waiting for more scans.
+ */
+const AXIS_WEEKS = 12;
+const axisStart = byDate[0] ? Date.parse(byDate[0].date) : Date.now();
+const axisEnd = axisStart + AXIS_WEEKS * 7 * 86_400_000;
+const atX = (iso: string) =>
+  Math.min(100, Math.max(0, ((Date.parse(iso) - axisStart) / (axisEnd - axisStart)) * 100));
 ---
 
 <Layout title="Archive" description="Every Friction scan, with the funnel numbers for each run.">
   <div class="shell">
     <header class="intro">
       <h1>Archive</h1>
-      <p class="measure">
-        One row per scan. The funnel shows how many reviews were read, how many survived screening,
-        how many read like complaints, and how many were carried forward to be grouped into problems.
-      </p>
+      <p class="measure">Every scan, and what it found.</p>
     </header>
 
     {
@@ -71,15 +81,18 @@ const peak = Math.max(1, ...cumulative.map((c) => c.total));
                       {run.problemsNew ? `, ${run.problemsNew} new` : ''}
                     </span>
                   </p>
-                  <Funnel
-                    compact
-                    stages={[
-                      { label: 'Read', value: run.funnel.fetched.total },
-                      { label: 'Screened', value: run.funnel.screened.total },
-                      { label: 'Complaints', value: run.funnel.filtered.total },
-                      { label: 'Carried', value: run.funnel.capped.total },
-                    ]}
-                  />
+                  <div class="run-body">
+                    <Funnel
+                      compact
+                      stages={[
+                        { label: 'Read', value: run.funnel.fetched.total },
+                        { label: 'Screened', value: run.funnel.screened.total },
+                        { label: 'Complaints', value: run.funnel.filtered.total },
+                        { label: 'Carried', value: run.funnel.capped.total },
+                      ]}
+                    />
+                    <CoverageGrid run={run} names={(slug) => getProduct(slug)?.name ?? slug} />
+                  </div>
                 </li>
               ))
             }
@@ -88,23 +101,64 @@ const peak = Math.max(1, ...cumulative.map((c) => c.total));
 
         <section class="cumulative" aria-labelledby="cumulative-heading">
           <h2 id="cumulative-heading">Problems tracked over time</h2>
-          <ol class="steps num">
+          <div class="plot" data-chart>
+            <div class="grid-lines" aria-hidden="true">
+              {
+                Array.from({ length: AXIS_WEEKS / 2 }, (_, i) => (
+                  <span style={`left:${((i + 1) / (AXIS_WEEKS / 2)) * 100}%`} />
+                ))
+              }
+            </div>
+
             {
-              cumulative.map((c) => (
-                <li>
-                  <span class="step-date">{formatDate(c.date)}</span>
-                  <span class="step-bar" aria-hidden="true">
-                    <span class="step-fill ch-wipe" style={`--w:${(c.total / peak) * 100}%`} />
+              cumulative.map((c, i) => (
+                <>
+                  <span
+                    class="point ch-pop"
+                    style={`--ch-i:${i}; left:${atX(c.date)}%; --v:${(c.total / peak) * 100}`}
+                  />
+                  {/* A sibling, not a child: the label sits above the dot, on the
+                      page, and nesting it inside an accent-filled span would put
+                      it on a background it is not actually drawn against. */}
+                  <span
+                    class="p-value num ch-fade"
+                    style={`--ch-i:${i}; left:${atX(c.date)}%; --v:${(c.total / peak) * 100}`}
+                  >
+                    {c.total}
                   </span>
-                  <span class="step-total">{c.total}</span>
-                </li>
+                </>
               ))
             }
-          </ol>
+
+            <p class="axis num" aria-hidden="true">
+              <span>{formatDate(byDate[0]!.date)}</span>
+              <span class="ahead">{AXIS_WEEKS} weeks</span>
+            </p>
+          </div>
+
+          {/*
+            Wrapped, not marked sr-only directly: a <table> treats width as a
+            minimum and grows past the 1px box, which put 300px of invisible
+            table into the page's scroll width.
+          */}
+          <div class="sr-only">
+            <table>
+              <caption>Problems tracked after each scan</caption>
+              <thead>
+                <tr><th scope="col">Scan</th><th scope="col">Problems tracked</th></tr>
+              </thead>
+              <tbody>
+                {cumulative.map((c) => (
+                  <tr><th scope="row">{formatDate(c.date)}</th><td>{c.total}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
           {
             cumulative.length === 1 && (
               <p class="ch-caption">
-                One point, because there has been one scan. A second scan adds a second step.
+                One point, because there has been one scan.
               </p>
             )
           }
@@ -169,7 +223,8 @@ const peak = Math.max(1, ...cumulative.map((c) => c.total));
   .timeline-block,
   .cumulative {
     margin-top: var(--space-2xl);
-    max-width: var(--measure);
+    padding-bottom: var(--space-md);
+    max-width: none;
   }
 
   h2 {
@@ -195,6 +250,20 @@ const peak = Math.max(1, ...cumulative.map((c) => c.total));
     border-top: var(--rule-hair) solid var(--color-rule);
   }
 
+  /* The funnel says how much survived; the grid says where it came from. */
+  .run-body {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: start;
+  }
+
+  @media (min-width: 46rem) {
+    .run-body {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-2xl);
+    }
+  }
+
   .run-date {
     display: flex;
     justify-content: space-between;
@@ -212,47 +281,61 @@ const peak = Math.max(1, ...cumulative.map((c) => c.total));
 
   /* ---- cumulative steps ---- */
 
-  .steps {
-    list-style: none;
-    margin: var(--space-md) 0 0;
-    padding: 0;
-    display: grid;
-    gap: var(--space-2xs);
+  /* A plot with room in it: the point sits at the left of an axis sized for
+     the weeks ahead, so the empty space is the message. */
+  .plot {
+    position: relative;
+    height: 7rem;
+    /* Room above for the highest point's label, and below for the axis. */
+    margin: var(--space-xl) 0 var(--space-2xl);
+    max-width: 34rem;
+    border-bottom: var(--rule-hair) solid var(--color-rule);
   }
 
-  .steps li {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: var(--space-sm);
-    font-size: var(--text-xs);
+  .grid-lines span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--rule-hair);
+    background: var(--color-rule);
+    opacity: 0.5;
   }
 
-  .step-date {
-    color: var(--color-muted);
-    min-width: 6.5em;
-  }
-
-  .step-bar {
-    display: block;
-    height: 0.45rem;
-    background: var(--color-paper-2);
-    border-radius: 2px;
-  }
-
-  .step-fill {
-    display: block;
-    height: 100%;
-    width: var(--w);
+  /* Plotted into the lower 84% of the box, so the tallest point's label has
+     somewhere to sit without running into the heading above. */
+  .point {
+    position: absolute;
+    bottom: calc(var(--v, 0) * 0.84%);
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
     background: var(--color-accent);
-    border-radius: 2px;
-    transform-origin: left;
+    translate: -50% 50%;
   }
 
-  .step-total {
+  .p-value {
+    position: absolute;
+    bottom: calc(var(--v, 0) * 0.84% + 12px);
+    translate: -50% 0;
+    font-size: var(--text-xs);
     font-weight: 600;
-    min-width: 2em;
-    text-align: right;
+    white-space: nowrap;
+    /* The point is accent-filled; its label sits on the page, not on the dot. */
+    color: var(--color-ink);
+  }
+
+  .axis {
+    position: absolute;
+    inset: auto 0 -1.6rem;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .ahead {
+    /* --color-neutral is under 4.5:1 at this size. */
+    color: var(--color-muted);
   }
 
   .intro {

@@ -1,0 +1,191 @@
+---
+/**
+ * Attrition, one dot at a time.
+ *
+ * Every review the scan read is a dot, shaded by how far it got. The point is
+ * the proportion: the bright block in the corner is what survived, and the
+ * field of faint dots around it is what did not. A bar chart states that; this
+ * shows it.
+ *
+ * Dots are grouped by stage rather than scattered, because a scattered grid
+ * reads as noise and a grouped one reads as a quantity. Each group animates as
+ * one element, so a thousand dots cost four animations, not a thousand.
+ */
+interface Stage {
+  label: string;
+  /** Cumulative count reaching this stage. Must descend. */
+  value: number;
+  /** One line on what the stage means, shown beside its count. */
+  note?: string;
+}
+
+interface Props {
+  stages: Stage[];
+  /** How many reviews one dot stands for. */
+  per?: number;
+  columns?: number;
+}
+
+const { stages, per = 10, columns = 42 } = Astro.props;
+
+const total = stages[0]!.value;
+const dots = Math.round(total / per);
+
+/*
+ * Each band is the reviews that reached one stage but not the next, so the
+ * bands sum to the total and no review is counted twice. The survivors come
+ * first, at the top left, where the eye starts.
+ */
+const bands = stages.map((stage, i) => {
+  const next = stages[i + 1]?.value ?? 0;
+  return {
+    label: stage.label,
+    note: stage.note,
+    value: stage.value,
+    only: stage.value - next,
+    isLast: i === stages.length - 1,
+  };
+});
+const ordered = [...bands].reverse();
+
+const R = 1.6;
+const STEP = 5;
+
+/**
+ * One dot as path data.
+ *
+ * A thousand <circle> elements is a thousand DOM nodes to lay out and paint;
+ * the same thousand dots as four <path> elements, one per band, is four. The
+ * repetition compresses well, so the bytes barely move.
+ */
+function dot(cx: number, cy: number): string {
+  const r = R;
+  return `M${cx} ${cy}m-${r} 0a${r} ${r} 0 1 0 ${r * 2} 0a${r} ${r} 0 1 0 ${-r * 2} 0`;
+}
+
+let cursor = 0;
+const groups = ordered.map((band, i) => {
+  const count = i === ordered.length - 1 ? dots - cursor : Math.round(band.only / per);
+  let d = '';
+  for (let n = 0; n < count; n++) {
+    const at = cursor + n;
+    d += dot((at % columns) * STEP + R, Math.floor(at / columns) * STEP + R);
+  }
+  cursor += count;
+  return { ...band, i, d, count, cumulative: (band.value / total) * 100 };
+});
+
+const rows = Math.ceil(dots / columns);
+const W = columns * STEP;
+const H = rows * STEP;
+
+const alt = `${total.toLocaleString('en-GB')} reviews read. ${bands
+  .slice(1)
+  .map((b) => `${b.value.toLocaleString('en-GB')} ${b.label.toLowerCase()}`)
+  .join(', then ')}. Each dot stands for ${per} reviews.`;
+---
+
+<figure class="matrix" data-chart>
+  <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true" focusable="false">
+    {
+      groups.map((g) => (
+        <path class="ch-fade band" data-band={g.i} style={`--ch-i:${g.i}; --ch-step:140ms`} d={g.d}>
+          <title>
+            {g.only.toLocaleString('en-GB')} reached {g.label.toLowerCase()} and no further
+          </title>
+        </path>
+      ))
+    }
+  </svg>
+
+  <ol class="key">
+    {
+      groups.map((g) => (
+        <li>
+          <span class="sw" data-band={g.i} aria-hidden="true" />
+          <span class="k-label">{g.label}</span>
+          <span class="k-value num">{g.value.toLocaleString('en-GB')}</span>
+          <span class="k-share num">{g.cumulative < 1 ? g.cumulative.toFixed(1) : Math.round(g.cumulative)}%</span>
+          {g.note && <p class="k-note">{g.note}</p>}
+        </li>
+      ))
+    }
+  </ol>
+
+  <p class="ch-caption num">One dot is {per} reviews.</p>
+  <figcaption class="sr-only">{alt}</figcaption>
+</figure>
+
+<style>
+  .matrix {
+    margin: var(--space-lg) 0 0;
+  }
+
+  .matrix svg {
+    width: 100%;
+    height: auto;
+    max-width: 34rem;
+  }
+
+  /*
+   * Band 0 is the survivors — they are drawn first, at the top left — and the
+   * bands run down to the reviews that got no further than the first read.
+   * The survivors are the only ones at full strength, which is the point.
+   */
+  path[data-band='0'] { fill: var(--color-accent); }
+  path[data-band='1'] { fill: color-mix(in oklch, var(--color-accent) 55%, var(--color-paper-2)); }
+  path[data-band='2'] { fill: color-mix(in oklch, var(--color-accent) 28%, var(--color-paper-2)); }
+  path[data-band='3'] { fill: var(--color-paper-3); }
+
+  .key {
+    list-style: none;
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-sm);
+    max-width: 34rem;
+    font-size: var(--text-xs);
+  }
+
+  .key li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: baseline;
+    column-gap: var(--space-sm);
+    padding-top: var(--space-xs);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .k-share {
+    color: var(--color-muted);
+    min-width: 2.6em;
+    text-align: right;
+  }
+
+  .k-note {
+    grid-column: 2 / -1;
+    margin-top: var(--space-3xs);
+    color: var(--color-muted);
+  }
+
+  .sw {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    translate: 0 1px;
+  }
+
+  .sw[data-band='0'] { background: var(--color-accent); }
+  .sw[data-band='1'] { background: color-mix(in oklch, var(--color-accent) 55%, var(--color-paper-2)); }
+  .sw[data-band='2'] { background: color-mix(in oklch, var(--color-accent) 28%, var(--color-paper-2)); }
+  .sw[data-band='3'] { background: var(--color-paper-3); }
+
+  .k-label {
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+
+  .k-value {
+    font-weight: 600;
+  }
+</style>

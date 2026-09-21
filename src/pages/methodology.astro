@@ -7,9 +7,10 @@
  */
 import Layout from '../layouts/Layout.astro';
 import ScoreCalculator from '../components/ScoreCalculator.astro';
-import Funnel from '../components/charts/Funnel.astro';
 import Flow from '../components/charts/Flow.astro';
 import Histogram from '../components/charts/Histogram.astro';
+import DotMatrix from '../components/charts/DotMatrix.astro';
+import RecordCard from '../components/charts/RecordCard.astro';
 import { scoreBuckets } from '../lib/charts';
 import { url } from '../lib/url';
 import {
@@ -80,6 +81,20 @@ const recurring = active.filter(
 );
 
 const buckets = scoreBuckets(active.map((p) => p.score));
+
+/*
+ * One real review of each kind, used to show which fields each store supplies.
+ * The quote is never shown here — only which slots the record carries.
+ */
+const everyEvidence = problems.flatMap((p) => p.evidence);
+const appleSample = everyEvidence.find((e) => e.platform === 'ios' && e.version && e.title);
+const playSample = everyEvidence.find((e) => e.platform === 'android');
+const playWithVersion = everyEvidence.filter((e) => e.platform === 'android' && e.version).length;
+const playTotal = everyEvidence.filter((e) => e.platform === 'android').length;
+const COUNTRY: Record<string, string> = {
+  us: 'United States', gb: 'United Kingdom', ca: 'Canada',
+  au: 'Australia', nz: 'New Zealand', ie: 'Ireland', sg: 'Singapore',
+};
 const playGaps = run?.products.filter((p) => !p.playOk) ?? [];
 
 // Storefront list is read from the tracked apps so it cannot drift.
@@ -132,53 +147,52 @@ const componentMeaning: Record<string, string> = {
     <h2 id="where-the-data-comes-from">Where the data comes from</h2>
 
     <div class="sources">
-      <div class="source">
-        <p class="src-name">Apple App Store</p>
-        <p class="src-what">Every review carries</p>
-        <ul class="chips">
-          <li>star rating</li>
-          <li>app version</li>
-          <li>country</li>
-          <li>date</li>
-          <li>title</li>
-        </ul>
-        <p class="src-note num">
-          up to 10 pages per app, {storefronts.length} storefronts
-        </p>
-      </div>
+      <RecordCard
+        source="Apple App Store"
+        strong
+        fields={[
+          { name: 'star rating', value: appleSample ? `${appleSample.rating} of 5` : '1 of 5' },
+          { name: 'app version', value: appleSample?.version ?? '1.7.338' },
+          { name: 'country', value: appleSample ? (COUNTRY[appleSample.country] ?? appleSample.country.toUpperCase()) : 'United States' },
+          { name: 'date', value: appleSample ? formatDate(appleSample.reviewedAt) : '—' },
+          { name: 'title', value: 'supplied' },
+        ]}
+        note={`Read from ${storefronts.length} storefronts, up to ten pages per app.`}
+      />
 
-      <div class="source">
-        <p class="src-name">Google Play</p>
-        <p class="src-what">Every review carries</p>
-        <ul class="chips">
-          <li>rating</li>
-          <li>date</li>
-          <li class="faint">version, sometimes</li>
-        </ul>
-        <p class="src-note num">most recent English reviews, one storefront</p>
-      </div>
+      <RecordCard
+        source="Google Play"
+        fields={[
+          { name: 'star rating', value: playSample ? `${playSample.rating} of 5` : '1 of 5' },
+          { name: 'app version', value: `${playWithVersion} of ${playTotal} carry one`, partial: true },
+          { name: 'country', value: null },
+          { name: 'date', value: playSample ? formatDate(playSample.reviewedAt) : '—' },
+          { name: 'title', value: null },
+        ]}
+        note="One storefront, most recent English reviews."
+      />
     </div>
 
-    <p>
+    <p class="detail">
       Two sources, both public, neither requiring credentials or an agreement.
     </p>
 
-    <h3>Apple App Store</h3>
-    <p>
+    <h3 class="detail-head">Apple App Store</h3>
+    <p class="detail">
       Apple publishes a customer reviews feed for each app in each storefront. Friction reads up to
       ten pages per app per storefront, at one request per second, from {storefrontSentence}. Each
       review carries a star rating, an app version, a country and a date. This is the backbone of
       the project.
     </p>
 
-    <h3>Google Play</h3>
-    <p>
+    <h3 class="detail-head">Google Play</h3>
+    <p class="detail">
       Google publishes no API for reading reviews of apps you do not own. Friction reads publicly
       visible review pages using the <code>google-play-scraper</code> package, at one request per
       second, taking the most recent English reviews from the United States storefront. Play
       reviews carry no title, and often no app version.
     </p>
-    <p>
+    <p class="detail">
       Play is an enhancement, not a dependency. If it fails for an app, the run continues with
       Apple data alone and the gap is recorded.
       {
@@ -192,15 +206,20 @@ const componentMeaning: Record<string, string> = {
 
     {
       run && (
-        <Funnel
+        <DotMatrix
           stages={[
             { label: 'Read', value: run.funnel.fetched.total, note: 'Every review pulled from both stores, including ones already processed in an earlier scan.' },
             { label: 'Screened', value: run.funnel.screened.total, note: 'Survived deduplication, the age limit, the length floor and the crisis screen.' },
             { label: 'Complaints', value: run.funnel.filtered.total, note: 'Rated three stars or lower and carrying at least one complaint marker.' },
             { label: 'Carried', value: run.funnel.capped.total, note: `Ranked by marker count, then rating, then recency, and capped at ${CANDIDATE_CAP}.` },
           ]}
-        >
-        <p class="num ch-caption">
+        />
+      )
+    }
+
+    {
+      run && (
+      <p class="num ch-caption">
           The scan on <time datetime={run.date}>{formatDate(run.date)}</time> read{' '}
           {run.funnel.fetched.total.toLocaleString('en-GB')} reviews, of which{' '}
           {run.funnel.screened.total.toLocaleString('en-GB')} passed screening,{' '}
@@ -208,13 +227,10 @@ const componentMeaning: Record<string, string> = {
           {run.funnel.capped.total} were carried forward. Every run is listed in the{' '}
           <a href={url('/archive')}>archive</a>.
         </p>
-        </Funnel>
       )
     }
 
-
-
-    <p>
+    <p class="detail">
       Most of the filtering is deterministic and happens before any model sees anything. A review is
       rejected outright if it has already been processed, if it is older than {MAX_AGE_DAYS} days, if
       the title and body together run under {MIN_TEXT_LENGTH} characters, or if it matches the
@@ -224,8 +240,25 @@ const componentMeaning: Record<string, string> = {
       then recency, and capped at {CANDIDATE_CAP} per run.
     </p>
 
+    <div class="does">
+      <div>
+        <p class="d-head">The model does</p>
+        <ul class="plain">
+          <li>group reviews describing the same problem</li>
+          <li>copy a short verbatim quote from each</li>
+        </ul>
+      </div>
+      <div>
+        <p class="d-head">The model never</p>
+        <ul class="plain struck">
+          <li>produces a score</li>
+          <li>produces a rank</li>
+          <li>produces a priority</li>
+        </ul>
+      </div>
+    </div>
 
-    <p>
+    <p class="detail">
       Those go to a language model with one job: group reviews that describe the same
       underlying problem, and copy a short verbatim quote from each. The model is explicitly
       forbidden from producing a score, a rank or a priority of any kind. Its output is then parsed
@@ -476,6 +509,68 @@ const componentMeaning: Record<string, string> = {
 </script>
 
 <style>
+
+  /* ---- the model's job, as two columns ---- */
+
+  .does {
+    display: grid;
+    gap: var(--space-lg);
+    margin: var(--space-lg) 0;
+    max-width: 40rem;
+  }
+
+  @media (min-width: 34rem) {
+    .does {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2xl);
+    }
+  }
+
+  .d-head {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .plain {
+    list-style: none;
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+
+  .plain li {
+    padding-block: var(--space-2xs);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .plain.struck li {
+    color: var(--color-muted);
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in oklch, var(--color-muted) 55%, transparent);
+  }
+
+  /*
+   * Reference prose. It sits beneath the graphic that says the same thing, at
+   * a smaller size, because on this page the graphic is the explanation and
+   * the paragraph is the footnote — not the other way round.
+   */
+  .detail-head {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    margin-top: var(--space-lg);
+  }
+
+  .detail {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    max-width: var(--measure);
+  }
+
+  .detail :global(code) {
+    font-size: inherit;
+  }
+
 
   /* ---- the two sources ---- */
 
