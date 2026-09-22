@@ -1,0 +1,1018 @@
+---
+/**
+ * Methodology (spec 6.1). Plain English, not marketing copy.
+ *
+ * Every number here is read from the live data or from the scoring module
+ * itself, so the page cannot drift out of step with what the site actually did.
+ */
+import Layout from '../layouts/Layout.astro';
+import ScoreCalculator from '../components/ScoreCalculator.astro';
+import Flow from '../components/charts/Flow.astro';
+import Histogram from '../components/charts/Histogram.astro';
+import Funnel from '../components/charts/Funnel.astro';
+import RecordCard from '../components/charts/RecordCard.astro';
+import { scoreBuckets } from '../lib/charts';
+import { url } from '../lib/url';
+import {
+  formatDate,
+  getActiveProblems,
+  getBuildThreshold,
+  getGaps,
+  getLatestRun,
+  getPassRate,
+  getProblems,
+  getProduct,
+  getProducts,
+} from '../lib/data';
+import {
+  COMPONENT_LABELS,
+  COMPONENT_ORDER,
+  EVIDENCE_WINDOW_DAYS,
+  MIN_BUILD_THRESHOLD,
+  STALE_AFTER_DAYS,
+  THRESHOLD_PERCENTILE,
+  WEIGHTS,
+} from '../lib/scoring';
+import {
+  APP_DENYLIST,
+  CANDIDATE_CAP,
+  MAX_AGE_DAYS,
+  MIN_TEXT_LENGTH,
+} from '../../scripts/validate';
+
+/*
+ * The margin contents. Declared here rather than scraped from the DOM so the
+ * ids live next to each other and a renamed heading is a visible edit.
+ */
+const sections = [
+  ['where-the-data-comes-from', 'Where the data comes from'],
+  ['how-reviews-become-problems', 'How reviews become problems'],
+  ['how-the-score-is-computed', 'How the score is computed'],
+  ['the-verdict-and-why-most-problems-fail', 'The verdict'],
+  ['the-one-written-field', 'The one written field'],
+];
+
+const problems = getProblems();
+const active = getActiveProblems();
+const threshold = getBuildThreshold();
+const passRate = getPassRate();
+const run = getLatestRun();
+const products = getProducts();
+
+const worthBuilding = active.filter((p) => p.verdict === 'Strong signal').length;
+
+// The calculator starts from a real problem: the highest-scoring active one.
+const seedProblem = active[0];
+const seedProduct = seedProblem ? getProduct(seedProblem.productSlug) : undefined;
+
+/*
+ * The live population at each branch of decideVerdict, in the order the
+ * function tests them. Recomputed here so the diagram cannot go stale.
+ */
+const thin = active.filter((p) => p.inputs.uniqueReviewers < 4);
+const solved = active.filter((p) => !thin.includes(p) && p.existingSolutions.length >= 3);
+const strong = active.filter(
+  (p) => !thin.includes(p) && !solved.includes(p) && p.score >= threshold,
+);
+const recurring = active.filter(
+  (p) => !thin.includes(p) && !solved.includes(p) && p.score < threshold,
+);
+
+const buckets = scoreBuckets(active.map((p) => p.score));
+
+/* The single generated field on the site, counted rather than asserted. */
+const gapCount = Object.keys(getGaps()).length;
+
+/*
+ * One real review of each kind, used to show which fields each store supplies.
+ * The quote is never shown here — only which slots the record carries.
+ */
+const everyEvidence = problems.flatMap((p) => p.evidence);
+const appleSample = everyEvidence.find((e) => e.platform === 'ios' && e.version && e.title);
+const playSample = everyEvidence.find((e) => e.platform === 'android');
+const playWithVersion = everyEvidence.filter((e) => e.platform === 'android' && e.version).length;
+const playTotal = everyEvidence.filter((e) => e.platform === 'android').length;
+const COUNTRY: Record<string, string> = {
+  us: 'United States', gb: 'United Kingdom', ca: 'Canada',
+  au: 'Australia', nz: 'New Zealand', ie: 'Ireland', sg: 'Singapore',
+};
+const playGaps = run?.products.filter((p) => !p.playOk) ?? [];
+
+// Storefront list is read from the tracked apps so it cannot drift.
+const STOREFRONT_NAMES: Record<string, string> = {
+  us: 'the United States', gb: 'the United Kingdom', ca: 'Canada',
+  au: 'Australia', nz: 'New Zealand', ie: 'Ireland', sg: 'Singapore',
+};
+const storefronts = [...new Set(products.flatMap((p) => p.countries))];
+const storefrontList = storefronts.map((c) => STOREFRONT_NAMES[c] ?? c.toUpperCase());
+const storefrontSentence =
+  storefrontList.length > 1
+    ? `${storefrontList.slice(0, -1).join(', ')} and ${storefrontList.at(-1)}`
+    : (storefrontList[0] ?? '');
+
+const componentMeaning: Record<string, string> = {
+  distinctUsers: 'How many different people reported it, counted by a salted hash of the reviewer name.',
+  recurrence: 'How many separate weeks it appeared in, rather than all at once.',
+  recency: 'How long ago it was last reported.',
+  severity: 'The mean star rating of the reviews reporting it.',
+  churnIntent: 'How many reviewers said they were leaving, deleting or cancelling.',
+  versionPersistence: 'How many distinct app versions it survived.',
+  crossPlatform: 'Whether it was reported on both iOS and Android.',
+};
+---
+
+<Layout
+  title="How it works"
+  description="Where Friction's data comes from, exactly how each score is computed, and what this method cannot tell you."
+>
+  <div class="band">
+    <div class="shell">
+      <h1>How it works</h1>
+      <p class="sub">Public reviews go in, scored problems come out.</p>
+    </div>
+  </div>
+
+  <div class="shell prose">
+    {/* Margin contents. Shown above 1100px, where there is room beside the measure. */}
+    <nav class="toc" aria-label="On this page">
+      <p class="toc-title">On this page</p>
+      <ol>
+        {sections.map(([id, label]) => (
+          <li><a href={`#${id}`} data-toc={id}>{label}</a></li>
+        ))}
+      </ol>
+    </nav>
+
+    {/* ---------- 1. sources ---------- */}
+
+    <h2 id="where-the-data-comes-from">Where the data comes from</h2>
+
+    <div class="sources">
+      <RecordCard
+        source="Apple App Store"
+        strong
+        fields={[
+          { name: 'star rating', value: appleSample ? `${appleSample.rating} of 5` : '1 of 5' },
+          { name: 'app version', value: appleSample?.version ?? '1.7.338' },
+          { name: 'country', value: appleSample ? (COUNTRY[appleSample.country] ?? appleSample.country.toUpperCase()) : 'United States' },
+          { name: 'date', value: appleSample ? formatDate(appleSample.reviewedAt) : '—' },
+          { name: 'title', value: 'supplied' },
+        ]}
+        note={`Read from ${storefronts.length} storefronts, up to ten pages per app.`}
+      />
+
+      <RecordCard
+        source="Google Play"
+        fields={[
+          { name: 'star rating', value: playSample ? `${playSample.rating} of 5` : '1 of 5' },
+          { name: 'app version', value: `${playWithVersion} of ${playTotal} carry one`, partial: true },
+          { name: 'country', value: null },
+          { name: 'date', value: playSample ? formatDate(playSample.reviewedAt) : '—' },
+          { name: 'title', value: null },
+        ]}
+        note="One storefront, most recent English reviews."
+      />
+    </div>
+
+    <p class="ch-caption">
+      Both feeds are public and need no credentials. Play carries no title and often no version, so
+      it is an enhancement, never a dependency.
+    </p>
+
+    {/* ---------- 2. the funnel ---------- */}
+
+    <h2 id="how-reviews-become-problems">How reviews become problems</h2>
+
+    {
+      run && (
+        <Funnel
+          stages={[
+            { label: 'Read', value: run.funnel.fetched.total, note: 'Every review pulled from both stores.' },
+            { label: 'Screened', value: run.funnel.screened.total, note: `Not seen before, under ${MAX_AGE_DAYS} days old, over ${MIN_TEXT_LENGTH} characters, past the crisis screen.` },
+            { label: 'Complaints', value: run.funnel.filtered.total, note: 'Three stars or fewer, and carrying a complaint marker.' },
+            { label: 'Carried', value: run.funnel.capped.total, note: `Ranked by marker count, then rating, then recency, capped at ${CANDIDATE_CAP}.` },
+          ]}
+        />
+      )
+    }
+
+    {
+      run && (
+        <p class="num ch-caption">
+          The scan on <time datetime={run.date}>{formatDate(run.date)}</time> kept{' '}
+          {run.funnel.capped.total} of {run.funnel.fetched.total.toLocaleString('en-GB')} reviews.
+          All of that filtering is code, and it runs before any model sees anything. Every run is in
+          the <a href={url('/archive')}>archive</a>.
+        </p>
+      )
+    }
+
+    <div class="does">
+      <div>
+        <p class="d-head">The model does</p>
+        <ul class="plain">
+          <li>group reviews describing the same problem</li>
+          <li>copy a short verbatim quote from each</li>
+        </ul>
+      </div>
+      <div>
+        <p class="d-head">The model never</p>
+        <ul class="plain struck">
+          <li>produces a score</li>
+          <li>produces a rank</li>
+          <li>produces a priority</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="ch-caption">
+      Every quote is then checked character by character against the review it cites. One failure
+      stops the run, and last week's data stays up.
+    </p>
+
+    {/* ---------- 3. the score ---------- */}
+
+    <h2 id="how-the-score-is-computed">How the score is computed</h2>
+
+    <p class="ch-caption lead-in">
+      Seven components, each a number between 0 and 1, each multiplied by its weight. Drag anything
+      and watch the total move — this runs the site's own scoring code.
+    </p>
+
+    {
+      seedProblem && seedProduct && (
+        <ScoreCalculator
+          problem={seedProblem}
+          productName={seedProduct.name}
+          threshold={threshold}
+        />
+      )
+    }
+
+    {/*
+      The same arithmetic the prose describes, set as an equation. The weights
+      are read from scoring.ts, so this cannot drift out of step with the code.
+    */}
+    <figure class="equation" aria-label="The scoring formula">
+      <pre><code>score = 100 × (
+{
+  COMPONENT_ORDER.map((key, i) => (
+    <>{'  '}{i === 0 ? ' ' : '+'} {WEIGHTS[key].toFixed(2)} × {key}{'\n'}</>
+  ))
+})</code></pre>
+    </figure>
+
+    <table class="weights">
+      <thead>
+        <tr>
+          <th scope="col">Component</th>
+          <th scope="col" class="w">Weight</th>
+          <th scope="col">What it measures</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          COMPONENT_ORDER.map((key) => (
+            <tr>
+              <th scope="row">{COMPONENT_LABELS[key]}</th>
+              <td class="w num">{Math.round(WEIGHTS[key] * 100)}%</td>
+              <td>{componentMeaning[key]}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+
+    {/* ---------- 4. the verdict ---------- */}
+
+    <h2 id="the-verdict-and-why-most-problems-fail">The verdict</h2>
+
+    <Flow
+      steps={[
+        { test: 'Fewer than four distinct reviewers', verdict: 'Thin evidence', count: thin.length },
+        { test: 'Three or more existing products already solve it', verdict: 'Already solved', count: solved.length },
+        { test: `Scores at or above the threshold of ${threshold.toFixed(1)}`, verdict: 'Strong signal', count: strong.length },
+      ]}
+      fallthrough={{ verdict: 'Recurring', count: recurring.length }}
+    />
+    <p class="ch-caption">
+      Where the {active.length} active problems currently sit, tested in this order.
+    </p>
+
+    <Histogram buckets={buckets} threshold={threshold} markScore={seedProblem?.score} />
+    <p class="num ch-caption">
+      Every active problem's score, in buckets of five. The threshold is the higher of{' '}
+      {MIN_BUILD_THRESHOLD} and the {THRESHOLD_PERCENTILE}th percentile, so it moves with the field.
+      It stands at {threshold.toFixed(1)}, and {worthBuilding} of {active.length} clear it — a pass
+      rate of {passRate.toFixed(0)}%. A low one is the point.
+    </p>
+
+    {/* ---------- 5. the one written field ---------- */}
+
+    <h2 id="the-one-written-field">The one written field</h2>
+
+    <div class="written">
+      <div class="w-col">
+        <p class="w-head">Extracted or computed</p>
+        <p class="w-body">
+          Quotes, ratings, versions, dates, counts, components, scores, verdicts. Copied verbatim
+          from a review, or calculated in TypeScript. This is everything else on the site.
+        </p>
+      </div>
+      <div class="w-col is-written">
+        <p class="w-head"><span class="pill">written</span> What nobody offers</p>
+        <p class="w-body">
+          One sentence per pattern, naming a gap the reviews describe. Generated, dated, and
+          labelled everywhere it appears. {gapCount} {gapCount === 1 ? 'exists' : 'exist'}.
+        </p>
+      </div>
+    </div>
+
+    <p class="ch-caption">
+      It is the only sentence on Friction that is neither copied nor calculated, which is why it
+      carries a label and a date wherever it appears. Read them on{' '}
+      <a href={url('/patterns')}>patterns</a>.
+    </p>
+
+    {/* ---------- full prose, collapsed ---------- */}
+
+    <details class="method">
+      <summary>
+        <span class="sum-title">Full methodology</span>
+        <span class="sum-note">Sources, screening, privacy and limits — every word, unabridged</span>
+      </summary>
+
+      <div class="method-body">
+        <p class="lede">
+          This page exists so you can check the work. Every number on this site is computed in
+          TypeScript from fields extracted out of public app store reviews. The code is
+          <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">on GitHub</a>, and
+          so is every version of the data.
+        </p>
+
+        <h3>Where the data comes from</h3>
+
+        <p>
+          Two sources, both public, neither requiring credentials or an agreement.
+        </p>
+
+        <h4>Apple App Store</h4>
+        <p>
+          Apple publishes a customer reviews feed for each app in each storefront. Friction reads up to
+          ten pages per app per storefront, at one request per second, from {storefrontSentence}. Each
+          review carries a star rating, an app version, a country and a date. This is the backbone of
+          the project.
+        </p>
+
+        <h4>Google Play</h4>
+        <p>
+          Google publishes no API for reading reviews of apps you do not own. Friction reads publicly
+          visible review pages using the <code>google-play-scraper</code> package, at one request per
+          second, taking the most recent English reviews from the United States storefront. Play
+          reviews carry no title, and often no app version.
+        </p>
+        <p>
+          Play is an enhancement, not a dependency. If it fails for an app, the run continues with
+          Apple data alone and the gap is recorded.
+          {
+            playGaps.length === 0
+              ? ' In the most recent scan every tracked app returned Play data.'
+              : ` In the most recent scan ${playGaps.length} of ${products.length} apps returned no Play data: ${playGaps.map((p) => p.slug).join(', ')}.`
+          }
+        </p>
+
+        <h3>How reviews become problems</h3>
+
+        <p>
+          Most of the filtering is deterministic and happens before any model sees anything. A review is
+          rejected outright if it has already been processed, if it is older than {MAX_AGE_DAYS} days, if
+          the title and body together run under {MIN_TEXT_LENGTH} characters, or if it matches the
+          crisis language screen below.
+          What survives is kept only when it is rated three stars or lower and contains at least one of
+          a fixed list of complaint markers. The survivors are ranked by marker count, then star rating,
+          then recency, and capped at {CANDIDATE_CAP} per run.
+        </p>
+
+        <p>
+          Those go to a language model with one job: group reviews that describe the same
+          underlying problem, and copy a short verbatim quote from each. The model is explicitly
+          forbidden from producing a score, a rank or a priority of any kind. Its output is then parsed
+          against a strict schema and every quote is checked, character by character, against the review
+          it claims to come from. If any check fails the run stops and nothing is published, leaving the
+          previous week's data in place.
+        </p>
+
+        <h3>How the score is computed</h3>
+
+        <p>
+          Seven components, each normalised to a value between 0 and 1 over evidence from the last{' '}
+          {EVIDENCE_WINDOW_DAYS} days, multiplied by the weights below, and scaled to 0–100.
+        </p>
+
+        <p>
+          Open "How this score is calculated" on any problem page to see these seven values for that
+          problem, with the raw counts behind each one and the arithmetic that produces the total.
+        </p>
+
+        <h3>The verdict, and why most problems fail</h3>
+
+        <p>
+          The verdict is decided in a fixed order. Fewer than four distinct reviewers is
+          <strong>Thin evidence</strong>, whatever the score. Three or more existing products that already
+          solve it is <strong>Already solved</strong>. Otherwise a score at or above the build threshold
+          is <strong>Strong signal</strong>, and anything else is <strong>Recurring</strong>.
+        </p>
+
+        <p class="num">
+          The threshold is the higher of {MIN_BUILD_THRESHOLD} and the {THRESHOLD_PERCENTILE}th
+          percentile of all active problem scores, computed by linear interpolation between the closest
+          ranks. It currently stands at <strong>{threshold.toFixed(1)}</strong>.
+          {
+            active.length > 0 && (
+              <>
+                {' '}Of {active.length} active {active.length === 1 ? 'problem' : 'problems'},{' '}
+                {worthBuilding} {worthBuilding === 1 ? 'carries' : 'carry'} the "Strong signal"
+                verdict, a pass rate of {passRate.toFixed(0)}%.
+              </>
+            )
+          }
+        </p>
+
+        <p>
+          That low pass rate is deliberate. A site where everything looks promising is worth nothing to
+          anyone deciding what to work on, so the bar moves with the field and never drops below{' '}
+          {MIN_BUILD_THRESHOLD}. A problem with no new evidence for {STALE_AFTER_DAYS} days is marked
+          stale; it stays readable but is left out of the homepage and out of the threshold calculation.
+        </p>
+
+        <h3 id="what-this-method-cannot-tell-you">What this method cannot tell you</h3>
+
+        <h4>Reviews have no permanent link</h4>
+        <p>
+          Neither store gives an individual review a stable public URL. This is the single biggest
+          limitation of the whole project and it cannot be engineered away. Evidence therefore links to
+          the app's review listing, not to the review itself, and every quote is labelled with the date
+          the scan captured it. You cannot click through and re-read the original. What you can do is
+          read the commit history in the repository, where every scan's output is recorded with a
+          timestamp.
+        </p>
+
+        <h4>Coverage is narrow</h4>
+        <p>
+          English-language reviews, {storefronts.length} Apple storefronts, one Play storefront, mobile apps only, and
+          only the {products.length} apps currently tracked. A quiet app produces a small sample, and a
+          small sample produces an unreliable score. Treat a scored problem as a starting point for your
+          own research, not as a conclusion.
+        </p>
+
+        <h3 id="privacy">Privacy</h3>
+
+        <ul>
+          <li>
+            <strong>No reviewer name is ever stored.</strong> Names are hashed with a secret salt the
+            moment they are read, truncated to sixteen characters, and discarded. The hash exists only
+            to count distinct people and is never displayed.
+          </li>
+          <li>
+            <strong>Quotes are capped at 25 words</strong> and must be verbatim. A quote that is not a
+            character-for-character substring of the review it cites fails validation and stops the run.
+          </li>
+          <li>
+            <strong>Raw review text is deleted after 30 days.</strong> Full review bodies exist only in
+            the intermediate files for a single scan; the published records keep the capped quote and
+            nothing more.
+          </li>
+        </ul>
+
+        <h3 id="what-is-never-tracked">What is never tracked</h3>
+
+        <p>
+          Apps whose subject matter is personal distress or health are never tracked. The check runs
+          before any request is made, against the app name, the developer name and the store category,
+          and the tracked list is not exempt from it. An app matching any of these terms is excluded:
+        </p>
+
+        <ul class="chips struck" aria-label="Excluded app subjects">
+          {APP_DENYLIST.map((term) => <li>{term}</li>)}
+        </ul>
+
+        <p>
+          Separately, any individual review whose text matches crisis language is dropped before it
+          enters the pipeline. Such a review is never stored, never quoted and never counted towards any
+          score. The list of terms lives in the source rather than on this page.
+        </p>
+
+        <p>
+          Both screens match inflected forms as well as the exact words. They are deliberately broad.
+          Excluding something that belonged is a cost worth paying here.
+        </p>
+
+        <h3 id="non-commercial">Non-commercial</h3>
+
+        <p>
+          Friction has no ads, no payments, no signup, no paywall and no affiliate links, and it is not
+          affiliated with any of the apps it tracks. It reads publicly visible reviews and publishes the
+          analysis with the method attached. If you think something here is wrong, the data and the code
+          are both <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">in the
+          repository</a> and you can check it yourself.
+        </p>
+
+        {
+          problems.length === 0 && (
+            <p class="empty-note">
+              No problems have been recorded yet, so the threshold and pass rate above are computed from
+              an empty set.
+            </p>
+          )
+        }
+      </div>
+    </details>
+  </div>
+</Layout>
+
+<script>
+  import { initCalculator } from '../scripts/calculator';
+
+  /**
+   * Marks the section being read in the margin contents. An
+   * IntersectionObserver, never a scroll listener, and it only sets an
+   * attribute — nothing here animates.
+   */
+  function watchSections(): void {
+    const links = new Map<string, HTMLAnchorElement>();
+    for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-toc]')) {
+      links.set(a.dataset.toc!, a);
+    }
+    if (links.size === 0) return;
+
+    const seen = new Set<string>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) seen.add(e.target.id);
+          else seen.delete(e.target.id);
+        }
+        // The topmost visible heading wins, so the mark never jumps backwards.
+        let current: string | null = null;
+        for (const id of links.keys()) {
+          if (seen.has(id)) { current = id; break; }
+        }
+        for (const [id, a] of links) {
+          if (id === current) a.setAttribute('aria-current', 'true');
+          else a.removeAttribute('aria-current');
+        }
+      },
+      { rootMargin: '-20% 0px -70% 0px' },
+    );
+
+    for (const id of links.keys()) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    watchSections();
+    initCalculator();
+  });
+</script>
+
+<style>
+
+  /* ---- the model's job, as two columns ---- */
+
+  .does {
+    display: grid;
+    gap: var(--space-lg);
+    margin: var(--space-lg) 0;
+    max-width: 40rem;
+  }
+
+  @media (min-width: 34rem) {
+    .does {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2xl);
+    }
+  }
+
+  .d-head {
+    margin: 0;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .plain {
+    list-style: none;
+    margin: var(--space-sm) 0 0;
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+
+  .plain li {
+    padding-block: var(--space-2xs);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .plain.struck li {
+    color: var(--color-muted);
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in oklch, var(--color-muted) 55%, transparent);
+  }
+
+
+  /* ---- the two sources ---- */
+
+  .sources {
+    display: grid;
+    gap: var(--space-lg);
+    margin: var(--space-lg) 0;
+  }
+
+  @media (min-width: 34rem) {
+    .sources {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ---- chips ---- */
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    margin: var(--space-xs) 0 0;
+    padding: 0;
+    font-size: var(--text-xs);
+  }
+
+  .chips li {
+    padding: var(--space-3xs) var(--space-xs);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 999px;
+    color: var(--color-muted);
+  }
+
+  .chips .faint {
+    opacity: 0.6;
+  }
+
+  /* Excluded subjects: struck through, so the list reads as a list of
+     things that are not here. */
+  .struck li {
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in oklch, var(--color-muted) 60%, transparent);
+  }
+
+
+  /* ---- margin contents ---- */
+
+  .toc {
+    display: none;
+  }
+
+  /*
+   * Fixed rather than sticky: the shell is a single grid column list, so a
+   * sticky item would only span its own row. Anchored off the measure, which
+   * keeps it the same distance from the text at every width.
+   */
+  @media (min-width: 1100px) {
+    .toc {
+      display: block;
+      position: fixed;
+      top: calc(var(--nav-h) + var(--space-xl));
+      right: calc(50% + var(--measure) / 2 + var(--space-xl));
+      width: 11rem;
+      max-height: calc(100vh - var(--nav-h) - var(--space-2xl));
+      overflow-y: auto;
+    }
+  }
+
+  /*
+   * The small type lives on the children, not on .toc. `ch` resolves against
+   * the element's own font, so setting --text-xs on the container made
+   * `var(--measure)` compute narrower there than in the shell and the
+   * contents overlapped the text it was meant to sit beside.
+   */
+  .toc-title,
+  .toc ol {
+    font-size: var(--text-xs);
+  }
+
+  .toc-title {
+    /* --color-neutral is 4.27:1 at this size; muted clears 4.5. */
+    color: var(--color-muted);
+    margin-bottom: var(--space-xs);
+  }
+
+  .toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .toc a {
+    color: var(--color-muted);
+    text-decoration: none;
+    display: block;
+    padding: var(--space-3xs) 0 var(--space-3xs) var(--space-sm);
+    border-left: var(--rule-hair) solid var(--color-rule);
+    text-wrap: pretty;
+  }
+
+  .toc a:hover,
+  .toc a[aria-current='true'] {
+    color: var(--color-ink);
+    border-left-color: var(--color-accent);
+  }
+
+  /* ---- the scoring formula ---- */
+
+  .equation {
+    margin: var(--space-lg) 0;
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 6px;
+    padding: var(--space-md) var(--space-lg);
+    overflow-x: auto;
+  }
+
+  .equation pre {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- page header ---- */
+
+  .band {
+    padding-block: var(--space-2xl);
+    background: var(--color-paper-2);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  h1 {
+    font-size: clamp(1.7rem, 1rem + 2.2vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.028em;
+    text-wrap: balance;
+  }
+
+  .sub {
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+    max-width: 42em;
+  }
+
+  .prose {
+    padding-block: var(--space-xl) var(--space-3xl);
+  }
+
+  .prose > * {
+    max-width: var(--measure);
+  }
+
+  /*
+   * Section heads are the only prose left above the disclosure. They sit
+   * clear of the graphic above and tight to the one below, so a heading
+   * reads as a label on the next visual rather than as a paragraph opener.
+   */
+  h2 {
+    font-size: var(--text-lg);
+    margin-top: var(--space-3xl);
+    margin-bottom: var(--space-md);
+  }
+
+  .prose > :global(:is(h2) + *) {
+    margin-top: 0;
+  }
+
+  .lead-in {
+    margin-top: calc(var(--space-md) * -1 + var(--space-2xs));
+    margin-bottom: var(--space-md);
+  }
+
+  p {
+    margin-top: var(--space-md);
+  }
+
+  .lede {
+    margin-top: var(--space-md);
+    font-size: var(--text-lg);
+    line-height: 1.5;
+  }
+
+  ul {
+    margin-top: var(--space-md);
+    padding-left: var(--space-md);
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  code {
+    font-size: 0.92em;
+    background: var(--color-paper-2);
+    padding: 0.05em 0.3em;
+  }
+
+  .weights {
+    margin-top: var(--space-md);
+    border-collapse: collapse;
+    width: 100%;
+    font-size: var(--text-sm);
+    text-align: left;
+  }
+
+  .weights th,
+  .weights td {
+    border-top: var(--rule-hair) solid var(--color-rule);
+    padding: var(--space-xs) var(--space-sm) var(--space-xs) 0;
+    vertical-align: top;
+    font-weight: 400;
+  }
+
+  .weights thead th {
+    border-top: 0;
+    border-bottom: var(--rule-hair) solid var(--color-ink);
+    font-weight: 600;
+    padding-bottom: var(--space-xs);
+  }
+
+  .weights tbody th {
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .weights .w {
+    text-align: right;
+    padding-right: var(--space-md);
+    white-space: nowrap;
+  }
+
+  /* ---- the one written field ---- */
+
+  /*
+   * Two columns, deliberately unequal in treatment. The written one is
+   * tinted and labelled; the extracted one is plain. The asymmetry is the
+   * point — one of these needs a caveat and the other does not.
+   */
+  .written {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+  }
+
+  @media (min-width: 34rem) {
+    .written {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .w-col {
+    padding: var(--space-md);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 8px;
+  }
+
+  .is-written {
+    background: color-mix(in oklch, var(--color-accent) 7%, var(--color-paper));
+    border-color: color-mix(in oklch, var(--color-accent) 32%, var(--color-rule));
+  }
+
+  .w-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .pill {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    line-height: 1;
+    padding: 0.25em 0.5em;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--color-accent) 22%, var(--color-paper));
+    color: var(--color-ink);
+  }
+
+  .w-body {
+    margin-top: var(--space-xs);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  /* ---- the full methodology, collapsed ---- */
+
+  /*
+   * Every word of the reference prose is in here, unedited. It is closed by
+   * default because the graphics above already answer the question; this is
+   * for the reader who wants to check the work, and that reader will open it.
+   */
+  .method {
+    margin-top: var(--space-3xl);
+    border-top: var(--rule-hair) solid var(--color-rule);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .method summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2xs) var(--space-sm);
+    padding-block: var(--space-md);
+    cursor: pointer;
+    list-style: none;
+    min-height: var(--tap);
+  }
+
+  .method summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .sum-title {
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  /* The caret, drawn rather than typed, so it rotates. */
+  .sum-title::before {
+    content: '';
+    display: inline-block;
+    width: 0.42em;
+    height: 0.42em;
+    margin-right: 0.55em;
+    border-right: 1.5px solid var(--color-neutral);
+    border-bottom: 1.5px solid var(--color-neutral);
+    rotate: -45deg;
+    translate: 0 -0.12em;
+  }
+
+  .method[open] .sum-title::before {
+    rotate: 45deg;
+    translate: 0 -0.2em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sum-title::before {
+      transition:
+        rotate var(--dur-micro) var(--ease-out),
+        translate var(--dur-micro) var(--ease-out);
+    }
+  }
+
+  .sum-note {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .method summary:hover .sum-title,
+  .method summary:focus-visible .sum-title {
+    color: var(--color-accent);
+  }
+
+  .method summary:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .method-body {
+    padding-bottom: var(--space-2xl);
+  }
+
+  .method-body > * {
+    max-width: var(--measure);
+  }
+
+  .method-body h3 {
+    font-size: var(--text-md);
+    font-weight: 600;
+    margin-top: var(--space-xl);
+  }
+
+  .method-body h4 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-muted);
+    margin-top: var(--space-lg);
+  }
+
+  .method-body .lede {
+    font-size: var(--text-md);
+  }
+
+  .empty-note {
+    margin-top: var(--space-xl);
+    color: var(--color-muted);
+    font-size: var(--text-sm);
+  }
+</style>

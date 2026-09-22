@@ -49,7 +49,7 @@ const atX = (iso: string) =>
       runs.length === 0 ? (
         <p class="empty measure">
           No scans have completed yet. Once one does it will be listed here, and the{' '}
-          <a href={url('/methodology')}>methodology</a> explains what each number means.
+          <a href={url('/how-it-works')}>methodology</a> explains what each number means.
         </p>
       ) : (
         <section class="timeline-block" aria-labelledby="runs-heading">
@@ -208,7 +208,7 @@ const atX = (iso: string) =>
         <p class="note measure">
           "Read" counts every review pulled from both stores, including ones already processed in an
           earlier scan. "Carried" is capped at {CANDIDATE_CAP} per run by design — see the{' '}
-          <a href={url('/methodology')}>methodology</a>.
+          <a href={url('/how-it-works')}>methodology</a>.
         </p>
       )
     }

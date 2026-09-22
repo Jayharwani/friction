@@ -15,6 +15,12 @@ export default defineConfig({
   base: '/friction',
   output: 'static',
   trailingSlash: 'ignore',
+  // /methodology was the route until the page was rebuilt around its graphics.
+  // A static build emits a meta-refresh page, which is enough for a link that
+  // may be in someone's history.
+  redirects: {
+    '/methodology': '/how-it-works',
+  },
   vite: {
     plugins: [tailwindcss()],
   },

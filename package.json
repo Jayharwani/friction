@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro check && astro build && tsx scripts/words.ts",
     "preview": "astro preview",
     "astro": "astro",
     "resolve-apps": "tsx scripts/resolve-apps.ts",
@@ -16,7 +16,8 @@
     "score": "tsx scripts/score.ts",
     "prune": "tsx scripts/prune.ts",
     "test": "node --import tsx --test \"scripts/**/*.test.ts\"",
-    "check": "astro check"
+    "check": "astro check",
+    "words": "tsx scripts/words.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

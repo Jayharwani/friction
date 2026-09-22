@@ -12,6 +12,7 @@
 import Layout from '../layouts/Layout.astro';
 import PatternCard from '../components/PatternCard.astro';
 import AppIcon from '../components/AppIcon.astro';
+import FrictionField from '../components/FrictionField.astro';
 import { buildPatterns, PATTERN_MIN_APPS } from '../lib/patterns';
 import { getActiveProblems, getGaps, getProduct, getProducts } from '../lib/data';
 
@@ -68,6 +69,13 @@ const top = patterns[0];
         </p>
       )
     }
+  
+    {/*
+      The field belongs here rather than on the homepage. It is a view of the
+      whole dataset at once, which is exactly what this page argues about —
+      on a pitch it was a picture, and here it is the evidence.
+    */}
+    <FrictionField />
   </div>
 </Layout>
 

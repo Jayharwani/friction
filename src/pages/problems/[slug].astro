@@ -10,11 +10,12 @@ import Layout from '../../layouts/Layout.astro';
 import ScoreDisclosure from '../../components/ScoreDisclosure.astro';
 import EvidenceItem from '../../components/EvidenceItem.astro';
 import RelatedStrip from '../../components/RelatedStrip.astro';
+import GapBlock from '../../components/GapBlock.astro';
 import Sparkline from '../../components/charts/Sparkline.astro';
 import StackedBar from '../../components/charts/StackedBar.astro';
 import VersionTimeline from '../../components/charts/VersionTimeline.astro';
 import { url } from '../../lib/url';
-import { formatDate, getProblems, getProduct, platformsLabel } from '../../lib/data';
+import { formatDate, getGaps, getProblems, getProduct, platformsLabel } from '../../lib/data';
 import { platformSplit, signalCounts, versionMarks, weeklySeries } from '../../lib/charts';
 import type { Problem } from '../../../scripts/validate';
 
@@ -39,6 +40,13 @@ const marks = versionMarks(problem);
 const series = weeklySeries(problem.evidence);
 const split = platformSplit(problem.evidence);
 const signals = signalCounts(problem.evidence).filter((sig) => sig.count > 0);
+
+/*
+ * The written gap line, shown only where the evidence carries it: a problem
+ * with a Strong signal verdict in a category that has one. Anywhere else the
+ * sentence would be doing more work than the data underneath it supports.
+ */
+const gap = problem.verdict === 'Strong signal' ? getGaps()[problem.category] : undefined;
 
 const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} from ${problem.evidence.length} app store reviews.`;
 ---
@@ -118,35 +126,40 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
             )
           }
 
-          <section class="block">
-            <h3>What people do instead</h3>
-            {
-              problem.workarounds.length > 0 ? (
-                <ul class="listing">
-                  {problem.workarounds.map((w) => (
-                    <li>{w}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p class="muted-note">No workaround was described in these reviews.</p>
-              )
-            }
-          </section>
+          {
+            /* Without a gap line these two stay in the rail. With one they
+               move out to the full-width block below, where the third column
+               can pay them off. */
+            !gap && (
+              <>
+                <section class="block">
+                  <h3>What people do instead</h3>
+                  {problem.workarounds.length > 0 ? (
+                    <ul class="listing">
+                      {problem.workarounds.map((w) => (
+                        <li>{w}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p class="muted-note">No workaround was described in these reviews.</p>
+                  )}
+                </section>
 
-          <section class="block">
-            <h3>What already exists</h3>
-            {
-              problem.existingSolutions.length > 0 ? (
-                <ul class="listing">
-                  {problem.existingSolutions.map((s) => (
-                    <li>{s}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p class="muted-note">No existing product was named in these reviews.</p>
-              )
-            }
-          </section>
+                <section class="block">
+                  <h3>What already exists</h3>
+                  {problem.existingSolutions.length > 0 ? (
+                    <ul class="listing">
+                      {problem.existingSolutions.map((s) => (
+                        <li>{s}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p class="muted-note">No existing product was named in these reviews.</p>
+                  )}
+                </section>
+              </>
+            )
+          }
 
           <section class="block">
             <h3>Seen</h3>
@@ -161,6 +174,20 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
 
       <!-- ---------- left: the evidence stream ---------- -->
       <div class="stream">
+        {
+          gap && (
+            <section class="gap-section" aria-labelledby="gap-heading">
+              <h2 id="gap-heading">Where the gap is</h2>
+              <GapBlock
+                workarounds={problem.workarounds}
+                existing={problem.existingSolutions}
+                gap={gap}
+                subject="this problem"
+              />
+            </section>
+          )
+        }
+
         <h2 class="stream-heading">Evidence</h2>
 
         <p class="standing-note">
@@ -260,6 +287,20 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
 
   .stale {
     color: var(--color-muted);
+  }
+
+  /* The gap sits above the evidence, not beside it: it is the conclusion the
+     stream below supports, and a rail would make it look like a statistic. */
+  .gap-section {
+    margin-bottom: var(--space-2xl);
+    padding-bottom: var(--space-xl);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .gap-section h2 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-md);
   }
 
   .stream-heading {

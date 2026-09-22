@@ -40,7 +40,46 @@
    are no shadows anywhere in the product.
    ------------------------------------------------------------------- */
 
+/* Light is the default. A reader arriving with no stated preference gets
+   paper, because the site is read before it is explored — and a dark page
+   full of small figures is the harder first impression to recover from. */
 :root {
+  --color-paper:   oklch(97% 0.010 60);
+  --color-paper-2: oklch(94% 0.012 60);
+  --color-paper-3: oklch(91% 0.012 60);
+  --color-rule:    oklch(85% 0.010 60);
+  --color-neutral: oklch(55% 0.008 60);
+  --color-muted:   oklch(42% 0.008 55);
+  --color-ink:     oklch(19% 0.010 50);
+  --color-accent:  oklch(58% 0.16 48);
+  --color-focus:   oklch(55% 0.19 50);
+
+  color-scheme: light;
+}
+
+/* Written twice on purpose: CSS cannot share one declaration block
+   between a media query and an attribute selector, and the duplication
+   is plainer than the indirection that avoids it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-paper:   oklch(14% 0.010 45);
+    --color-paper-2: oklch(18% 0.012 45);
+    --color-paper-3: oklch(22% 0.012 45);
+    --color-rule:    oklch(28% 0.010 45);
+    /* Measures about 4.3:1 against paper: below AA for body text at any size.
+       For disabled controls and non-text marks only — use --color-muted for
+       anything a reader has to read. */
+    --color-neutral: oklch(56% 0.008 45);
+    --color-muted:   oklch(72% 0.006 45);
+    --color-ink:     oklch(95% 0.006 60);
+    --color-accent:  oklch(76% 0.17 55);
+    --color-focus:   oklch(72% 0.19 55);
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
   --color-paper:   oklch(14% 0.010 45);
   --color-paper-2: oklch(18% 0.012 45);
   --color-paper-3: oklch(22% 0.012 45);
@@ -55,39 +94,6 @@
   --color-focus:   oklch(72% 0.19 55);
 
   color-scheme: dark;
-}
-
-/* Written twice on purpose: CSS cannot share one declaration block
-   between a media query and an attribute selector, and the duplication
-   is plainer than the indirection that avoids it. */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --color-paper:   oklch(97% 0.010 60);
-    --color-paper-2: oklch(94% 0.012 60);
-    --color-paper-3: oklch(91% 0.012 60);
-    --color-rule:    oklch(85% 0.010 60);
-    --color-neutral: oklch(55% 0.008 60);
-    --color-muted:   oklch(42% 0.008 55);
-    --color-ink:     oklch(19% 0.010 50);
-    --color-accent:  oklch(58% 0.16 48);
-    --color-focus:   oklch(55% 0.19 50);
-
-    color-scheme: light;
-  }
-}
-
-:root[data-theme="light"] {
-  --color-paper:   oklch(97% 0.010 60);
-  --color-paper-2: oklch(94% 0.012 60);
-  --color-paper-3: oklch(91% 0.012 60);
-  --color-rule:    oklch(85% 0.010 60);
-  --color-neutral: oklch(55% 0.008 60);
-  --color-muted:   oklch(42% 0.008 55);
-  --color-ink:     oklch(19% 0.010 50);
-  --color-accent:  oklch(58% 0.16 48);
-  --color-focus:   oklch(55% 0.19 50);
-
-  color-scheme: light;
 }
 
 /* The one ramp in the product: page surface to accent, interpolated in
@@ -381,18 +387,21 @@ body::after {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) body::after {
-    opacity: 0.02;
+body::after {
+  opacity: 0.02;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::after {
+    opacity: 0.035;
   }
 }
 
-:root[data-theme="light"] body::after {
-  opacity: 0.02;
+:root[data-theme="dark"] body::after {
+  opacity: 0.035;
 }
 
 /* -------------------------------------------------------------------
