@@ -11,6 +11,14 @@ import { CANDIDATE_CAP } from '../../scripts/validate';
 
 const runs = getRuns();
 
+/*
+ * The comparison table below is hidden until there is something to compare.
+ * With a single scan every figure in it is already on the page: the funnel
+ * carries Read through Carried, and the scan's own header carries tracked
+ * and new. It earns its place the moment a second scan exists.
+ */
+const showComparison = runs.length >= 2;
+
 // Newest first for reading; the timeline runs oldest to newest.
 const byDate = [...runs].sort((a, b) => a.date.localeCompare(b.date));
 
@@ -163,7 +171,7 @@ const atX = (iso: string) =>
           }
         </section>
 
-        <div class="scroller bleed">
+        <div class="scroller bleed" hidden={!showComparison}>
           <table>
             <thead>
               <tr>

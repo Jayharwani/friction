@@ -44,7 +44,7 @@ const alt = `Of ${total} active problems: ${steps
           <p class="test">{s.test}</p>
           <div class="branch">
             <span class="edge" aria-hidden="true" />
-            <p class="out">
+            <p class="out" data-empty={s.count === 0 ? '' : undefined}>
               <span class="verdict">{s.verdict}</span>
               <span class="count num">
                 {s.count}
@@ -60,7 +60,7 @@ const alt = `Of ${total} active problems: ${steps
       <p class="test">Everything else</p>
       <div class="branch">
         <span class="edge" aria-hidden="true" />
-        <p class="out">
+        <p class="out" data-empty={fallthrough.count === 0 ? '' : undefined}>
           <span class="verdict">{fallthrough.verdict}</span>
           <span class="count num">
             {fallthrough.count}
@@ -130,27 +130,59 @@ const alt = `Of ${total} active problems: ${steps
     flex: none;
   }
 
+  /*
+   * Each exit is a terminal, not a line of text: a tinted tile with the
+   * population at display size. The count is the answer the diagram gives,
+   * and at 12px in muted grey it was the smallest thing on the row.
+   */
   .out {
     display: flex;
     align-items: baseline;
     gap: var(--space-sm);
-    font-size: var(--text-sm);
+    padding: var(--space-2xs) var(--space-sm);
+    border-radius: 8px;
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
   }
 
   .verdict {
+    font-size: var(--text-sm);
     font-weight: 600;
   }
 
   .count {
+    margin-left: auto;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  /* Where most problems actually land. It carries the accent because it is
+     the diagram's real answer, not because it is last. */
+  li.last .out {
+    background: color-mix(in oklch, var(--color-accent) 10%, var(--color-paper));
+    border-color: color-mix(in oklch, var(--color-accent) 34%, var(--color-rule));
+  }
+
+  /* An exit nobody took reads as empty rather than as a zero to read past. */
+  .out[data-empty] .count,
+  .out[data-empty] .verdict {
     color: var(--color-muted);
-    font-size: var(--text-xs);
   }
 
   @media (min-width: 34rem) {
     li {
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 15rem);
       align-items: center;
       gap: var(--space-md);
+    }
+
+    .branch {
+      justify-content: end;
+    }
+
+    .out {
+      flex: 1 1 auto;
     }
   }
 </style>
