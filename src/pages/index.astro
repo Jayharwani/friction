@@ -153,8 +153,13 @@ for (let i = 0; i < 26; i++) {
 <style>
   /* ---- 1. hero ---- */
 
+  /*
+   * Bottom padding heavier than top, on purpose. Symmetric or top-heavy
+   * padding leaves a hero floating above the page; the heavier foot pulls
+   * it into the rhythm of the band that follows.
+   */
   .hero {
-    padding-block: var(--space-3xl) var(--space-2xl);
+    padding-block: var(--space-3xl) var(--space-4xl);
   }
 
   .hero-grid {

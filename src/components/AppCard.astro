@@ -10,6 +10,8 @@
 import type { Problem, Product } from '../../scripts/validate';
 import { url } from '../lib/url';
 import { verdictMix, weeklySeries } from '../lib/charts';
+import CategoryGlyph from './CategoryGlyph.astro';
+import { FAMILIES, FAMILY_LABEL, familyOf } from '../lib/categories';
 import Sparkline from './charts/Sparkline.astro';
 import StackedBar from './charts/StackedBar.astro';
 
@@ -28,6 +30,17 @@ const has = problems.length > 0;
 
 const href = url(`/products/${product.slug}`);
 const platforms = [...new Set(evidence.map((e) => e.platform))];
+
+/*
+ * Which families this app's problems fall into, in the ring's order so the
+ * strip reads the same way on every card. This is the app-level view of the
+ * system: two glances tell you Spotify is an ads-and-billing story and Zoom
+ * is a stability one, without reading a single title.
+ */
+const familyMix = FAMILIES.map((family) => ({
+  family,
+  count: problems.filter((pr) => familyOf(pr.category) === family).length,
+})).filter((f) => f.count > 0);
 ---
 
 <article
@@ -86,6 +99,16 @@ const platforms = [...new Set(evidence.map((e) => e.platform))];
           />
           <span class="trend-label">last 12 weeks</span>
         </div>
+
+        <ul class="fams" aria-label={`Problem families: ${familyMix.map((f) => `${f.count} ${FAMILY_LABEL[f.family]}`).join(', ')}`}>
+          {familyMix.map(({ family, count }) => (
+            <li data-family={family}>
+              <CategoryGlyph family={family} size={15} />
+              <span class="f-name">{FAMILY_LABEL[family]}</span>
+              <span class="f-count num">{count}</span>
+            </li>
+          ))}
+        </ul>
 
         <StackedBar segments={mix} of={`of ${product.name}'s problems`} />
       </>
@@ -183,6 +206,35 @@ const platforms = [...new Set(evidence.map((e) => e.platform))];
     font-size: var(--text-lg);
     font-weight: 600;
     line-height: 1.1;
+  }
+
+  /* The family strip: glyph, name and count, so colour never carries it. */
+  .fams {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .fams li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    padding: var(--space-3xs) var(--space-2xs);
+    font-size: var(--text-xs);
+    border-radius: 6px;
+    background: var(--cat-tint);
+    border: var(--rule-hair) solid var(--cat-edge);
+  }
+
+  .fams :global(.glyph) {
+    color: var(--cat);
+  }
+
+  .f-count {
+    font-weight: 600;
   }
 
   .trend {
