@@ -61,7 +61,7 @@
    between a media query and an attribute selector, and the duplication
    is plainer than the indirection that avoids it. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root[data-theme="system"] {
     --color-paper:   oklch(14% 0.010 45);
     --color-paper-2: oklch(18% 0.012 45);
     --color-paper-3: oklch(22% 0.012 45);
@@ -233,7 +233,7 @@ body {
 
 /* Dark surfaces bloom optically; pull body weight back to compensate. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) body {
+  :root[data-theme="system"] body {
     font-weight: 350;
   }
 }
@@ -395,7 +395,7 @@ body::after {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) body::after {
+  :root[data-theme="system"] body::after {
     opacity: 0.035;
   }
 }

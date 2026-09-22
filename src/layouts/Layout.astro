@@ -37,14 +37,20 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 
-    {/* Applied before first paint so a chosen theme never flashes the other one. */}
+    {/*
+      Applied before first paint so a chosen theme never flashes the other one.
+      Nothing stored means light: the site has a default, and following the
+      operating system is one of the three choices rather than the fallback.
+    */}
     <script is:inline>
       (function () {
         try {
           var t = localStorage.getItem('friction-theme');
-          if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+          if (t === 'light' || t === 'dark' || t === 'system') {
+            document.documentElement.dataset.theme = t;
+          }
         } catch (e) {
-          /* storage blocked; the system preference applies */
+          /* storage blocked; the light default applies */
         }
       })();
     </script>
