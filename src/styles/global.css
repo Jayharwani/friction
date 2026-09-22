@@ -11,8 +11,10 @@
      text at 320, 375, 414, 768, 1280 or 1920
    · targets: every button and select clears 44px at (pointer: coarse);
      nav links and standalone links too; inline links exempt by design
-   · motion: the eleven moments in the inventory below, nothing else;
+   · motion: the fourteen moments in the inventory below, nothing else;
      every one sits inside prefers-reduced-motion: no-preference
+   · categories: eight families, hues generated at 45-degree steps with L
+     and C held constant; the ring's gap is centred on the UI accent
    · honest: pass (46) · chrome: pass (47) · tokens: pass (48)
    · icons: pass (30) — the site uses no icon library; app artwork is the
      apps' own, unaltered, served locally, with a non-affiliation notice
@@ -454,8 +456,8 @@ body::after {
 /* ===================================================================
    Motion inventory
 
-   Eleven moments move on this site, and nothing else does. Adding a
-   twelfth is a decision, not a detail. Counted against the source, not
+   Fourteen moments move on this site, and nothing else does. Adding a
+   fifteenth is a decision, not a detail. Counted against the source, not
    remembered: every entry below is one guarded block you can go and read.
 
      1  The field settles on load, column by column, once.
@@ -487,6 +489,13 @@ body::after {
     11  Filtered cards travel to their new positions rather than
         appearing in them. FLIP, Web Animations API.
         src/scripts/problem-filters.ts, src/scripts/apps-controls.ts
+    12  A category glyph writes itself on when its card first enters
+        view, path by path. stroke-dasharray, one shot.
+        src/components/CategoryGlyph.astro
+    13  The version band's segments wipe in from the left, 30ms apart.
+        src/components/charts/VersionTimeline.astro
+    14  The signal tiles' rings fill from zero, 40ms apart.
+        src/components/charts/SignalGrid.astro
 
    The command palette's own entry is part of moment 6's vocabulary: it
    is the same short fade, and it is listed here so the count is honest.

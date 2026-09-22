@@ -96,7 +96,7 @@ for (let i = 0; i < 26; i++) {
       {
         products.map((p) => (
           <li>
-            <AppIcon slug={p.slug} name={p.name} size={30} />
+            <AppIcon slug={p.slug} name={p.name} size={48} />
           </li>
         ))
       }
@@ -207,16 +207,31 @@ for (let i = 0; i < 26; i++) {
   }
 
   /* The credibility row: every app we watch, as its own icon. */
+  /*
+   * The apps, at a size where they are recognised rather than inventoried.
+   * They overlap slightly, like the pattern cards' rows, so the wall reads
+   * as one set and not fifteen separate logos.
+   */
   .wall {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: var(--space-xs);
     list-style: none;
     margin: var(--space-3xl) auto 0;
     padding: 0 var(--page-gutter);
-    max-width: 44rem;
-    opacity: 0.85;
+    max-width: 48rem;
+  }
+
+  .wall li {
+    margin-left: -0.18em;
+    font-size: 48px;
+    line-height: 0;
+    border-radius: 24%;
+    box-shadow: 0 0 0 3px var(--color-paper);
+  }
+
+  .wall li:first-child {
+    margin-left: 0;
   }
 
   /* ---- 2. band ---- */

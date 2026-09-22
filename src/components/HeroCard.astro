@@ -16,6 +16,8 @@ import { getProduct } from '../lib/data';
 import { weeklySeries } from '../lib/charts';
 import Sparkline from './charts/Sparkline.astro';
 import AppIcon from './AppIcon.astro';
+import CategoryGlyph from './CategoryGlyph.astro';
+import { familyOf } from '../lib/categories';
 
 interface Props {
   problems: Problem[];
@@ -25,6 +27,7 @@ const { problems } = Astro.props;
 
 const slides = problems.slice(0, 3).map((problem) => ({
   problem,
+  family: familyOf(problem.category),
   product: getProduct(problem.productSlug),
   series: weeklySeries(problem.evidence),
   reviews: problem.evidence.length,
@@ -39,13 +42,22 @@ const slides = problems.slice(0, 3).map((problem) => ({
 
   <div class="deck">
     {
-      slides.map(({ problem, product, series, reviews, quote }, i) => (
-        <article class="slide" data-slide data-active={i === 0 ? '' : undefined} aria-hidden={i === 0 ? undefined : 'true'}>
+      slides.map(({ problem, family, product, series, reviews, quote }, i) => (
+        <article
+          class="slide"
+          data-family={family}
+          data-slide
+          data-active={i === 0 ? '' : undefined}
+          aria-hidden={i === 0 ? undefined : 'true'}
+        >
           <header>
-            <AppIcon slug={problem.productSlug} name={product?.name ?? problem.productSlug} size={36} />
+            <AppIcon slug={problem.productSlug} name={product?.name ?? problem.productSlug} size={48} />
             <div>
               <p class="app">{product?.name ?? problem.productSlug}</p>
-              <p class="cat">{problem.category}</p>
+              <p class="cat">
+                <CategoryGlyph family={family} size={15} />
+                {problem.category}
+              </p>
             </div>
             <p class="score num">
               {problem.score}
@@ -104,16 +116,27 @@ const slides = problems.slice(0, 3).map((problem) => ({
   }
 
   .slide {
+    position: relative;
     grid-area: 1 / 1;
     display: grid;
     gap: var(--space-sm);
     align-content: start;
-    padding: var(--space-lg);
-    border: var(--rule-hair) solid var(--color-rule);
+    padding: calc(var(--space-lg) + 3px) var(--space-lg) var(--space-lg);
+    border: var(--rule-hair) solid var(--cat-edge);
     border-radius: 12px;
     background: var(--color-paper-2);
+    overflow: hidden;
     opacity: 0;
     visibility: hidden;
+  }
+
+  /* Same 3px family edge the problem cards carry. */
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--cat);
   }
 
   .slide[data-active] {
@@ -147,8 +170,15 @@ const slides = problems.slice(0, 3).map((problem) => ({
   }
 
   .cat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3xs);
     font-size: var(--text-xs);
     color: var(--color-muted);
+  }
+
+  .cat :global(.glyph) {
+    color: var(--cat);
   }
 
   .score {
