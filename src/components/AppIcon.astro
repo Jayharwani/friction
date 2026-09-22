@@ -1,0 +1,88 @@
+---
+/**
+ * An app's icon, with a monogram behind it.
+ *
+ * The monogram is not a placeholder that gets swapped out — it is painted
+ * first and the image sits on top. If the file is missing, fails to decode,
+ * or the browser declines to paint it, what remains is a letter in a tinted
+ * square rather than a hole. Three icons were reported blank on a machine
+ * where all fifteen files existed and were the right size.
+ */
+import { url } from '../lib/url';
+
+interface Props {
+  slug: string;
+  name: string;
+  size?: number;
+  /** Carries the view transition between the grid and the detail page. */
+  morph?: boolean;
+}
+
+const { slug, name, size = 40, morph = false } = Astro.props;
+
+const initial = name.trim().charAt(0).toUpperCase();
+
+/*
+ * A stable hue per app, from the name. Not decoration — it is what makes two
+ * adjacent monograms tell each other apart. Kept near the anchor hue so a row
+ * of fallbacks still reads as one family.
+ */
+let h = 0;
+for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) % 360;
+const tilt = ((h % 40) - 20) / 100;
+---
+
+<span
+  class="icon"
+  style={`--s:${size}px; --tilt:${tilt}`}
+  data-slug={slug}
+  transition:name={morph ? `icon-${slug}` : undefined}
+>
+  <span class="mono" aria-hidden="true">{initial}</span>
+  <img
+    src={url(`/icons/${slug}.jpg`)}
+    alt=""
+    width={size}
+    height={size}
+    loading="lazy"
+    decoding="async"
+    onerror="this.remove()"
+  />
+</span>
+
+<style>
+  .icon {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: var(--s);
+    height: var(--s);
+    flex: none;
+    border-radius: calc(var(--s) * 0.22);
+    overflow: hidden;
+    /* The monogram's ground. Visible only where the image is not. */
+    background: color-mix(
+      in oklch,
+      var(--color-accent) calc(14% + var(--tilt) * 30%),
+      var(--color-paper-3)
+    );
+  }
+
+  .mono {
+    font-weight: 600;
+    font-size: calc(var(--s) * 0.44);
+    line-height: 1;
+    color: var(--color-ink);
+    user-select: none;
+  }
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The artwork is the app's: no filter, no overlay, no rounding of its
+       own beyond the container's. */
+  }
+</style>

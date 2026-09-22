@@ -1,0 +1,142 @@
+---
+/**
+ * Patterns — the layer the site was missing.
+ *
+ * Every other page shows problems one at a time. This one shows what happens
+ * when you look across them: a complaint in one app is a bug, the same
+ * complaint in seven is something else.
+ *
+ * Nothing here is new data. It is the committed problems, grouped by category
+ * and counted.
+ */
+import Layout from '../layouts/Layout.astro';
+import PatternCard from '../components/PatternCard.astro';
+import AppIcon from '../components/AppIcon.astro';
+import { buildPatterns, PATTERN_MIN_APPS } from '../lib/patterns';
+import { getActiveProblems, getGaps, getProduct, getProducts } from '../lib/data';
+
+const tracked = getProducts().length;
+const patterns = buildPatterns(getActiveProblems(), tracked, getGaps());
+const top = patterns[0];
+---
+
+<Layout
+  title="Patterns"
+  description="Complaint categories that appear across several different apps, counted from public store reviews."
+>
+  <div class="band">
+    <div class="shell">
+      <h1>The same complaints show up across different apps.</h1>
+      <p class="sub">
+        A complaint in one app is a bug. The same complaint in {top?.apps.length ?? PATTERN_MIN_APPS} is
+        something else.
+      </p>
+    </div>
+  </div>
+
+  <div class="shell">
+    {
+      top && (
+        <section class="lead" aria-label="Most widespread pattern">
+          <p class="lead-cat">{top.category}</p>
+          <ul class="lead-icons" aria-label={`Found in ${top.apps.length} apps`}>
+            {top.apps.map((slug, i) => (
+              <li class="ch-pop" style={`--ch-i:${i}; --ch-step:60ms`} data-chart>
+                <AppIcon slug={slug} name={getProduct(slug)?.name ?? slug} size={52} />
+              </li>
+            ))}
+          </ul>
+          <p class="lead-fig num">
+            <span>{top.apps.length} of {tracked} apps</span>
+            <span>{top.reviewers} reviewers</span>
+          </p>
+        </section>
+      )
+    }
+
+    {
+      patterns.length > 0 ? (
+        <section class="grid" aria-label="All patterns">
+          {patterns.map((pattern) => (
+            <PatternCard pattern={pattern} trackedApps={tracked} />
+          ))}
+        </section>
+      ) : (
+        <p class="empty">
+          No category has reached {PATTERN_MIN_APPS} apps yet. Patterns appear here as coverage
+          grows.
+        </p>
+      )
+    }
+  </div>
+</Layout>
+
+<style>
+  /* ---- band ---- */
+
+  .band {
+    padding-block: var(--space-2xl);
+    background: var(--color-paper-2);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  h1 {
+    font-size: clamp(1.7rem, 1rem + 2.2vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.028em;
+    max-width: 18em;
+    text-wrap: balance;
+  }
+
+  .sub {
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+    max-width: 42em;
+  }
+
+  /* ---- the lead pattern: the visual, before any data ---- */
+
+  .lead {
+    padding-block: var(--space-2xl);
+    text-align: center;
+  }
+
+  .lead-cat {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .lead-icons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm);
+    list-style: none;
+    margin: var(--space-md) 0 0;
+    padding: 0;
+  }
+
+  .lead-fig {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-lg);
+    margin-top: var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  /* ---- the cards ---- */
+
+  .grid {
+    display: grid;
+    gap: var(--space-xl);
+    padding-bottom: var(--space-3xl);
+  }
+
+  .empty {
+    padding-block: var(--space-2xl);
+    color: var(--color-muted);
+  }
+</style>

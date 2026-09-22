@@ -1,0 +1,20 @@
+{
+  "note": "The one written field on this site. Every other value in data/ is extracted from a review or computed in code; these sentences are model-written from the pattern's own evidence, the same way extraction is a prompted step rather than an API call in the build. See scripts/gap-prompt.md. A pattern with no entry here simply shows no gap line.",
+  "gaps": {
+    "Crashes and stability": {
+      "line": "Every workaround reviewers found is reinstall or restart. Nothing offers recovery that preserves what was in progress.",
+      "writtenBy": "claude-opus-5",
+      "writtenAt": "2026-09-21"
+    },
+    "Pricing and billing": {
+      "line": "Reviewers escape to the app store for refunds. Nothing surfaces trial conversion or refund status inside the app.",
+      "writtenBy": "claude-opus-5",
+      "writtenAt": "2026-09-21"
+    },
+    "Ads and interruptions": {
+      "line": "The only workaround is force-quitting. Nothing lets people turn off an interruption they did not ask for.",
+      "writtenBy": "claude-opus-5",
+      "writtenAt": "2026-09-21"
+    }
+  }
+}

@@ -1,0 +1,160 @@
+---
+/**
+ * Every problem, filterable.
+ *
+ * This used to be the bottom two thirds of the homepage. Splitting it out is
+ * what lets the homepage be a pitch and lets this be an index.
+ */
+import Layout from '../layouts/Layout.astro';
+import ProblemCard from '../components/ProblemCard.astro';
+import { getProblems, getProduct } from '../lib/data';
+import { VERDICTS } from '../../scripts/validate';
+
+const problems = getProblems();
+
+const apps = [...new Set(problems.map((p) => p.productSlug))]
+  .map((slug) => ({ slug, name: getProduct(slug)?.name ?? slug }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const categories = [...new Set(problems.map((p) => p.category))].sort();
+const verdicts = VERDICTS.filter((v) => problems.some((p) => p.verdict === v));
+---
+
+<Layout
+  title="Problems"
+  description="Every recurring complaint Friction has recorded, with the evidence behind each one."
+>
+  <div class="band">
+    <div class="shell">
+      <h1>Every problem found so far.</h1>
+      <p class="sub">{problems.length} complaints, each reported by several people over several weeks.</p>
+    </div>
+  </div>
+
+  <div class="shell" data-problems>
+    <div class="controls" role="group" aria-label="Filter problems">
+      <p class="field">
+        <label for="f-app">App</label>
+        <select id="f-app" data-filter="app">
+          <option value="all">All apps</option>
+          {apps.map((a) => <option value={a.slug}>{a.name}</option>)}
+        </select>
+      </p>
+
+      <p class="field">
+        <label for="f-cat">Category</label>
+        <select id="f-cat" data-filter="category">
+          <option value="all">All categories</option>
+          {categories.map((c) => <option value={c}>{c}</option>)}
+        </select>
+      </p>
+
+      <p class="field">
+        <label for="f-verdict">Verdict</label>
+        <select id="f-verdict" data-filter="verdict">
+          <option value="all">Any verdict</option>
+          {verdicts.map((v) => <option value={v}>{v}</option>)}
+        </select>
+      </p>
+
+      <p class="field">
+        <label for="f-platform">Platform</label>
+        <select id="f-platform" data-filter="platforms">
+          <option value="all">Both stores</option>
+          <option value="ios">iOS</option>
+          <option value="android">Android</option>
+        </select>
+      </p>
+
+      <p class="count num" data-problems-count aria-live="polite">{problems.length} problems</p>
+    </div>
+
+    <section class="grid" data-problems-grid aria-label="Problems">
+      {problems.map((problem) => <ProblemCard problem={problem} filterable />)}
+    </section>
+
+    <p class="empty" data-problems-empty hidden>
+      Nothing matches those filters.
+    </p>
+  </div>
+</Layout>
+
+<script>
+  import { initProblemFilters } from '../scripts/problem-filters';
+
+  document.addEventListener('astro:page-load', initProblemFilters);
+</script>
+
+<style>
+  .band {
+    padding-block: var(--space-2xl);
+    background: var(--color-paper-2);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  h1 {
+    font-size: clamp(1.7rem, 1rem + 2.2vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.028em;
+    text-wrap: balance;
+  }
+
+  .sub {
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+    max-width: 42em;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-md) var(--space-lg);
+    padding-block: var(--space-xl) var(--space-lg);
+  }
+
+  .field {
+    margin: 0;
+  }
+
+  label {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    margin-bottom: var(--space-2xs);
+  }
+
+  select {
+    font: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 4px;
+    padding: var(--space-2xs) var(--space-xs);
+  }
+
+  select:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .count {
+    margin: 0 0 var(--space-2xs) auto;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--space-md);
+    padding-bottom: var(--space-3xl);
+  }
+
+  .empty {
+    padding-block: var(--space-2xl) var(--space-3xl);
+    color: var(--color-muted);
+  }
+</style>

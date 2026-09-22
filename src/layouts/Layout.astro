@@ -19,12 +19,12 @@ const {
 const documentTitle = title === 'Friction' ? 'Friction' : `${title} — Friction`;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 
+/* About and Archive live in the footer now; the nav carries the product. */
 const nav = [
-  { href: '/', label: 'Today' },
+  { href: '/problems', label: 'Problems' },
+  { href: '/patterns', label: 'Patterns' },
   { href: '/apps', label: 'Apps' },
-  { href: '/methodology', label: 'Methodology' },
-  { href: '/archive', label: 'Archive' },
-  { href: '/about', label: 'About' },
+  { href: '/methodology', label: 'How it works' },
 ];
 
 const here = Astro.url.pathname.replace(/\/$/, '');

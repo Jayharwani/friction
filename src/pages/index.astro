@@ -1,53 +1,44 @@
 ---
 /**
- * Today — Map / Diagram.
+ * Home — four screens, hard stop.
  *
- * The Friction Field organises the page spatially: twelve weeks across, the
- * tracked problems back, height for how often each one was reported. The
- * statement sits over its lower third, the proof row states the figures, and
- * the specimen shows one problem in full before the list.
+ * Pitch, how it works, patterns, latest. The field is not here: a spatial
+ * overview belongs after the reader knows what a problem is, not before.
  *
- * The old 2D recurrence grid is gone; the field replaces it.
+ * Prose budget: 120 words. Counted, not estimated — every sentence outside
+ * problem titles, quotes and data labels.
  */
 import Layout from '../layouts/Layout.astro';
-import FrictionField from '../components/FrictionField.astro';
-import ProblemRow from '../components/ProblemRow.astro';
-import Specimen from '../components/Specimen.astro';
+import HeroCard from '../components/HeroCard.astro';
 import Explainer from '../components/Explainer.astro';
+import PatternCard from '../components/PatternCard.astro';
+import ProblemCard from '../components/ProblemCard.astro';
+import AppIcon from '../components/AppIcon.astro';
 import { url } from '../lib/url';
 import {
   formatDate,
   getActiveProblems,
+  getGaps,
   getLatestRun,
   getProblems,
-  getProblemsFromRun,
   getProduct,
-  groupByProduct,
+  getProducts,
 } from '../lib/data';
-import { VERDICT_GLOSS } from '../lib/scoring';
-import type { Verdict } from '../../scripts/validate';
+import { buildPatterns } from '../lib/patterns';
 
 const all = getProblems();
 const active = getActiveProblems();
 const run = getLatestRun();
+const products = getProducts();
 
-// Every figure below is read from the data. Nothing here is invented.
 const reviewsRead = run?.funnel.fetched.total ?? 0;
-const problemsTracked = all.length;
-
-const specimen = active[0]; // getProblems() is sorted by score, descending
+const specimen = active[0];
 const specimenProduct = specimen ? getProduct(specimen.productSlug) : undefined;
 
-const grouped = groupByProduct(run ? getProblemsFromRun(run.date) : []);
+const patterns = buildPatterns(active, products.length, getGaps()).slice(0, 4);
+const latest = all.slice(0, 6);
 
-/*
- * Excerpts for the explainer's scatter. Real review text, trimmed to a few
- * words: the cards are deliberately too small to read, so this is texture
- * made of the actual thing rather than lorem.
- *
- * `member` marks the ones belonging to the problem panel three resolves into,
- * so the grouping the animation shows is the grouping the pipeline made.
- */
+/* Excerpts for the explainer's scatter — real review text, trimmed. */
 const specimenQuotes = (specimen?.evidence ?? []).map((e) => ({
   text: e.quote,
   rating: e.rating,
@@ -59,8 +50,6 @@ const otherQuotes = all
   .filter((e) => e.rating <= 2)
   .map((e) => ({ text: e.quote, rating: e.rating, member: false }));
 
-// Interleaved, so the members are strewn through the scatter rather than
-// sitting together before the grouping step has happened.
 const excerpts: { text: string; rating: number; member: boolean }[] = [];
 for (let i = 0; i < 26; i++) {
   const fromMembers = i % 4 === 1 && specimenQuotes.length > 0;
@@ -68,245 +57,230 @@ for (let i = 0; i < 26; i++) {
   const pick = pool[Math.floor(i / (fromMembers ? 4 : 1.35)) % pool.length];
   if (pick) excerpts.push(pick);
 }
-
-// A gloss appears once per verdict, on its first appearance.
-const seenVerdicts = new Set<Verdict>();
-
-/* The definitions are attached to the first row only. */
-let taught = false;
-if (specimen) seenVerdicts.add(specimen.verdict);
 ---
 
 <Layout title="Friction">
-  <div class="shell">
-    <header class="hero bleed">
-      <h1 data-enter="1">See what people complain about in the apps they use every day.</h1>
-      <p class="how" data-enter="2">
-        Friction reads public App Store and Google Play reviews every week, groups the complaints
-        that keep repeating, and shows you the evidence behind each one.
-      </p>
+  {/* ---------- 1. Pitch ---------- */}
+  <section class="hero">
+    <div class="shell"><div class="hero-grid bleed">
+      <div class="hero-copy">
+        <h1 data-enter="1">See what's broken in the apps everyone uses.</h1>
+        <p class="how" data-enter="2">
+          Friction reads public App Store and Google Play reviews every week, groups the complaints
+          that keep repeating, and scores each by how much evidence there is.
+        </p>
+
+        <dl class="proof num" data-enter="3">
+          <div>
+            <dt>Reviews read</dt>
+            <dd>{reviewsRead.toLocaleString('en-GB')}</dd>
+          </div>
+          <div>
+            <dt>Problems tracked</dt>
+            <dd>{all.length}</dd>
+          </div>
+          <div>
+            <dt>Last checked</dt>
+            <dd>{run ? formatDate(run.date) : '—'}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="hero-visual" data-enter="2">
+        {specimen && <HeroCard problems={active.slice(0, 3)} />}
+      </div>
+      </div>
+    </div>
+
+    <ul class="wall" aria-label={`Tracking ${products.length} apps`}>
+      {
+        products.map((p) => (
+          <li>
+            <AppIcon slug={p.slug} name={p.name} size={30} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {/* ---------- 2. How it works ---------- */}
+  <section class="band">
+    <div class="shell">
+      {
+        specimen && specimenProduct && (
+          <Explainer
+            problem={specimen}
+            productName={specimenProduct.name}
+            reviewsRead={reviewsRead}
+            excerpts={excerpts}
+          />
+        )
+      }
+    </div>
+  </section>
+
+  {/* ---------- 3. Patterns ---------- */}
+  {
+    patterns.length > 0 && (
+      <section class="shell section">
+        <header class="head bleed">
+          <h2>The same complaints show up across different apps.</h2>
+          <a class="more" href={url('/patterns')}>All patterns</a>
+        </header>
+
+        <div class="bento bleed">
+          {patterns.map((pattern) => (
+            <PatternCard pattern={pattern} trackedApps={products.length} compact />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {/* ---------- 4. Latest ---------- */}
+  <section class="shell section">
+    <header class="head bleed">
+      <h2>Found this week</h2>
+      <a class="more" href={url('/problems')}>All {all.length} problems</a>
     </header>
 
-    {
-      specimen && specimenProduct && (
-        <Explainer
-          problem={specimen}
-          productName={specimenProduct.name}
-          reviewsRead={reviewsRead}
-          excerpts={excerpts}
-        />
-      )
-    }
-
-    {/* 04 · Stat-led, directly beneath the diagram. */}
-    <section class="proof" data-enter="3" aria-label="Current figures">
-      <div class="fig">
-        <p class="stat-figure">{reviewsRead.toLocaleString('en-GB')}</p>
-        <p class="stat-label">reviews read</p>
-      </div>
-      <div class="fig">
-        <p class="stat-figure">{problemsTracked}</p>
-        <p class="stat-label">problems tracked</p>
-      </div>
-      <div class="fig">
-        <p class="stat-figure">
-          {run ? <time datetime={run.date}>{formatDate(run.date)}</time> : '—'}
-        </p>
-        <p class="stat-label">last checked</p>
-      </div>
-    </section>
-
-    {
-      specimen && specimenProduct && (
-        <Specimen problem={specimen} productName={specimenProduct.name} />
-      )
-    }
-
-    {
-      all.length === 0 && (
-        <section class="empty">
-          <p>
-            No problems have been recorded yet. The first scan has not produced data, or the
-            pipeline stopped before writing. Nothing here is a placeholder.
-          </p>
-          <p><a href={url('/methodology')}>How this works</a></p>
-        </section>
-      )
-    }
-
-    {
-      grouped.length > 0 && (
-        <section class="list">
-          <h2>Problems found this week</h2>
-
-          {grouped.map((group) => (
-            <div class="group">
-              <h3 class="app-name">
-                <a href={url(`/products/${group.product.slug}`)}>{group.product.name}</a>
-              </h3>
-              {group.problems.map((problem) => {
-                const first = !seenVerdicts.has(problem.verdict);
-                seenVerdicts.add(problem.verdict);
-                const teach = !taught;
-                taught = true;
-                return (
-                  <>
-                    <ProblemRow problem={problem} teach={teach} />
-                    {first && (
-                      <p class="gloss">
-                        {problem.verdict} — {VERDICT_GLOSS[problem.verdict]}
-                      </p>
-                    )}
-                  </>
-                );
-              })}
-            </div>
-          ))}
-        </section>
-      )
-    }
-  </div>
-
-  {/* The spatial overview, where an overview belongs: after the thing it
-      summarises, not before the visitor knows what a problem is. */}
-  <FrictionField />
+    <div class="cards bleed">
+      {latest.map((problem) => <ProblemCard problem={problem} />)}
+    </div>
+  </section>
 </Layout>
 
 <style>
-
-  /* ---- hero ---- */
+  /* ---- 1. hero ---- */
 
   .hero {
-    padding-block: var(--space-3xl) 0;
+    padding-block: var(--space-3xl) var(--space-2xl);
   }
 
-  .hero h1 {
-    /* The measure sits on the heading, in em, so it tracks the clamped
-       display size and holds two lines at every width. */
-    max-width: 16em;
-    font-size: clamp(1.9rem, 1rem + 2.6vw, 3.1rem);
+  .hero-grid {
+    display: grid;
+    gap: var(--space-2xl);
+    align-items: center;
+  }
+
+  @media (min-width: 60rem) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+      gap: var(--space-3xl);
+    }
+  }
+
+  h1 {
+    font-size: clamp(2rem, 1rem + 2.8vw, 3.2rem);
     font-weight: 600;
-    line-height: 1.04;
-    letter-spacing: -0.032em;
+    line-height: 1.02;
+    letter-spacing: -0.034em;
+    max-width: 14em;
     text-wrap: balance;
   }
 
-  /*
-   * The sentence that actually explains the site. It used to be 10px of
-   * muted grey; it is body size and full contrast now, because it is the
-   * most useful sentence here.
-   */
   .how {
     margin-top: var(--space-md);
     font-size: var(--text-md);
     line-height: 1.5;
-    max-width: 46em;
+    max-width: 40em;
     text-wrap: pretty;
   }
 
   .proof {
     display: flex;
     flex-wrap: wrap;
-    padding-block: var(--space-lg);
-    border-block: var(--rule-hair) solid var(--color-rule);
-  }
-
-  /* Separated by hairlines, never by middle dots. */
-  .fig + .fig {
-    margin-left: var(--space-lg);
-    padding-left: var(--space-lg);
-    border-left: var(--rule-hair) solid var(--color-rule);
-  }
-
-  .stat-figure {
-    font-size: var(--text-xl);
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.024em;
-  }
-
-  .stat-label {
-    margin-top: var(--space-2xs);
-    font-size: var(--text-sm);
-    color: var(--color-muted);
-  }
-
-  /*
-   * Wrapped flex items keep their left rule, which left the last figure
-   * indented under a stray hairline. Below 30rem the row is a grid instead:
-   * two figures up, the date across the full width under a top rule.
-   */
-  @media (max-width: 34rem) {
-    .proof {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: var(--space-lg);
-      row-gap: var(--space-md);
-    }
-
-    /*
-     * Sibling chains rather than :nth-child. Astro scopes every compound, so
-     * `.fig + .fig` carries more specificity than `.fig:nth-child(2)` and a
-     * reset-then-restore pattern silently loses.
-     */
-    .fig + .fig {
-      margin-left: 0;
-    }
-
-    .fig + .fig + .fig {
-      grid-column: 1 / -1;
-      padding: var(--space-md) 0 0;
-      border-left: none;
-      border-top: var(--rule-hair) solid var(--color-rule);
-    }
-  }
-
-  .list {
-    margin-top: var(--section-gap);
-  }
-
-  h2 {
-    font-size: var(--text-lg);
-    font-weight: 600;
-  }
-
-  .group {
+    gap: var(--space-xl);
     margin-top: var(--space-xl);
   }
 
-  .app-name {
-    font-size: var(--text-sm);
-    font-weight: 600;
+  .proof dt {
+    font-size: var(--text-xs);
     color: var(--color-muted);
-    margin-bottom: var(--space-xs);
   }
 
-  .app-name a {
-    text-decoration: none;
+  .proof dd {
+    margin: var(--space-3xs) 0 0;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1;
   }
 
-  /* A standalone target, not a link in a sentence: it takes the touch floor. */
-  @media (pointer: coarse) {
-    .app-name a {
-      display: inline-flex;
-      align-items: center;
-      min-height: var(--tap);
+  /* The credibility row: every app we watch, as its own icon. */
+  .wall {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-xs);
+    list-style: none;
+    margin: var(--space-3xl) auto 0;
+    padding: 0 var(--page-gutter);
+    max-width: 44rem;
+    opacity: 0.85;
+  }
+
+  /* ---- 2. band ---- */
+
+  .band {
+    padding-block: var(--space-2xl) var(--space-3xl);
+    background: var(--color-paper-2);
+    border-block: var(--rule-hair) solid var(--color-rule);
+  }
+
+  /* ---- 3 and 4 ---- */
+
+  .section {
+    padding-block: var(--space-3xl) 0;
+  }
+
+  .section:last-of-type {
+    padding-bottom: var(--space-3xl);
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-xl);
+  }
+
+  h2 {
+    font-size: clamp(1.4rem, 1rem + 1.4vw, 2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.024em;
+    max-width: 20em;
+    text-wrap: balance;
+  }
+
+  .more {
+    font-size: var(--text-sm);
+    white-space: nowrap;
+  }
+
+  .bento,
+  .cards {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 46rem) {
+    .bento,
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  .gloss {
-    padding: var(--space-xs) 0 var(--space-sm);
-    font-size: var(--text-sm);
-    color: var(--color-muted);
+  @media (min-width: 70rem) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
 
-  .empty {
-    margin-top: var(--space-2xl);
-    display: grid;
-    gap: var(--space-sm);
-  }
+  /* ---- entry ---- */
 
-  /* The proof row joins the field's entry sequence as its third beat. */
   @media (prefers-reduced-motion: no-preference) {
     @supports (transition-behavior: allow-discrete) {
       [data-enter] {
@@ -315,6 +289,13 @@ if (specimen) seenVerdicts.add(specimen.verdict);
         transition:
           opacity var(--dur-long) var(--ease-out),
           translate var(--dur-long) var(--ease-out);
+      }
+
+      [data-enter='2'] {
+        transition-delay: 60ms;
+      }
+
+      [data-enter='3'] {
         transition-delay: 120ms;
       }
 
@@ -326,5 +307,4 @@ if (specimen) seenVerdicts.add(specimen.verdict);
       }
     }
   }
-
 </style>

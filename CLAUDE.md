@@ -70,11 +70,22 @@ Each is commented at its call site. Do not "fix" these back.
   so it does not exist under a reduced-motion preference. There is deliberately
   no blanket `animation: none` reset; the one `animation: none` present is
   scoped to Astro's `::view-transition-*` pseudo-elements.
-- The Friction Field (`src/scripts/field.ts`) is the homepage's WebGL
-  topography. It never loads under 768px or without WebGL, it cancels its
-  frame loop offscreen, and it reads its palette from CSS tokens — which is
-  why the theme toggle has to tell it when they change. `src/lib/ramp.ts`
-  exists so the client never reaches `lib/data.ts`, which imports `node:fs`.
+- The Friction Field (`src/scripts/field.ts`) is a WebGL topography. It is
+  **not on the homepage** — a spatial overview belongs after the reader knows
+  what a problem is. It never loads under 900px or without WebGL, its import
+  is gated behind an IntersectionObserver as well as its frame loop, and it
+  reads its palette from CSS tokens, which is why the theme toggle has to tell
+  it when they change. `src/lib/ramp.ts` exists so the client never reaches
+  `lib/data.ts`, which imports `node:fs`.
+- **Patterns are the answer layer.** `src/lib/patterns.ts` groups active
+  problems by category; three or more apps makes a pattern. Computed at build
+  time from the committed problems rather than stored as a derived file, so
+  it cannot drift from what it summarises.
+- **`data/gaps.json` is the only written content on the site.** One sentence
+  per pattern, produced by the prompted step in `scripts/gap-prompt.md` — the
+  same way extraction is prompted rather than called from the build. It is
+  labelled "written" everywhere it appears. Every other value is extracted
+  from a review or computed in `scoring.ts`.
 - Avoid the generated-page tells named in the spec: tracked-out all-caps
   eyebrows, middle-dot metadata, arrows after link text, identical rounded cards
   with soft grey shadows, 01/02/03 markers, gradient washes.

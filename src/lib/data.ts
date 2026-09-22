@@ -53,6 +53,21 @@ export const getProducts = memo((): Product[] => {
 });
 
 /** Runs newest first. */
+/**
+ * The written gap lines. Separate from the computed data on purpose: this is
+ * the only file on the site whose contents a model wrote rather than
+ * extracted or computed, and keeping it in its own file is what makes that
+ * visible in the repository rather than only on the page.
+ */
+export const getGaps = memo((): Record<string, { line: string; writtenBy: string; writtenAt: string }> => {
+  const path = join(DATA, 'gaps.json');
+  if (!existsSync(path)) return {};
+  const parsed = JSON.parse(readFileSync(path, 'utf8')) as {
+    gaps?: Record<string, { line: string; writtenBy: string; writtenAt: string }>;
+  };
+  return parsed.gaps ?? {};
+});
+
 export const getRuns = memo((): Run[] => {
   const path = join(DATA, 'runs.json');
   if (!existsSync(path)) return [];

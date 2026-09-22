@@ -58,9 +58,8 @@ const atX = (iso: string) =>
           {
             runs.length === 1 ? (
               <p class="sparse">
-                One scan so far, on{' '}
-                <time datetime={runs[0]!.date}>{formatDate(runs[0]!.date)}</time>. This page gets
-                more useful every week.
+                One weekly check so far, on{' '}
+                <time datetime={runs[0]!.date}>{formatDate(runs[0]!.date)}</time>.
               </p>
             ) : (
               <p class="sparse num">

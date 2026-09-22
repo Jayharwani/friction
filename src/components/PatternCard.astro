@@ -1,0 +1,204 @@
+---
+/**
+ * One cross-app pattern.
+ *
+ * The row of app icons is what carries the argument. Seven icons in a line
+ * says "this is everywhere" faster than any sentence, and every icon is an
+ * app the reader recognises.
+ */
+import type { Pattern } from '../lib/patterns';
+import { url } from '../lib/url';
+import { getProduct } from '../lib/data';
+import GapBlock from './GapBlock.astro';
+import AppIcon from './AppIcon.astro';
+
+interface Props {
+  pattern: Pattern;
+  trackedApps: number;
+  /** Compact: the homepage bento. Full: the patterns page. */
+  compact?: boolean;
+}
+
+const { pattern, trackedApps, compact = false } = Astro.props;
+
+const apps = pattern.apps.map((slug) => ({
+  slug,
+  name: getProduct(slug)?.name ?? slug,
+}));
+---
+
+<article class="pattern" data-chart data-compact={compact ? '' : undefined}>
+  <header>
+    <h3>{pattern.category}</h3>
+    <p class="reach num">
+      <span class="big">{pattern.apps.length}</span> of {trackedApps} apps
+    </p>
+  </header>
+
+  <ul class="icons" aria-label={`Apps with this pattern: ${apps.map((a) => a.name).join(', ')}`}>
+    {
+      apps.map((a, i) => (
+        <li class="ch-pop" style={`--ch-i:${i}; --ch-step:40ms`}>
+          <AppIcon slug={a.slug} name={a.name} size={compact ? 26 : 34} />
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="bar" aria-hidden="true">
+    <span class="fill ch-wipe" style={`--w:${(pattern.reach * 100).toFixed(0)}%`} />
+  </p>
+
+  <dl class="figs num">
+    <div>
+      <dt>Problems</dt>
+      <dd>{pattern.problemCount}</dd>
+    </div>
+    <div>
+      <dt>Reviewers</dt>
+      <dd>{pattern.reviewers}</dd>
+    </div>
+  </dl>
+
+  {
+    !compact && (
+      <>
+        <ul class="examples">
+          {pattern.examples.map((e) => (
+            <li>
+              <a href={url(`/problems/${e.slug}`)}>
+                <span class="e-title">{e.title}</span>
+                <span class="e-meta num">
+                  {getProduct(e.productSlug)?.name ?? e.productSlug} · {e.score}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <GapBlock
+          workarounds={pattern.workarounds}
+          existing={pattern.existing}
+          gap={pattern.gap}
+          subject="this pattern"
+        />
+      </>
+    )
+  }
+</article>
+
+<style>
+  .pattern {
+    padding: var(--space-lg);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: 10px;
+    background: var(--color-paper-2);
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  [data-compact] h3 {
+    font-size: var(--text-md);
+  }
+
+  .reach {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .big {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  /* ---- the icon row: the argument ---- */
+
+  .icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    margin: var(--space-md) 0 0;
+    padding: 0;
+  }
+
+  .bar {
+    height: 0.3rem;
+    margin: var(--space-md) 0 0;
+    border-radius: 2px;
+    background: var(--color-paper-3);
+    overflow: hidden;
+  }
+
+  .fill {
+    display: block;
+    height: 100%;
+    width: var(--w);
+    background: var(--color-accent);
+    transform-origin: left;
+  }
+
+  .figs {
+    display: flex;
+    gap: var(--space-xl);
+    margin: var(--space-md) 0 0;
+  }
+
+  .figs dt {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .figs dd {
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  /* ---- examples ---- */
+
+  .examples {
+    list-style: none;
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+  }
+
+  .examples li + li {
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .examples a {
+    display: grid;
+    gap: 2px;
+    padding: var(--space-xs) 0;
+    text-decoration: none;
+  }
+
+  .examples a:hover .e-title,
+  .examples a:focus-visible .e-title {
+    color: var(--color-accent);
+  }
+
+  .e-title {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .e-meta {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+</style>
