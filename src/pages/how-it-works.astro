@@ -985,6 +985,32 @@ const componentMeaning: Record<string, string> = {
     outline-offset: 2px;
   }
 
+  /*
+   * The same open as the score disclosure, so the site has one way of
+   * opening a panel rather than two. Chromium-only and behind @supports;
+   * everywhere else it opens instantly, which is a fine outcome for a
+   * panel whose whole job is to be skippable.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
+      .method {
+        interpolate-size: allow-keywords;
+      }
+
+      .method::details-content {
+        block-size: 0;
+        overflow: hidden;
+        transition:
+          block-size var(--dur-short) var(--ease-out),
+          content-visibility var(--dur-short) allow-discrete;
+      }
+
+      .method[open]::details-content {
+        block-size: auto;
+      }
+    }
+  }
+
   .method-body {
     padding-bottom: var(--space-2xl);
   }

@@ -11,8 +11,8 @@
      text at 320, 375, 414, 768, 1280 or 1920
    · targets: every button and select clears 44px at (pointer: coarse);
      nav links and standalone links too; inline links exempt by design
-   · motion: the nine moments in the pass-3 inventory, nothing else; all
-     ten CSS animations sit inside prefers-reduced-motion: no-preference
+   · motion: the eleven moments in the inventory below, nothing else;
+     every one sits inside prefers-reduced-motion: no-preference
    · honest: pass (46) · chrome: pass (47) · tokens: pass (48)
    · icons: pass (30) — the site uses no icon library; app artwork is the
      apps' own, unaltered, served locally, with a non-affiliation notice
@@ -431,22 +431,49 @@ body::after {
 /* ===================================================================
    Motion inventory
 
-   Six moments move on this site, and nothing else does. Adding a seventh
-   is a decision, not a detail.
+   Eleven moments move on this site, and nothing else does. Adding a
+   twelfth is a decision, not a detail. Counted against the source, not
+   remembered: every entry below is one guarded block you can go and read.
 
      1  The field settles on load, column by column, once.
+        src/scripts/field.ts
      2  The field drifts, and leans toward the pointer. Both are capped
         at a few degrees and both stop when it scrolls out of view.
+        src/scripts/field.ts
      3  The statement, its line beneath, and the proof row rise once as
         the page paints. @starting-style, no scroll trigger.
+        src/pages/index.astro
      4  The header takes a backdrop past 64px of scroll.
+        src/layouts/Layout.astro
      5  A problem title carries between the list and its own page.
-     6  The score disclosure opens, its bars growing from zero.
+        Astro view transitions, src/layouts/Layout.astro
+     6  A disclosure opens, its height interpolating from zero. The score
+        panel's bars grow with it; the full-methodology panel does not,
+        because it holds prose and prose should not arrive in pieces.
+        src/components/ScoreDisclosure.astro, src/pages/how-it-works.astro
+     7  A chart's marks rise or wipe in as it first comes into view,
+        staggered by index.
+        src/styles/charts.css
+     8  The explainer's excerpts land, then move into their groups.
+        src/components/Explainer.astro
+     9  The hero card cross-fades between three real problems every six
+        seconds, and stops on hover, on focus, and in a background tab.
+        src/components/HeroCard.astro
+    10  A card lifts 2px under the pointer.
+        src/components/ProblemCard.astro
+    11  Filtered cards travel to their new positions rather than
+        appearing in them. FLIP, Web Animations API.
+        src/scripts/problem-filters.ts, src/scripts/apps-controls.ts
 
-   Everything is transform or opacity, except the disclosure's height,
+   The command palette's own entry is part of moment 6's vocabulary: it
+   is the same short fade, and it is listed here so the count is honest.
+   src/components/CommandPalette.astro
+
+   Everything is transform or opacity, except the disclosures' height,
    which no other property can express. Three easings, three durations,
    all named below. Every one of them is declared inside
-   `prefers-reduced-motion: no-preference`.
+   `prefers-reduced-motion: no-preference`, so under a reduced-motion
+   preference these do not exist rather than being overridden.
    =================================================================== */
 
 /* ===================================================================
