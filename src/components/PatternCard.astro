@@ -50,11 +50,11 @@ const iconSize = compact ? 34 : 56;
 const reachPct = Math.round(pattern.reach * 100);
 ---
 
-<article class="pattern" data-family={family} data-chart data-glyph-draw data-compact={compact ? '' : undefined}>
+<article class="pattern" data-family={family} data-chart data-compact={compact ? '' : undefined}>
   {/* ---------- 1. the claim ---------- */}
   <div class="claim">
     <div class="headline">
-      <p class="fam">
+      <p class="fam" data-glyph-draw>
         <CategoryGlyph family={family} size={compact ? 16 : 20} />
         <span>{FAMILY_LABEL[family]}</span>
       </p>
@@ -65,21 +65,21 @@ const reachPct = Math.round(pattern.reach * 100);
       </p>
     </div>
 
-    <ul class="icons" aria-label={`Apps with this pattern: ${apps.map((a) => a.name).join(', ')}`}>
+    {/*
+      The row animates once, as a row. Animating each icon put a transform on
+      eight images at the same moment, which is eight compositor layers built
+      in one frame — measured as the page's longest frames. It is also the
+      wrong reading: the group is the argument, not the individual apps.
+    */}
+    <ul class="icons ch-rise" aria-label={`Apps with this pattern: ${apps.map((a) => a.name).join(', ')}`}>
       {
-        shown.map((a, i) => (
-          <li class="ch-pop" style={`--ch-i:${i}; --ch-step:40ms`}>
+        shown.map((a) => (
+          <li>
             <AppIcon slug={a.slug} name={a.name} size={iconSize} />
           </li>
         ))
       }
-      {
-        overflow > 0 && (
-          <li class="more num" style={`--ch-i:${shown.length}; --ch-step:40ms`} aria-hidden="true">
-            +{overflow}
-          </li>
-        )
-      }
+      {overflow > 0 && <li class="more num" aria-hidden="true">+{overflow}</li>}
     </ul>
   </div>
 
@@ -130,7 +130,13 @@ const reachPct = Math.round(pattern.reach * 100);
 </article>
 
 <style>
+  /*
+   * Contained. Revealing a card sets an attribute on it, and without
+   * containment that invalidates style and layout for the whole page —
+   * measured as the longest frames on this page while scrolling.
+   */
   .pattern {
+    contain: layout style paint;
     padding: var(--space-lg);
     border: var(--rule-hair) solid var(--cat-edge);
     border-radius: 12px;
@@ -216,13 +222,18 @@ const reachPct = Math.round(pattern.reach * 100);
    * Overlap by about a third. The ring is the card's own tint rather than
    * paper, so the icons read as sitting on this card and not floating.
    */
+  /*
+   * The separating ring is a border, not a box-shadow. Sixty-four shadowed
+   * boxes on one page is real paint work every frame they are on screen;
+   * a border is part of the box the browser was already painting.
+   */
   .icons li {
     /* -0.3em against the icon's own size is a clean 30% overlap at any size. */
     margin-left: -0.3em;
     font-size: var(--icon-size);
     line-height: 0;
-    border-radius: 24%;
-    box-shadow: 0 0 0 3px var(--cat-tint);
+    border: 3px solid var(--cat-tint);
+    border-radius: 26%;
   }
 
   .icons li:first-child {
@@ -250,10 +261,10 @@ const reachPct = Math.round(pattern.reach * 100);
     font-size: var(--text-sm);
     font-weight: 600;
     line-height: 1;
-    border-radius: 24%;
+    border: 3px solid var(--cat-tint);
+    border-radius: 26%;
     background: color-mix(in oklch, var(--cat) 24%, var(--color-paper));
     color: var(--color-ink);
-    box-shadow: 0 0 0 3px var(--cat-tint);
   }
 
   /* ---- 2. the reach ---- */

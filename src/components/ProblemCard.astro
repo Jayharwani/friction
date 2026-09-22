@@ -33,7 +33,6 @@ const family = familyOf(problem.category);
 <article
   class="card"
   data-family={family}
-  data-glyph-draw
   data-problem={filterable ? '' : undefined}
   data-app={problem.productSlug}
   data-category={problem.category}
@@ -47,7 +46,7 @@ const family = familyOf(problem.category);
     <AppIcon slug={problem.productSlug} name={product?.name ?? problem.productSlug} size={32} />
     <div class="who">
       <p class="app">{product?.name ?? problem.productSlug}</p>
-      <p class="cat">
+      <p class="cat" data-glyph-draw>
         <CategoryGlyph family={family} size={15} />
         {problem.category}
       </p>
@@ -79,6 +78,8 @@ const family = familyOf(problem.category);
    * hairline is what made every card look identical.
    */
   .card {
+    /* See the note in PatternCard: a reveal must not invalidate the page. */
+    contain: layout style paint;
     position: relative;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
