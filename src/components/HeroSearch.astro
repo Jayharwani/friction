@@ -125,17 +125,20 @@ const families = FAMILIES.map((family) => ({
     color: var(--color-ink);
   }
 
+  /*
+   * The interface face, not Newsreader. The serif belongs to reviewers'
+   * own words; using it here spends the one distinction the site has
+   * between what people said and what the site says.
+   */
   .line-2 {
     justify-self: center;
     max-width: 100%;
-    font-family: var(--font-quote);
-    font-style: italic;
-    font-weight: 400;
+    font-weight: 300;
     font-size: clamp(2rem, 0.9rem + 4.2vw, 3.8rem);
     line-height: 1.08;
     letter-spacing: -0.012em;
     padding: 0.08em 0.5em 0.18em;
-    border-radius: 14px;
+    border-radius: var(--r-card);
     color: var(--color-ink);
     background: linear-gradient(
       180deg,
@@ -154,7 +157,7 @@ const families = FAMILIES.map((family) => ({
     margin-top: var(--space-2xl);
     padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-lg);
     border: var(--rule-hair) solid var(--color-rule);
-    border-radius: 14px;
+    border-radius: var(--r-card);
     background: var(--color-paper-2);
   }
 
@@ -200,7 +203,7 @@ const families = FAMILIES.map((family) => ({
     width: 2.25rem;
     height: 2.25rem;
     border: 0;
-    border-radius: 10px;
+    border-radius: var(--r-card);
     background: var(--color-accent);
     color: var(--color-paper);
     cursor: pointer;
@@ -213,7 +216,7 @@ const families = FAMILIES.map((family) => ({
     margin-top: var(--space-sm);
     text-align: start;
     border: var(--rule-hair) solid var(--color-rule);
-    border-radius: 12px;
+    border-radius: var(--r-card);
     background: var(--color-paper-2);
     overflow: hidden;
   }
@@ -293,7 +296,7 @@ const families = FAMILIES.map((family) => ({
     color: var(--color-ink);
     text-decoration: none;
     border: var(--rule-hair) solid var(--color-rule);
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     background: var(--color-paper-2);
   }
 

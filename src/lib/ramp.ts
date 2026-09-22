@@ -12,6 +12,8 @@ export interface FieldRow {
   app: string;
   /** One count per week, oldest first. */
   counts: number[];
+  /** The problem's category, so the matrix can take its family's hue. */
+  category: string;
 }
 
 export interface FieldData {

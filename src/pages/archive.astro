@@ -3,21 +3,14 @@
  * Archive (spec 6.1): every run from runs.json with funnel numbers, newest first.
  */
 import Layout from '../layouts/Layout.astro';
-import Funnel from '../components/charts/Funnel.astro';
 import CoverageGrid from '../components/charts/CoverageGrid.astro';
+import RunCard from '../components/table/RunCard.astro';
 import { url } from '../lib/url';
 import { formatDate, getProduct, getRuns } from '../lib/data';
 import { CANDIDATE_CAP } from '../../scripts/validate';
 
 const runs = getRuns();
 
-/*
- * The comparison table below is hidden until there is something to compare.
- * With a single scan every figure in it is already on the page: the funnel
- * carries Read through Carried, and the scan's own header carries tracked
- * and new. It earns its place the moment a second scan exists.
- */
-const showComparison = runs.length >= 2;
 
 // Newest first for reading; the timeline runs oldest to newest.
 const byDate = [...runs].sort((a, b) => a.date.localeCompare(b.date));
@@ -79,29 +72,38 @@ const atX = (iso: string) =>
 
           <ol class="runs">
             {
-              [...runs].map((run) => (
-                <li>
-                  <p class="run-date num">
-                    <time datetime={run.date}>{formatDate(run.date)}</time>
-                    <span class="run-added">
-                      {run.problemsTotal ?? 0} tracked
-                      {run.problemsNew ? `, ${run.problemsNew} new` : ''}
-                    </span>
-                  </p>
-                  <div class="run-body">
-                    <Funnel
-                      compact
+              [...runs].map((run, i) => {
+                const prev = runs[i + 1];
+                return (
+                  <li>
+                    <RunCard
+                      date={run.date}
                       stages={[
                         { label: 'Read', value: run.funnel.fetched.total },
                         { label: 'Screened', value: run.funnel.screened.total },
                         { label: 'Complaints', value: run.funnel.filtered.total },
                         { label: 'Carried', value: run.funnel.capped.total },
                       ]}
+                      problems={run.problemsTotal ?? 0}
+                      fresh={run.problemsNew ?? 0}
+                      coverage={{
+                        ok: run.products.filter((x) => x.playOk).length,
+                        of: run.products.length,
+                      }}
+                      delta={
+                        prev
+                          ? {
+                              problems: (run.problemsTotal ?? 0) - (prev.problemsTotal ?? 0),
+                              fetched: run.funnel.fetched.total - prev.funnel.fetched.total,
+                            }
+                          : undefined
+                      }
+                      connected={i < runs.length - 1}
                     />
                     <CoverageGrid run={run} names={(slug) => getProduct(slug)?.name ?? slug} />
-                  </div>
-                </li>
-              ))
+                  </li>
+                );
+              })
             }
           </ol>
         </section>
@@ -171,43 +173,7 @@ const atX = (iso: string) =>
           }
         </section>
 
-        <div class="scroller bleed" hidden={!showComparison}>
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">Scan</th>
-                <th scope="col" class="n">Read</th>
-                <th scope="col" class="n">Screened</th>
-                <th scope="col" class="n">Complaints</th>
-                <th scope="col" class="n">Carried</th>
-                <th scope="col" class="n">Problems</th>
-                <th scope="col" class="n">New</th>
-                <th scope="col">Play coverage</th>
-              </tr>
-            </thead>
-            <tbody>
-              {runs.map((run) => {
-                const withPlay = run.products.filter((p) => p.playOk).length;
-                return (
-                  <tr>
-                    <th scope="row">
-                      <time datetime={run.date}>{formatDate(run.date)}</time>
-                    </th>
-                    <td class="n num">{run.funnel.fetched.total.toLocaleString('en-GB')}</td>
-                    <td class="n num">{run.funnel.screened.total.toLocaleString('en-GB')}</td>
-                    <td class="n num">{run.funnel.filtered.total.toLocaleString('en-GB')}</td>
-                    <td class="n num">{run.funnel.capped.total}</td>
-                    <td class="n num">{run.problemsTotal ?? '—'}</td>
-                    <td class="n num">{run.problemsNew ?? '—'}</td>
-                    <td class="num">
-                      {withPlay} of {run.products.length} apps
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+
       )
     }
 

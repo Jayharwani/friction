@@ -1,0 +1,295 @@
+---
+/**
+ * Two things held against each other, in one block with one header rule.
+ *
+ * Two shapes, because the site has two comparisons and they are not the same
+ * question:
+ *
+ *   matrix — the same rows in both columns, each cell present or absent.
+ *            The asymmetry is the argument: five filled against three is a
+ *            thing you see, where two lists side by side is a thing you have
+ *            to diff yourself.
+ *   lists  — each column has its own items. Used where the two sides are
+ *            genuinely different sets, not two states of one set.
+ *
+ * A present cell is a filled mark, an absent one is an outline. Never a word:
+ * "supplied" and "not supplied" down a column is the spec sheet again.
+ */
+export interface CompareColumn {
+  label: string;
+  /** Set large at the head of the column — "5 of 5 fields". */
+  figure?: string;
+  sub?: string;
+  /** lists mode: this column's own items. */
+  items?: string[];
+  /** Renders this column's items struck and muted. */
+  negated?: boolean;
+  /** A drawn mark set beside the column label. */
+  mark?: string[];
+}
+
+export interface CompareRow {
+  label: string;
+  /** matrix mode: one state per column, in column order. */
+  states: Array<{ on: boolean; note?: string }>;
+}
+
+interface Props {
+  mode?: 'matrix' | 'lists';
+  columns: CompareColumn[];
+  rows?: CompareRow[];
+  caption?: string;
+}
+
+const { mode = 'matrix', columns, rows = [], caption } = Astro.props;
+---
+
+<div class:list={['compare', `is-${mode}`]} data-chart style={`--cols:${columns.length}`}>
+  <div class="head">
+    <span class="head-spacer" aria-hidden="true"></span>
+    {
+      columns.map((c, i) => (
+        <div class="col-head" data-negated={c.negated ? '' : undefined} style={`--col-i:${i}`}>
+          {c.mark && (
+            <svg class="c-mark" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              {c.mark.map((d) => <path d={d} />)}
+            </svg>
+          )}
+          <span class="c-label">{c.label}</span>
+          {c.figure && <span class="c-figure num">{c.figure}</span>}
+          {c.sub && <span class="c-sub">{c.sub}</span>}
+        </div>
+      ))
+    }
+  </div>
+
+  {
+    mode === 'matrix' ? (
+      <ol class="rows">
+        {rows.map((r, ri) => (
+          <li style={`--row-i:${ri}`}>
+            <span class="r-label">{r.label}</span>
+            {r.states.map((st, ci) => (
+              <span class="state" data-on={st.on ? '' : undefined} style={`--col-i:${ci}`}>
+                <span class="mark" aria-hidden="true" />
+                <span class="sr-only">
+                  {columns[ci]?.label}: {st.on ? 'supplied' : 'not supplied'}.
+                </span>
+                {st.note && <span class="r-note">{st.note}</span>}
+              </span>
+            ))}
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <div class="lists">
+        {columns.map((c, ci) => (
+          <ul data-negated={c.negated ? '' : undefined} style={`--col-i:${ci}`}>
+            {(c.items ?? []).map((item, ii) => (
+              <li style={`--row-i:${ii}`}>
+                <span class="mark" aria-hidden="true" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
+    )
+  }
+
+  {caption && <p class="ch-caption">{caption}</p>}
+</div>
+
+<style>
+  .compare {
+    margin-top: var(--space-lg);
+    padding: var(--space-lg);
+    border-radius: var(--r-card);
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+  }
+
+  /* ---- the one header rule ---- */
+
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) repeat(var(--cols), minmax(0, 1fr));
+    gap: var(--space-md);
+    padding-bottom: var(--space-md);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .is-lists .head {
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  }
+
+  .is-lists .head-spacer {
+    display: none;
+  }
+
+  .col-head {
+    display: grid;
+    gap: var(--space-3xs);
+    align-content: start;
+  }
+
+  .c-mark {
+    color: var(--color-accent);
+  }
+
+  [data-negated] .c-mark {
+    color: var(--color-neutral);
+  }
+
+  .c-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  /* The count is the column's headline, not a note in its corner. */
+  .c-figure {
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .c-sub {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  /* ---- matrix ---- */
+
+  .rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .rows li {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) repeat(var(--cols), minmax(0, 1fr));
+    gap: var(--space-md);
+    align-items: center;
+    padding-block: var(--space-sm);
+  }
+
+  /* Banding, not a rule under every row. */
+  .rows li:nth-child(even) {
+    background: color-mix(in oklab, var(--color-paper-3) 40%, transparent);
+    border-radius: var(--r-cell);
+    margin-inline: calc(var(--space-2xs) * -1);
+    padding-inline: var(--space-2xs);
+  }
+
+  .r-label {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .state {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  /*
+   * Present is a filled mark, absent is an outline. Not the words "supplied"
+   * and "not supplied" — a column of words is the spec sheet this replaced.
+   */
+  .mark {
+    flex: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-neutral);
+  }
+
+  [data-on] .mark {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .r-note {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---- lists ---- */
+
+  .lists {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+  }
+
+  .lists ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-xs);
+    align-content: start;
+  }
+
+  .lists li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-xs);
+    align-items: baseline;
+    font-size: var(--text-sm);
+  }
+
+  .lists .mark {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    translate: 0 -0.1em;
+  }
+
+  [data-negated] .mark {
+    background: none;
+    border-color: var(--color-neutral);
+  }
+
+  [data-negated] li > span:last-child {
+    color: var(--color-muted);
+    text-decoration: line-through;
+    text-decoration-color: color-mix(in oklab, var(--color-muted) 55%, transparent);
+  }
+
+  @media (max-width: 40rem) {
+    .head,
+    .rows li {
+      grid-template-columns: minmax(0, 1fr) repeat(var(--cols), auto);
+      gap: var(--space-sm);
+    }
+
+    .lists {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .r-note {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-chart][data-revealed]) .mark {
+      animation: mark-in var(--dur-short) var(--ease-out) backwards;
+      animation-delay: calc(var(--row-i, 0) * 40ms + var(--col-i, 0) * 60ms);
+    }
+  }
+
+  @keyframes mark-in {
+    from {
+      opacity: 0;
+      scale: 0.5;
+    }
+  }
+</style>

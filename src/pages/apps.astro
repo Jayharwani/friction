@@ -287,7 +287,7 @@ const TABLE_COLUMNS = [
     color: var(--color-ink);
     background: var(--color-paper-2);
     border: var(--rule-hair) solid var(--color-rule);
-    border-radius: 4px;
+    border-radius: var(--r-cell);
     padding: var(--space-2xs) var(--space-xs);
   }
 
@@ -397,6 +397,17 @@ const TABLE_COLUMNS = [
   /* The row is the positioning context its stretched link needs. */
   :global([data-row]) {
     position: relative;
+  }
+
+  /* The icon leans in with the row. Scale only — a composited property. */
+  @media (prefers-reduced-motion: no-preference) {
+    .app-cell :global(img) {
+      transition: scale var(--dur-micro) var(--ease-out);
+    }
+
+    :global([data-row]:hover) .app-cell :global(img) {
+      scale: 1.06;
+    }
   }
 
   .note {

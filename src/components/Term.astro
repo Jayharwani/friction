@@ -48,7 +48,7 @@ const { label, definition } = Astro.props;
   button:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--r-cell);
   }
 
   .def {
@@ -62,7 +62,7 @@ const { label, definition } = Astro.props;
     background: var(--color-paper-3);
     color: var(--color-ink);
     border: var(--rule-hair) solid var(--color-rule);
-    border-radius: 6px;
+    border-radius: var(--r-cell);
     font-size: var(--text-xs);
     font-weight: 400;
     line-height: 1.45;

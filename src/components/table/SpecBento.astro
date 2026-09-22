@@ -1,0 +1,203 @@
+---
+/**
+ * A table of weighted things, where the layout is the diagram.
+ *
+ * Each row becomes a card, and the card's width on a twelve-column grid is
+ * derived from its weight — the heaviest component is the widest tile, the
+ * lightest are the narrowest. The encoding is honest: bigger really does
+ * mean more, which is the whole reason this shape beats the seven-row
+ * hairline table it replaced.
+ *
+ * A floor of three columns stops the 5% tile collapsing into something
+ * unreadable, so the bottom of the scale is compressed. The arc and the
+ * figure carry the exact value, and the caption sums them, so nothing
+ * depends on reading width precisely.
+ */
+export interface BentoItem {
+  key: string;
+  label: string;
+  /** 0–1. What the card is sized and filled by. */
+  weight: number;
+  note: string;
+}
+
+interface Props {
+  items: BentoItem[];
+  /** Set beneath the grid so a reader can check the weights total. */
+  caption?: string;
+}
+
+const { items, caption } = Astro.props;
+
+const COLS = 12;
+const cards = items.map((item, i) => ({
+  ...item,
+  i,
+  pct: Math.round(item.weight * 100),
+  /* Floor of 3 so the lightest tile is still a card and not a sliver. */
+  span: Math.max(3, Math.round(item.weight * 20)),
+  /* The arc is a circle with pathLength 100, so the dash is the percentage. */
+  fill: Math.round(item.weight * 100),
+}));
+
+const total = cards.reduce((n, c) => n + c.pct, 0);
+---
+
+<div class="bento" data-chart style={`--cols:${COLS}`}>
+  {
+    cards.map((c) => (
+      <article class="tile ch-rise" style={`--span:${c.span}; --ch-i:${c.i}; --ch-step:40ms; --fill:${c.fill}`}>
+        <p class="pct num">
+          {c.pct}
+          <span class="sign">%</span>
+        </p>
+
+        <span class="arc" aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="34" height="34">
+            <circle class="track" cx="18" cy="18" r="16" pathLength="100" />
+            <circle class="fill" cx="18" cy="18" r="16" pathLength="100" />
+          </svg>
+        </span>
+
+        <h3>{c.label}</h3>
+        <p class="note">{c.note}</p>
+      </article>
+    ))
+  }
+</div>
+
+{caption && <p class="sum num ch-caption">{caption} They total {total}%.</p>}
+
+<style>
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    gap: var(--space-2xs);
+    margin-top: var(--space-lg);
+  }
+
+  .tile {
+    position: relative;
+    grid-column: span var(--span);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-content: start;
+    gap: var(--space-3xs) var(--space-sm);
+    padding: var(--space-md);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--r-card);
+    background: var(--color-paper-2);
+  }
+
+  /* Under 46rem the encoding cannot survive; the cards stack and the figure
+     carries the value on its own. */
+  @media (max-width: 46rem) {
+    .bento {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .tile {
+      grid-column: span 1;
+    }
+  }
+
+  /* The figure is the point of the card, so it is the biggest thing on it. */
+  .pct {
+    grid-column: 1;
+    font-size: clamp(1.9rem, 1.2rem + 1.6vw, 2.7rem);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+  }
+
+  .sign {
+    font-size: 0.42em;
+    font-weight: 500;
+    margin-left: 0.1em;
+    color: var(--color-muted);
+  }
+
+  .arc {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: start;
+  }
+
+  .arc svg {
+    display: block;
+    overflow: visible;
+  }
+
+  .track,
+  .fill {
+    fill: none;
+    stroke-width: 3;
+  }
+
+  .track {
+    stroke: var(--color-paper-3);
+  }
+
+  .fill {
+    stroke: var(--color-accent);
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--fill));
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+
+  h3 {
+    grid-column: 1;
+    margin-top: var(--space-2xs);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .note {
+    grid-column: 1 / -1;
+    margin-top: var(--space-3xs);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  .sum {
+    margin-top: var(--space-md);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .tile {
+      transition:
+        translate var(--dur-micro) var(--ease-out),
+        border-color var(--dur-micro) var(--ease-out);
+    }
+
+    .tile:hover {
+      translate: 0 -2px;
+      border-color: color-mix(in oklab, var(--color-accent) 40%, var(--color-rule));
+    }
+
+    /* The arc completes on hover: the card shows its whole value when you
+       reach for it, and sits at its share when you do not. */
+    .fill {
+      transition: stroke-dashoffset var(--dur-short) var(--ease-out);
+    }
+
+    .tile:hover .fill {
+      stroke-dashoffset: 0;
+    }
+
+    :global([data-chart][data-revealed]) .fill {
+      animation: arc-in var(--dur-long) var(--ease-out) backwards;
+      animation-delay: calc(var(--ch-i, 0) * 40ms);
+    }
+  }
+
+  @keyframes arc-in {
+    from {
+      stroke-dashoffset: 100;
+    }
+  }
+</style>

@@ -1,0 +1,273 @@
+---
+/**
+ * One scan, as a card.
+ *
+ * It replaces two tables that each had exactly one data row — which is not a
+ * table, it is a record with rules drawn round it. The same figures are here,
+ * arranged so the funnel's attrition is the thing you see first.
+ *
+ * The multi-run state is designed now rather than in three weeks: cards stack
+ * on a vertical rule, and every card after the first carries a delta chip
+ * against the scan before it. With one scan the rule and the chips simply do
+ * not render, so the page grows into its own layout instead of being
+ * redesigned when the second scan lands.
+ */
+import { formatDate } from '../../lib/data';
+
+export interface RunStage {
+  label: string;
+  value: number;
+}
+
+interface Props {
+  date: string;
+  stages: RunStage[];
+  problems: number;
+  fresh: number;
+  /** Apps returning Play data, out of all tracked. */
+  coverage: { ok: number; of: number };
+  /** Against the previous scan, when there is one. */
+  delta?: { problems: number; fetched: number };
+  /** Draws the connector to the card below. */
+  connected?: boolean;
+}
+
+const { date, stages, problems, fresh, coverage, delta, connected = false } = Astro.props;
+
+const top = Math.max(1, ...stages.map((s) => s.value));
+const bars = stages.map((s, i) => ({
+  ...s,
+  i,
+  /* Linear, not logarithmic. 150 of 9,994 is one and a half per cent, and a
+     bar that is one and a half per cent wide is the honest picture. */
+  pct: (s.value / top) * 100,
+  share: Math.round((s.value / top) * 100),
+}));
+
+const ring = coverage.of > 0 ? Math.round((coverage.ok / coverage.of) * 100) : 0;
+---
+
+<article class="run-card" data-chart data-connected={connected ? '' : undefined}>
+  <header>
+    <p class="when num">
+      <time datetime={date}>{formatDate(date)}</time>
+    </p>
+
+    {
+      delta && (
+        <p class="delta num" data-dir={delta.problems >= 0 ? 'up' : 'down'}>
+          {delta.problems >= 0 ? '+' : ''}
+          {delta.problems} problems since the last scan
+        </p>
+      )
+    }
+  </header>
+
+  <ol class="funnel">
+    {
+      bars.map((b) => (
+        <li style={`--ch-i:${b.i}; --ch-step:60ms`}>
+          <span class="bar ch-wipe" style={`--w:${b.pct.toFixed(2)}%`} aria-hidden="true" />
+          <span class="b-label">{b.label}</span>
+          <span class="b-value num">{b.value.toLocaleString('en-GB')}</span>
+          <span class="b-share num">{b.share}%</span>
+        </li>
+      ))
+    }
+  </ol>
+
+  <dl class="figs num">
+    <div>
+      <dt>Problems tracked</dt>
+      <dd>{problems}</dd>
+    </div>
+    <div>
+      <dt>New this scan</dt>
+      <dd>{fresh}</dd>
+    </div>
+    <div class="cov">
+      <dt>Play coverage</dt>
+      <dd>
+        <span class="ring" style={`--fill:${ring}`} aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="30" height="30">
+            <circle class="r-track" cx="18" cy="18" r="16" pathLength="100" />
+            <circle class="r-fill" cx="18" cy="18" r="16" pathLength="100" />
+          </svg>
+        </span>
+        <span>{coverage.ok} of {coverage.of}</span>
+      </dd>
+    </div>
+  </dl>
+</article>
+
+<style>
+  .run-card {
+    position: relative;
+    padding: var(--space-lg);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--r-card);
+    background: var(--color-paper-2);
+  }
+
+  /* The timeline. Drawn only when another card follows. */
+  [data-connected]::after {
+    content: '';
+    position: absolute;
+    left: var(--space-lg);
+    top: 100%;
+    width: var(--rule-hair);
+    height: var(--space-lg);
+    background: var(--color-rule);
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  .when {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .delta {
+    padding: var(--space-3xs) var(--space-2xs);
+    font-size: var(--text-xs);
+    border-radius: var(--r-pill);
+    background: var(--color-paper-3);
+    color: var(--color-muted);
+  }
+
+  [data-dir='up'] {
+    color: var(--color-accent);
+    background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+  }
+
+  /* ---- the funnel ---- */
+
+  .funnel {
+    list-style: none;
+    margin: var(--space-lg) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .funnel li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: baseline;
+    gap: var(--space-2xs) var(--space-sm);
+  }
+
+  /*
+   * The bar is the row's background, and the labels sit on top of it. Four
+   * nested bars, tight, with no dead space between them.
+   */
+  .bar {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    height: 0.75rem;
+    width: var(--w);
+    min-width: 3px;
+    border-radius: var(--r-pill);
+    background: var(--color-accent);
+    transform-origin: left;
+  }
+
+  .funnel li:nth-child(2) .bar {
+    background: color-mix(in oklab, var(--color-accent) 72%, var(--color-paper-2));
+  }
+  .funnel li:nth-child(3) .bar {
+    background: color-mix(in oklab, var(--color-accent) 52%, var(--color-paper-2));
+  }
+  .funnel li:nth-child(4) .bar {
+    background: color-mix(in oklab, var(--color-accent) 38%, var(--color-paper-2));
+  }
+
+  .b-label {
+    grid-row: 2;
+    font-size: var(--text-xs);
+    font-weight: 600;
+  }
+
+  .b-value {
+    grid-row: 2;
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .b-share {
+    grid-row: 2;
+    min-width: 2.6em;
+    text-align: end;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  /* ---- figures ---- */
+
+  .figs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+    margin: var(--space-lg) 0 0;
+    padding-top: var(--space-lg);
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .figs dt {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .figs dd {
+    margin: var(--space-3xs) 0 0;
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .cov dd {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-md);
+  }
+
+  .r-track,
+  .r-fill {
+    fill: none;
+    stroke-width: 3.5;
+  }
+
+  .r-track {
+    stroke: var(--color-paper-3);
+  }
+
+  .r-fill {
+    stroke: var(--color-accent);
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--fill));
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-chart][data-revealed]) .r-fill {
+      animation: ring-in var(--dur-long) var(--ease-out) backwards;
+    }
+  }
+
+  @keyframes ring-in {
+    from {
+      stroke-dashoffset: 100;
+    }
+  }
+</style>

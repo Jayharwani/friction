@@ -1,0 +1,288 @@
+---
+/**
+ * Two categorical axes with a count at the intersection.
+ *
+ * Still a real `<table>` — the axes are headers and a screen reader needs
+ * them to be — but nothing about it looks like one. Cells are 28px squares
+ * on a 3px gap, and each *row* interpolates toward its own category hue, so
+ * a wall of identical grey cells becomes eight coloured bands you can read
+ * the structure of before you read a single label.
+ *
+ * Five steps, not a continuous scale: a reader can count five and cannot
+ * count a gradient, and the legend labels them with real counts rather than
+ * "fewer" and "more".
+ */
+import { familyOf, type Family } from '../../lib/categories';
+
+export interface MatrixRow {
+  /** The row's own label, and what it links to. */
+  label: string;
+  href?: string;
+  category: string;
+  /** One value per column, in column order. */
+  values: number[];
+}
+
+interface Props {
+  rows: MatrixRow[];
+  /** One label per column. */
+  columns: string[];
+  /** Shown on every third column; the rest are headers for AT only. */
+  columnEvery?: number;
+  rowHeader: string;
+  caption: string;
+}
+
+const { rows, columns, columnEvery = 3, rowHeader, caption } = Astro.props;
+
+const STEPS = 5;
+const peak = Math.max(1, ...rows.flatMap((r) => r.values));
+
+/** 0 is empty; everything else lands on one of four filled steps. */
+function step(v: number): number {
+  if (v <= 0) return 0;
+  return Math.max(1, Math.ceil((v / peak) * (STEPS - 1)));
+}
+
+const grid = rows.map((r) => ({
+  ...r,
+  family: familyOf(r.category) as Family,
+  cells: r.values.map((v, i) => ({ v, i, s: step(v) })),
+}));
+
+/* The legend's four filled steps, labelled with the counts they stand for. */
+const legend = Array.from({ length: STEPS - 1 }, (_, k) => {
+  const s = k + 1;
+  const lo = Math.max(1, Math.ceil(((s - 1) / (STEPS - 1)) * peak) + (s > 1 ? 1 : 0));
+  const hi = Math.ceil((s / (STEPS - 1)) * peak);
+  return { s, label: lo === hi ? `${hi}` : `${lo}–${hi}` };
+});
+---
+
+<figure class="matrix" data-chart>
+  <div class="scroll">
+    <table>
+      <caption class="sr-only">{caption}</caption>
+
+      <thead>
+        <tr>
+          <th scope="col" class="corner">
+            <span class="sr-only">{rowHeader}</span>
+          </th>
+          {
+            columns.map((c, i) => (
+              <th scope="col" class="col" aria-label={c}>
+                <span aria-hidden="true" class="col-l num">{i % columnEvery === 0 ? c : ''}</span>
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        {
+          grid.map((row, ri) => (
+            <tr data-family={row.family} style={`--row-i:${ri}`}>
+              <th scope="row" class="row-h">
+                {row.href ? <a href={row.href} title={row.label}>{row.label}</a> : <span title={row.label}>{row.label}</span>}
+              </th>
+
+              {row.cells.map((c) => (
+                <td class="cell" style={`--col-i:${c.i}`}>
+                  {row.href && c.v > 0 ? (
+                    <a
+                      class="dot"
+                      data-s={c.s}
+                      href={row.href}
+                      aria-label={`${row.label}, ${columns[c.i]}: ${c.v}`}
+                      title={`${columns[c.i]} · ${c.v}`}
+                    />
+                  ) : (
+                    <span class="dot" data-s={c.s} aria-hidden="true" />
+                  )}
+                  <span class="sr-only">{c.v}</span>
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <figcaption class="legend num">
+    <span class="l-label">Reviews in a week</span>
+    <span class="l-steps">
+      <span class="l-step"><span class="dot" data-s="0" aria-hidden="true" />0</span>
+      {legend.map((l) => (
+        <span class="l-step"><span class="dot" data-s={l.s} aria-hidden="true" />{l.label}</span>
+      ))}
+    </span>
+  </figcaption>
+</figure>
+
+<style>
+  .matrix {
+    margin: var(--space-lg) 0 0;
+  }
+
+  .scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 3px;
+  }
+
+  /* ---- headers ---- */
+
+  .corner,
+  .row-h {
+    position: sticky;
+    left: 0;
+    z-index: var(--z-raise);
+    background: var(--color-paper);
+  }
+
+  .row-h {
+    max-width: 15rem;
+    padding-right: var(--space-sm);
+    text-align: start;
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+
+  /*
+   * The label fills its row, so the target is the whole 28px band rather
+   * than the 19px the text happens to occupy. WCAG 2.5.8 AA asks 24px and
+   * exempts targets whose spacing is essential to the presentation — which
+   * a dense matrix is — so 28px is the floor here, not 44.
+   */
+  .row-h a,
+  .row-h span {
+    display: flex;
+    align-items: center;
+    min-height: 28px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .row-h a:hover,
+  .row-h a:focus-visible {
+    color: var(--cat);
+  }
+
+  .col {
+    padding: 0 0 var(--space-2xs);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--color-muted);
+    text-align: start;
+    white-space: nowrap;
+  }
+
+  /* ---- cells ---- */
+
+  .cell {
+    padding: 0;
+    width: 28px;
+  }
+
+  /*
+   * Each row interpolates from the page surface to its own category hue, so
+   * the matrix is eight coloured bands rather than one grey wall. oklab, not
+   * oklch: a polar mix from a cool surface to a warm hue arcs through purple.
+   */
+  .dot {
+    display: block;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--r-cell);
+    background: var(--color-paper-2);
+  }
+
+  [data-s='1'] {
+    background: color-mix(in oklab, var(--cat) 22%, var(--color-paper-2));
+  }
+  [data-s='2'] {
+    background: color-mix(in oklab, var(--cat) 45%, var(--color-paper-2));
+  }
+  [data-s='3'] {
+    background: color-mix(in oklab, var(--cat) 70%, var(--color-paper-2));
+  }
+  [data-s='4'] {
+    background: var(--cat);
+  }
+
+  a.dot {
+    cursor: pointer;
+  }
+
+  a.dot:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* ---- legend ---- */
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm) var(--space-lg);
+    margin-top: var(--space-md);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .l-steps {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .l-step {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+  }
+
+  /* The legend has no row to inherit a hue from, so it shows the UI accent. */
+  .legend .dot {
+    --cat: var(--color-accent);
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ---- motion ---- */
+
+  @media (prefers-reduced-motion: no-preference) {
+    a.dot,
+    span.dot {
+      transition: scale var(--dur-micro) var(--ease-out);
+    }
+
+    .cell:hover .dot {
+      scale: 1.15;
+    }
+
+    /* Columns wipe in left to right, once. */
+    :global([data-chart][data-revealed]) .dot {
+      animation: cell-in var(--dur-short) var(--ease-out) backwards;
+      animation-delay: calc(var(--col-i, 0) * 30ms);
+    }
+  }
+
+  @keyframes cell-in {
+    from {
+      opacity: 0;
+      scale: 0.7;
+    }
+  }
+</style>

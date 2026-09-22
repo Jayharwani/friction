@@ -51,6 +51,7 @@ export function buildField(
       slug: problem.slug,
       title: problem.title,
       app: appName(problem.productSlug),
+      category: problem.category,
       counts,
     });
   }

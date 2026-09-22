@@ -136,7 +136,7 @@ const familyMix = FAMILIES.map((family) => ({
   .icon {
     width: 3rem;
     height: 3rem;
-    border-radius: 10px;
+    border-radius: var(--r-card);
     flex: none;
     /* The artwork is the app's, not this site's: no filter, no overlay. */
     background: var(--color-paper-2);
@@ -224,7 +224,7 @@ const familyMix = FAMILIES.map((family) => ({
     gap: var(--space-3xs);
     padding: var(--space-3xs) var(--space-2xs);
     font-size: var(--text-xs);
-    border-radius: 6px;
+    border-radius: var(--r-cell);
     background: var(--cat-tint);
     border: var(--rule-hair) solid var(--cat-edge);
   }

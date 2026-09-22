@@ -190,6 +190,23 @@
   --z-nav: 10; /* the site header */
   --z-pop: 20; /* a glossary term's definition, over everything on the page */
 
+  /* -----------------------------------------------------------------
+     Shape. One scale, four values, and nothing else anywhere.
+
+       --r-card   panels, cards, bands, the search box
+       --r-cell   cells, chips, small fills, tiles inside a card
+       --r-pill   anything that reads as a pill, and only if interactive
+       --r-icon   app artwork, which is proportional rather than fixed
+
+     Twelve different radii were in use before this: 1, 2, 3, 4, 6, 8, 10,
+     12, 14, 26%, 50% and 999px. Mixed radii is the thing that makes a set
+     of components look like it was assembled rather than designed.
+     ----------------------------------------------------------------- */
+  --r-card: 12px;
+  --r-cell: 6px;
+  --r-pill: 999px;
+  --r-icon: 26%;
+
   --nav-h: 4.25rem;
   --page-gutter: clamp(1rem, 4vw, 3rem);
   --rule-hair: 1px;
@@ -335,7 +352,7 @@ a:hover {
 :focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 3px;
-  border-radius: 2px;
+  border-radius: var(--r-cell);
 }
 
 ::selection {
@@ -411,7 +428,7 @@ main:has(.runs-under-nav) {
 .panel {
   background: var(--color-paper-2);
   border: var(--rule-hair) solid var(--color-rule);
-  border-radius: 6px;
+  border-radius: var(--r-cell);
 }
 
 /* ===================================================================

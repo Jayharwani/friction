@@ -40,11 +40,13 @@ const EXEMPT_TAGS = ['script', 'style', 'svg', 'head', 'nav', 'footer', 'table',
 
 /**
  * Class names that mark an element as data: captions, figures, cards,
- * evidence, and the cells of a real data table. An app's name and its store
- * category are records, not sentences the site wrote.
+ * evidence, and the contents of a data component. An app's name, its store
+ * category and a component's one-line definition are records, not sentences
+ * the site wrote — they were exempt when they lived inside a <table> and
+ * they do not become prose by moving into a card.
  */
 const EXEMPT_CLASS =
-  /\b(?:ch-caption|num|quote|card|slide|listing|chips|plain|weights|evidence|sr-only|toc|wall|proof|w-body|gap|field|strip|axis|heat|spark|hist|flow|funnel|record|dots|cover|timeline|bar|scatter|panel|sum-note|meta|stat|app-cell|cat-cell|sig-|e-|f-|l-)/;
+  /\b(?:ch-caption|num|quote|card|slide|listing|chips|plain|weights|evidence|sr-only|toc|wall|proof|w-body|gap|field|strip|axis|heat|spark|hist|flow|funnel|record|dots|cover|timeline|bar|scatter|panel|sum-note|meta|stat|app-cell|cat-cell|bento|run-card|matrix|compare|sig-|e-|f-|l-)/;
 
 /**
  * Remove an element and everything inside it, matching tags rather than

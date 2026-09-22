@@ -139,7 +139,7 @@ const reachPct = Math.round(pattern.reach * 100);
     contain: layout style paint;
     padding: var(--space-lg);
     border: var(--rule-hair) solid var(--cat-edge);
-    border-radius: 12px;
+    border-radius: var(--r-card);
     background: var(--cat-tint);
   }
 
@@ -233,7 +233,7 @@ const reachPct = Math.round(pattern.reach * 100);
     font-size: var(--icon-size);
     line-height: 0;
     border: 3px solid var(--cat-tint);
-    border-radius: 26%;
+    border-radius: var(--r-icon);
   }
 
   .icons li:first-child {
@@ -262,7 +262,7 @@ const reachPct = Math.round(pattern.reach * 100);
     font-weight: 600;
     line-height: 1;
     border: 3px solid var(--cat-tint);
-    border-radius: 26%;
+    border-radius: var(--r-icon);
     background: color-mix(in oklch, var(--cat) 24%, var(--color-paper));
     color: var(--color-ink);
   }
@@ -277,7 +277,7 @@ const reachPct = Math.round(pattern.reach * 100);
     position: relative;
     height: 1.5rem;
     margin: var(--space-lg) 0 0;
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     background: color-mix(in oklch, var(--cat) 14%, var(--color-paper));
     overflow: hidden;
   }
@@ -289,7 +289,7 @@ const reachPct = Math.round(pattern.reach * 100);
     width: var(--w);
     min-width: fit-content;
     padding-inline: var(--space-sm);
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     background: var(--cat);
     transform-origin: left;
   }
