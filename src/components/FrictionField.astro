@@ -90,7 +90,29 @@ const payload = JSON.stringify(field);
   function hasWebGL(): boolean {
     try {
       const c = document.createElement('canvas');
-      return Boolean(c.getContext('webgl2') ?? c.getContext('webgl'));
+      const gl = c.getContext('webgl2') ?? c.getContext('webgl');
+      if (!gl) return false;
+
+      /*
+       * Refuse a software rasteriser.
+       *
+       * SwiftShader, llvmpipe and ANGLE's software backend all present a
+       * working WebGL context and then render every frame on the CPU. On
+       * this page that measured a 267ms median frame while scrolling — 2fps
+       * — against 17ms on every page without the field. A machine that has
+       * fallen back to software GL is exactly the machine that cannot
+       * afford a 3D surface, and the heat strip says the same thing for
+       * free. This is the likeliest cause of a page that "freezes".
+       */
+      const info = gl.getExtension('WEBGL_debug_renderer_info');
+      const renderer = String(
+        (info && gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) || gl.getParameter(gl.RENDERER) || '',
+      );
+      if (/swiftshader|llvmpipe|softwarerasterizer|software|microsoft basic render/i.test(renderer)) {
+        return false;
+      }
+
+      return true;
     } catch {
       return false;
     }
