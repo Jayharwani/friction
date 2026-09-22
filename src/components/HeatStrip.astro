@@ -49,8 +49,7 @@ function step(count: number): number {
         <th scope="col"><span class="sr-only">Problem</span></th>
         {
           field.weekLabels.map((w, i) => (
-            <th scope="col" class="wk">
-              <span class="sr-only">Week of {w}</span>
+            <th scope="col" class="wk" aria-label={`Week of ${w}`}>
               <span aria-hidden="true" class="wk-l num">{i % 3 === 0 ? w : ''}</span>
             </th>
           ))

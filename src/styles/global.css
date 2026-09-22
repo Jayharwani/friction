@@ -44,12 +44,20 @@
    ------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------
-   Two hues, not one.
+   Monochrome, with one saturated pop.
 
-   The ground is cool — a blue-grey around 250 — and the signal is warm.
-   That is deliberate: the accent is heat, and heat only reads as heat
-   against something cold. A warm accent on a warm ground was a tint;
-   on this ground it is a temperature.
+   Every neutral sits on hue 250 at very low chroma, and the UI accent
+   sits on the same hue at high chroma. The pop is saturation, not hue:
+   nothing on the interface competes with it, and the eight category
+   hues are free to be the only other colour on the page.
+
+   The warm cream-and-ochre palette this replaced is a named
+   generated-design tell, and it was the honest answer to why the site
+   looked like every other AI-built page.
+
+   Two token families, never crossed: --color-accent is UI — links,
+   focus, buttons, active state. --cat-* is data. A category hue on a
+   focus ring, or the accent on a category, breaks both systems.
 
    Dark is the default. The site is a dark instrument you read figures
    off, and the light theme is the one you reach for in daylight.
@@ -65,8 +73,8 @@
   --color-neutral: oklch(58% 0.025 255);
   --color-muted:   oklch(74% 0.030 255);
   --color-ink:     oklch(95% 0.008 250);
-  --color-accent:  oklch(72% 0.15 52);
-  --color-focus:   oklch(74% 0.17 55);
+  --color-accent:  oklch(70% 0.17 250);
+  --color-focus:   oklch(72% 0.19 250);
 
   color-scheme: dark;
 }
@@ -98,8 +106,8 @@
   --color-neutral: oklch(56% 0.020 255);
   --color-muted:   oklch(44% 0.025 255);
   --color-ink:     oklch(24% 0.020 255);
-  --color-accent:  oklch(52% 0.15 48);
-  --color-focus:   oklch(50% 0.17 50);
+  --color-accent:  oklch(55% 0.19 250);
+  --color-focus:   oklch(52% 0.20 250);
 
   color-scheme: light;
 }

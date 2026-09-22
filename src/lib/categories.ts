@@ -35,7 +35,7 @@ export const FAMILIES = [
 export type Family = (typeof FAMILIES)[number];
 
 /** The UI accent's hue. A family may not sit on it — see the note above. */
-export const ACCENT_HUE = 48;
+export const ACCENT_HUE = 250;
 
 export const HUE_STEP = 360 / FAMILIES.length;
 

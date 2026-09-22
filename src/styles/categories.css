@@ -3,7 +3,7 @@
 
    Eight families, eight hues, generated rather than chosen:
 
-       hue(k) = (48 + 22.5) mod 45 + k * 45      k = 0..7
+       hue(k) = (250 + 22.5) mod 45 + k * 45     k = 0..7
 
    Lightness and chroma are constant across all eight. OKLCH is
    perceptually uniform, so holding L and C fixed is what makes no
@@ -13,7 +13,7 @@
    two cannot drift.
 
    The ring is rotated so its gap is centred on the UI accent at hue
-   48, putting the nearest family exactly 22.5 degrees away — the
+   250, putting the nearest family exactly 22.5 degrees away — the
    furthest eight evenly spaced hues can be from a fixed point.
    --color-accent is links, focus rings, the score bar and the active
    nav item; these eight are data. Never swap the roles: an
@@ -32,14 +32,14 @@
   --cat-c: 0.12;
   --cat-solid-l: 71%;
 
-  --cat-stability: oklch(var(--cat-l) var(--cat-c) 25.5);
-  --cat-speed: oklch(var(--cat-l) var(--cat-c) 70.5);
-  --cat-money: oklch(var(--cat-l) var(--cat-c) 115.5);
-  --cat-data: oklch(var(--cat-l) var(--cat-c) 160.5);
-  --cat-access: oklch(var(--cat-l) var(--cat-c) 205.5);
-  --cat-wayfinding: oklch(var(--cat-l) var(--cat-c) 250.5);
-  --cat-interruption: oklch(var(--cat-l) var(--cat-c) 295.5);
-  --cat-support: oklch(var(--cat-l) var(--cat-c) 340.5);
+  --cat-stability: oklch(var(--cat-l) var(--cat-c) 2.5);
+  --cat-speed: oklch(var(--cat-l) var(--cat-c) 47.5);
+  --cat-money: oklch(var(--cat-l) var(--cat-c) 92.5);
+  --cat-data: oklch(var(--cat-l) var(--cat-c) 137.5);
+  --cat-access: oklch(var(--cat-l) var(--cat-c) 182.5);
+  --cat-wayfinding: oklch(var(--cat-l) var(--cat-c) 227.5);
+  --cat-interruption: oklch(var(--cat-l) var(--cat-c) 272.5);
+  --cat-support: oklch(var(--cat-l) var(--cat-c) 317.5);
 }
 
 /* The dark ground is the default, so its values sit on :root. Light drops
@@ -108,26 +108,26 @@
 /* Each family also publishes its raw hue, so --cat-solid can rebuild the
    colour at a different lightness without a second set of declarations. */
 [data-family='stability'] {
-  --cat-h: 25.5;
+  --cat-h: 2.5;
 }
 [data-family='speed'] {
-  --cat-h: 70.5;
+  --cat-h: 47.5;
 }
 [data-family='money'] {
-  --cat-h: 115.5;
+  --cat-h: 92.5;
 }
 [data-family='data'] {
-  --cat-h: 160.5;
+  --cat-h: 137.5;
 }
 [data-family='access'] {
-  --cat-h: 205.5;
+  --cat-h: 182.5;
 }
 [data-family='wayfinding'] {
-  --cat-h: 250.5;
+  --cat-h: 227.5;
 }
 [data-family='interruption'] {
-  --cat-h: 295.5;
+  --cat-h: 272.5;
 }
 [data-family='support'] {
-  --cat-h: 340.5;
+  --cat-h: 317.5;
 }
