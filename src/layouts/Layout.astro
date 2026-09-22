@@ -40,7 +40,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
 
     {/*
       Applied before first paint so a chosen theme never flashes the other one.
-      Nothing stored means light: the site has a default, and following the
+      Nothing stored means dark: the site has a default, and following the
       operating system is one of the three choices rather than the fallback.
     */}
     <script is:inline>
@@ -51,7 +51,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
             document.documentElement.dataset.theme = t;
           }
         } catch (e) {
-          /* storage blocked; the light default applies */
+          /* storage blocked; the dark default applies */
         }
       })();
     </script>
@@ -83,8 +83,9 @@ const here = Astro.url.pathname.replace(/\/$/, '');
       var(). Both are --color-paper converted, light then dark, and verified
       against a sampled pixel of the rendered page.
     -->
-    <meta name="theme-color" content="#faf4ef" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0d0806" media="(prefers-color-scheme: dark)" />
+    {/* Both are --color-paper converted: the cool navy ground, and the
+        near-white the light theme uses. */}
+    <meta name="theme-color" content="#2b313c" />
 
     <link rel="icon" href={url('/favicon.svg')} type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title="Friction" href={url('/rss.xml')} />

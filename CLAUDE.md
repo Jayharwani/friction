@@ -44,14 +44,23 @@ Each is commented at its call site. Do not "fix" these back.
 
 ## Design constraints
 
-- One anchor hue, 45, in OKLCH. Every neutral is tinted toward it — no
-  zero-chroma greys — and `--color-accent` is the only saturated colour, spent
-  on the heat ramp (`--heat-0..4`) and almost nothing else. It covers 1.6% of
-  the homepage fold; treat 5% as the ceiling. Platform badges and verdicts are
-  set in type, never carried by colour alone.
-- Geist for everything, Newsreader for reviewers' quotes only, Geist Mono for
-  the scoring equation. Roman throughout — no italic display type. Tabular
+- **Two hues, not one.** The ground is cool — a blue-grey around 250 — and the
+  signal is warm, around 48. That is the point: the accent is heat, and heat
+  only reads as heat against something cold. Every neutral is tinted toward the
+  cool anchor; no zero-chroma greys. `--color-accent` is the only warm colour
+  outside the category scale, spent on the heat ramp (`--heat-0..4`) and almost
+  nothing else. Treat 5% of a viewport as its ceiling. Platform badges and
+  verdicts are set in type, never carried by colour alone.
+- **Dark is the default.** The site is a dark instrument you read figures off;
+  the light theme is the one you reach for in daylight. "Auto" is a third
+  choice, not the fallback — nothing stored means dark.
+- Geist for everything, Newsreader for reviewers' quotes **and the second line
+  of the homepage display**, Geist Mono for the scoring equation. Tabular
   figures on every number.
+- **One italic, on purpose.** The homepage display is a roman sans line at
+  weight 300 with a Newsreader italic line beneath it on a lit panel. That
+  pairing is the site's signature and the only italic display anywhere;
+  every other heading stays roman.
 - Measures are in `rem` or `em`, never `ch`. Geist's digits are wide relative
   to its average advance, so a `ch` measure reflowed every page the moment the
   web font arrived. `"Geist Fallback"` carries a measured `size-adjust` for
@@ -77,6 +86,11 @@ Each is commented at its call site. Do not "fix" these back.
   reads its palette from CSS tokens, which is why the theme toggle has to tell
   it when they change. `src/lib/ramp.ts` exists so the client never reaches
   `lib/data.ts`, which imports `node:fs`.
+- **The homepage hero is a search box that works.** `HeroSearch.astro`
+  serialises every problem into the page at build time and matches substrings
+  over it — 25 records is not a search problem, and pretending it is would be
+  the tell. The input sits in a real form that submits to `/problems`, so it
+  still goes somewhere with no JavaScript.
 - **Patterns are the answer layer.** `src/lib/patterns.ts` groups active
   problems by category; three or more apps makes a pattern. Computed at build
   time from the committed problems rather than stored as a derived file, so

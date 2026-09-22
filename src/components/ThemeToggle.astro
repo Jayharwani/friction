@@ -12,22 +12,22 @@
 ---
 
 <div class="theme" role="group" aria-label="Colour theme">
-  <button type="button" data-theme-choice="light" aria-pressed="true">Light</button>
-  <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+  <button type="button" data-theme-choice="dark" aria-pressed="true">Dark</button>
+  <button type="button" data-theme-choice="light" aria-pressed="false">Light</button>
   <button type="button" data-theme-choice="system" aria-pressed="false">Auto</button>
 </div>
 
 <script>
   const KEY = 'friction-theme';
 
-  /* Light unless something else was chosen. "Auto" is a choice, not the default. */
+  /* Dark unless something else was chosen. "Auto" is a choice, not the default. */
   function read(): string {
     try {
       const v = localStorage.getItem(KEY);
-      return v === 'dark' || v === 'system' ? v : 'light';
+      return v === 'light' || v === 'system' ? v : 'dark';
     } catch {
-      // Private mode, blocked storage: the light default applies.
-      return 'light';
+      // Private mode, blocked storage: the dark default applies.
+      return 'dark';
     }
   }
 
@@ -50,9 +50,9 @@
     apply(read());
     for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-choice]')) {
       button.addEventListener('click', () => {
-        const choice = button.dataset.themeChoice ?? 'light';
+        const choice = button.dataset.themeChoice ?? 'dark';
         try {
-          if (choice === 'light') localStorage.removeItem(KEY);
+          if (choice === 'dark') localStorage.removeItem(KEY);
           else localStorage.setItem(KEY, choice);
         } catch {
           // Preference cannot be persisted; still apply it for this page.

@@ -9,7 +9,7 @@
  * problem titles, quotes and data labels.
  */
 import Layout from '../layouts/Layout.astro';
-import HeroCard from '../components/HeroCard.astro';
+import HeroSearch from '../components/HeroSearch.astro';
 import Explainer from '../components/Explainer.astro';
 import PatternCard from '../components/PatternCard.astro';
 import ProblemCard from '../components/ProblemCard.astro';
@@ -62,35 +62,28 @@ for (let i = 0; i < 26; i++) {
 <Layout title="Friction">
   {/* ---------- 1. Pitch ---------- */}
   <section class="hero">
-    <div class="shell"><div class="hero-grid bleed">
-      <div class="hero-copy">
-        <h1 data-enter="1">See what's broken in the apps everyone uses.</h1>
-        <p class="how" data-enter="2">
-          Friction reads public App Store and Google Play reviews every week, groups the complaints
-          that keep repeating, and scores each by how much evidence there is.
-        </p>
+    <div class="shell"><div class="bleed">
+      <HeroSearch />
 
-        <dl class="proof num" data-enter="3">
-          <div>
-            <dt>Reviews read</dt>
-            <dd>{reviewsRead.toLocaleString('en-GB')}</dd>
-          </div>
-          <div>
-            <dt>Problems tracked</dt>
-            <dd>{all.length}</dd>
-          </div>
-          <div>
-            <dt>Last checked</dt>
-            <dd>{run ? formatDate(run.date) : '—'}</dd>
-          </div>
-        </dl>
-      </div>
-
-      <div class="hero-visual" data-enter="2">
-        {specimen && <HeroCard problems={active.slice(0, 3)} />}
-      </div>
-      </div>
-    </div>
+      <dl class="proof num">
+        <div>
+          <dt>Reviews read</dt>
+          <dd>{reviewsRead.toLocaleString('en-GB')}</dd>
+        </div>
+        <div>
+          <dt>Problems tracked</dt>
+          <dd>{all.length}</dd>
+        </div>
+        <div>
+          <dt>Apps watched</dt>
+          <dd>{products.length}</dd>
+        </div>
+        <div>
+          <dt>Last checked</dt>
+          <dd>{run ? formatDate(run.date) : '—'}</dd>
+        </div>
+      </dl>
+    </div></div>
 
     <ul class="wall" aria-label={`Tracking ${products.length} apps`}>
       {
@@ -153,50 +146,22 @@ for (let i = 0; i < 26; i++) {
 <style>
   /* ---- 1. hero ---- */
 
-  /*
-   * Bottom padding heavier than top, on purpose. Symmetric or top-heavy
-   * padding leaves a hero floating above the page; the heavier foot pulls
-   * it into the rhythm of the band that follows.
-   */
   .hero {
-    padding-block: var(--space-3xl) var(--space-4xl);
+    padding-block: 0 var(--space-4xl);
   }
 
-  .hero-grid {
-    display: grid;
-    gap: var(--space-2xl);
-    align-items: center;
-  }
-
-  @media (min-width: 60rem) {
-    .hero-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
-      gap: var(--space-3xl);
-    }
-  }
-
-  h1 {
-    font-size: clamp(2rem, 1rem + 2.8vw, 3.2rem);
-    font-weight: 600;
-    line-height: 1.02;
-    letter-spacing: -0.034em;
-    max-width: 14em;
-    text-wrap: balance;
-  }
-
-  .how {
-    margin-top: var(--space-md);
-    font-size: var(--text-md);
-    line-height: 1.5;
-    max-width: 40em;
-    text-wrap: pretty;
-  }
-
+  /*
+   * The proof row sits under the search as a single centred line of figures.
+   * Four numbers across is the page's first fact, and centring them keeps the
+   * hero on one axis rather than splitting it.
+   */
   .proof {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-xl);
-    margin-top: var(--space-xl);
+    justify-content: center;
+    gap: var(--space-xl) var(--space-2xl);
+    margin-top: var(--space-2xl);
+    text-align: center;
   }
 
   .proof dt {
@@ -211,7 +176,6 @@ for (let i = 0; i < 26; i++) {
     line-height: 1;
   }
 
-  /* The credibility row: every app we watch, as its own icon. */
   /*
    * The apps, at a size where they are recognised rather than inventoried.
    * They overlap slightly, like the pattern cards' rows, so the wall reads

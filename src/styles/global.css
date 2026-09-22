@@ -43,60 +43,65 @@
    are no shadows anywhere in the product.
    ------------------------------------------------------------------- */
 
-/* Light is the default. A reader arriving with no stated preference gets
-   paper, because the site is read before it is explored — and a dark page
-   full of small figures is the harder first impression to recover from. */
-:root {
-  --color-paper:   oklch(97% 0.010 60);
-  --color-paper-2: oklch(94% 0.012 60);
-  --color-paper-3: oklch(91% 0.012 60);
-  --color-rule:    oklch(85% 0.010 60);
-  --color-neutral: oklch(55% 0.008 60);
-  --color-muted:   oklch(42% 0.008 55);
-  --color-ink:     oklch(19% 0.010 50);
-  --color-accent:  oklch(58% 0.16 48);
-  --color-focus:   oklch(55% 0.19 50);
+/* -------------------------------------------------------------------
+   Two hues, not one.
 
-  color-scheme: light;
+   The ground is cool — a blue-grey around 250 — and the signal is warm.
+   That is deliberate: the accent is heat, and heat only reads as heat
+   against something cold. A warm accent on a warm ground was a tint;
+   on this ground it is a temperature.
+
+   Dark is the default. The site is a dark instrument you read figures
+   off, and the light theme is the one you reach for in daylight.
+   ------------------------------------------------------------------- */
+:root {
+  --color-paper:   oklch(22% 0.015 250);
+  --color-paper-2: oklch(26% 0.018 250);
+  --color-paper-3: oklch(31% 0.020 252);
+  --color-rule:    oklch(36% 0.020 252);
+  /* Measures about 4.3:1 against paper: below AA for body text at any size.
+     For disabled controls and non-text marks only — use --color-muted for
+     anything a reader has to read. */
+  --color-neutral: oklch(58% 0.025 255);
+  --color-muted:   oklch(74% 0.030 255);
+  --color-ink:     oklch(95% 0.008 250);
+  --color-accent:  oklch(72% 0.15 52);
+  --color-focus:   oklch(74% 0.17 55);
+
+  color-scheme: dark;
 }
 
 /* Written twice on purpose: CSS cannot share one declaration block
    between a media query and an attribute selector, and the duplication
    is plainer than the indirection that avoids it. */
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root[data-theme="system"] {
-    --color-paper:   oklch(14% 0.010 45);
-    --color-paper-2: oklch(18% 0.012 45);
-    --color-paper-3: oklch(22% 0.012 45);
-    --color-rule:    oklch(28% 0.010 45);
-    /* Measures about 4.3:1 against paper: below AA for body text at any size.
-       For disabled controls and non-text marks only — use --color-muted for
-       anything a reader has to read. */
-    --color-neutral: oklch(56% 0.008 45);
-    --color-muted:   oklch(72% 0.006 45);
-    --color-ink:     oklch(95% 0.006 60);
-    --color-accent:  oklch(76% 0.17 55);
-    --color-focus:   oklch(72% 0.19 55);
+    --color-paper:   oklch(98% 0.004 250);
+    --color-paper-2: oklch(95% 0.006 250);
+    --color-paper-3: oklch(92% 0.008 252);
+    --color-rule:    oklch(87% 0.010 252);
+    --color-neutral: oklch(56% 0.020 255);
+    --color-muted:   oklch(44% 0.025 255);
+    --color-ink:     oklch(24% 0.020 255);
+    --color-accent:  oklch(52% 0.15 48);
+    --color-focus:   oklch(50% 0.17 50);
 
-    color-scheme: dark;
+    color-scheme: light;
   }
 }
 
-:root[data-theme="dark"] {
-  --color-paper:   oklch(14% 0.010 45);
-  --color-paper-2: oklch(18% 0.012 45);
-  --color-paper-3: oklch(22% 0.012 45);
-  --color-rule:    oklch(28% 0.010 45);
-  /* Measures about 4.3:1 against paper: below AA for body text at any size.
-     For disabled controls and non-text marks only — use --color-muted for
-     anything a reader has to read. */
-  --color-neutral: oklch(56% 0.008 45);
-  --color-muted:   oklch(72% 0.006 45);
-  --color-ink:     oklch(95% 0.006 60);
-  --color-accent:  oklch(76% 0.17 55);
-  --color-focus:   oklch(72% 0.19 55);
+:root[data-theme="light"] {
+  --color-paper:   oklch(98% 0.004 250);
+  --color-paper-2: oklch(95% 0.006 250);
+  --color-paper-3: oklch(92% 0.008 252);
+  --color-rule:    oklch(87% 0.010 252);
+  --color-neutral: oklch(56% 0.020 255);
+  --color-muted:   oklch(44% 0.025 255);
+  --color-ink:     oklch(24% 0.020 255);
+  --color-accent:  oklch(52% 0.15 48);
+  --color-focus:   oklch(50% 0.17 50);
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* The one ramp in the product: page surface to accent, interpolated in
@@ -244,15 +249,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Dark surfaces bloom optically; pull body weight back to compensate. */
-@media (prefers-color-scheme: dark) {
+/* Dark surfaces bloom optically, so the default weight is pulled back and
+   the light theme puts it up again. */
+body {
+  font-weight: 350;
+}
+
+@media (prefers-color-scheme: light) {
   :root[data-theme="system"] body {
-    font-weight: 350;
+    font-weight: 400;
   }
 }
 
-:root[data-theme="dark"] body {
-  font-weight: 350;
+:root[data-theme="light"] body {
+  font-weight: 400;
 }
 
 /* Every figure on this site is read against another figure. */
@@ -412,17 +422,17 @@ body::after {
 }
 
 body::after {
-  opacity: 0.02;
+  opacity: 0.035;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root[data-theme="system"] body::after {
-    opacity: 0.035;
+    opacity: 0.02;
   }
 }
 
-:root[data-theme="dark"] body::after {
-  opacity: 0.035;
+:root[data-theme="light"] body::after {
+  opacity: 0.02;
 }
 
 /* -------------------------------------------------------------------

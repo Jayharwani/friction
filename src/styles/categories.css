@@ -28,9 +28,9 @@
   /* Solved, not chosen: the highest chroma at which all eight hues stay
      inside sRGB *and* every one clears 3:1 against its own 10% tint.
      scripts/categories.test.ts pins them; probe-sweep measured them. */
-  --cat-l: 56%;
-  --cat-c: 0.09;
-  --cat-solid-l: 53%;
+  --cat-l: 72%;
+  --cat-c: 0.12;
+  --cat-solid-l: 71%;
 
   --cat-stability: oklch(var(--cat-l) var(--cat-c) 25.5);
   --cat-speed: oklch(var(--cat-l) var(--cat-c) 70.5);
@@ -42,20 +42,21 @@
   --cat-support: oklch(var(--cat-l) var(--cat-c) 340.5);
 }
 
-/* Dark lifts lightness and drops chroma a little: the same hues against
-   a dark surface read more saturated than they measure. */
-@media (prefers-color-scheme: dark) {
+/* The dark ground is the default, so its values sit on :root. Light drops
+   the lightness and lifts the chroma: the same hues against paper read
+   flatter than they measure. */
+@media (prefers-color-scheme: light) {
   :root[data-theme='system'] {
-    --cat-l: 72%;
-    --cat-c: 0.12;
-    --cat-solid-l: 71%;
+    --cat-l: 56%;
+    --cat-c: 0.09;
+    --cat-solid-l: 53%;
   }
 }
 
-:root[data-theme='dark'] {
-  --cat-l: 72%;
-  --cat-c: 0.12;
-  --cat-solid-l: 71%;
+:root[data-theme='light'] {
+  --cat-l: 56%;
+  --cat-c: 0.09;
+  --cat-solid-l: 53%;
 }
 
 /*
