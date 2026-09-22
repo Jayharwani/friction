@@ -23,7 +23,12 @@ const BUDGET: Record<string, number> = {
   'about/index.html': 80,
   'archive/index.html': 40,
   'apps/index.html': 40,
-  'how-it-works/index.html': 160,
+  /* Raised from 160 when the page became seven full-bleed bands. Each one
+     carries an eyebrow, a heading and a one-line lede, which is more visible
+     prose than the single narrow column it replaced — while the 1,200-word
+     methodology moved out of view into the FAQ's disclosures. More signposts,
+     less reading. */
+  'how-it-works/index.html': 200,
 };
 
 /**
