@@ -85,14 +85,15 @@ const label = `${FAMILY_LABEL[family]} problems`;
    * fading in. `pathLength` normalises every path to 100 units, which
    * is what lets one rule cover eight marks of different sizes.
    */
+  /*
+   * The resting state is a finished glyph. The dash lives only inside the
+   * keyframe, played `backwards`, so a card whose reveal never fires still
+   * shows its mark — holding the undrawn state in the base rule made the
+   * glyph depend on an observer to exist at all.
+   */
   @media (prefers-reduced-motion: no-preference) {
-    :global([data-glyph-draw]) .glyph path {
-      stroke-dasharray: 100;
-      stroke-dashoffset: 100;
-    }
-
     :global([data-glyph-draw][data-drawn]) .glyph path {
-      animation: glyph-draw var(--dur-long) var(--ease-out) forwards;
+      animation: glyph-draw var(--dur-long) var(--ease-out) backwards;
     }
 
     :global([data-glyph-draw][data-drawn]) .glyph path:nth-child(2) {
@@ -110,8 +111,9 @@ const label = `${FAMILY_LABEL[family]} problems`;
   }
 
   @keyframes glyph-draw {
-    to {
-      stroke-dashoffset: 0;
+    from {
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
     }
   }
 </style>

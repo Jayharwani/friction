@@ -57,14 +57,35 @@ const cards = excerpts.slice(0, SPOTS.length).map((e, i) => ({
 }));
 
 const members = cards.filter((c) => c.member).length;
+
+/*
+ * One drawn mark per stage, replacing the numbered circles.
+ *
+ * "01 / 02 / 03" markers are on this project's own list of generated-page
+ * tells, and a number in a circle says nothing the heading beside it does
+ * not already say. These say the stage: many arriving, many resolving into
+ * one, one carrying a value.
+ *
+ * Same rules as the category glyphs — 24-unit box, 1.5 stroke, no fills.
+ */
+const STAGE_MARKS = [
+  // Loose strokes falling toward a line: reviews arriving.
+  ['M3 3.5v4', 'M8 2.5v5', 'M13 3.5v4', 'M18 2.5v5', 'M21 4.5v3', 'M2 13h20', 'M12 17v4', 'M9.5 18.5L12 21l2.5-2.5'],
+  // Three marks pulling into one ring: the ones describing the same thing.
+  ['M12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7', 'M3 4l4.5 4', 'M21 4l-4.5 4', 'M3 20l4.5-4', 'M21 20l-4.5-4'],
+  // One tile with a level in it: the problem, and its score.
+  ['M4 4.5h16v15H4z', 'M8 15.5v-3', 'M12 15.5v-6', 'M16 15.5v-8'],
+] as const;
 ---
 
 <section class="explainer bleed" data-explainer data-chart aria-labelledby="explainer-heading">
   <h2 id="explainer-heading" class="sr-only">How Friction works</h2>
 
   <ol class="panels">
-    <li class="panel" data-step="1">
-      <p class="step"><span class="num">1</span> Thousands of reviews come in</p>
+    <li class="panel" data-step="1" style="--step-i:0">
+      <p class="step">
+        <svg class="mk" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{STAGE_MARKS[0].map((d) => <path d={d} pathLength="100" />)}</svg>
+         Thousands of reviews come in</p>
 
       <div class="stage scatter" aria-hidden="true">
         {
@@ -80,8 +101,10 @@ const members = cards.filter((c) => c.member).length;
       <p class="cap num">{reviewsRead.toLocaleString('en-GB')} reviews read this week.</p>
     </li>
 
-    <li class="panel" data-step="2">
-      <p class="step"><span class="num">2</span> The ones describing the same thing get grouped</p>
+    <li class="panel" data-step="2" style="--step-i:1">
+      <p class="step">
+        <svg class="mk" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{STAGE_MARKS[1].map((d) => <path d={d} pathLength="100" />)}</svg>
+         The ones describing the same thing get grouped</p>
 
       <div class="stage group" aria-hidden="true">
         {
@@ -101,8 +124,10 @@ const members = cards.filter((c) => c.member).length;
       <p class="cap num">{members} of them describe the same problem.</p>
     </li>
 
-    <li class="panel" data-step="3">
-      <p class="step"><span class="num">3</span> That becomes one problem, with a score</p>
+    <li class="panel" data-step="3" style="--step-i:2">
+      <p class="step">
+        <svg class="mk" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{STAGE_MARKS[2].map((d) => <path d={d} pathLength="100" />)}</svg>
+         That becomes one problem, with a score</p>
 
       <div class="stage result">
         <a class="result-card" href={url(`/problems/${problem.slug}`)}>
@@ -151,16 +176,33 @@ const members = cards.filter((c) => c.member).length;
     min-height: 2.8em;
   }
 
-  .step .num {
+  .step .mk {
     flex: none;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--color-paper-3);
-    color: var(--color-ink);
-    font-size: var(--text-xs);
+    display: block;
+    color: var(--color-accent);
+    translate: 0 0.22em;
+  }
+
+  /*
+   * The marks draw themselves on, in sequence with the panels.
+   *
+   * The resting state is a finished mark — the dash only exists inside the
+   * keyframe, played `backwards`. Holding the undrawn state in the base rule
+   * means a mark that never reveals is a mark nobody ever sees, which is what
+   * happens the moment the observer does not fire.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-explainer][data-revealed] .mk path {
+      animation: mk-draw var(--dur-long) var(--ease-out) backwards;
+      animation-delay: calc(var(--step-i, 0) * 160ms);
+    }
+  }
+
+  @keyframes mk-draw {
+    from {
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+    }
   }
 
   .stage {

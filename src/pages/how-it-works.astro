@@ -266,11 +266,16 @@ const componentMeaning: Record<string, string> = {
 })</code></pre>
     </figure>
 
+    {/*
+      No weight column. The calculator above shows every weight as a bar and
+      the equation states all seven as numbers — a third copy here was the
+      same figures a third time. This is the glossary: what each component
+      actually counts.
+    */}
     <table class="weights">
       <thead>
         <tr>
           <th scope="col">Component</th>
-          <th scope="col" class="w">Weight</th>
           <th scope="col">What it measures</th>
         </tr>
       </thead>
@@ -279,7 +284,6 @@ const componentMeaning: Record<string, string> = {
           COMPONENT_ORDER.map((key) => (
             <tr>
               <th scope="row">{COMPONENT_LABELS[key]}</th>
-              <td class="w num">{Math.round(WEIGHTS[key] * 100)}%</td>
               <td>{componentMeaning[key]}</td>
             </tr>
           ))

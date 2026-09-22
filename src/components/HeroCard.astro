@@ -205,6 +205,18 @@ const slides = problems.slice(0, 3).map((problem) => ({
     text-decoration: none;
   }
 
+  /*
+   * The title is the card's only link. At most widths it wraps to two lines
+   * and clears the floor on its own; at 768 it fits one line and does not.
+   */
+  @media (pointer: coarse) {
+    h2 a {
+      display: flex;
+      align-items: center;
+      min-height: var(--tap);
+    }
+  }
+
   h2 a:hover,
   h2 a:focus-visible {
     color: var(--color-accent);

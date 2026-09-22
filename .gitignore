@@ -32,3 +32,9 @@ pnpm-debug.log*
 
 # local scratch output
 scratch/
+
+# design skills, installed with `npx skills add`
+# Local tooling, not part of the site. They are guidance for whoever is
+# editing; CLAUDE.md is the design authority the code actually answers to.
+.agents/
+.claude/skills/
