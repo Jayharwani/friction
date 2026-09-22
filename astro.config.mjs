@@ -29,5 +29,6 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  integrations: [sitemap()],
+  // /og is the source board for the social card, not a destination.
+  integrations: [sitemap({ filter: (page) => !page.includes('/og') })],
 });

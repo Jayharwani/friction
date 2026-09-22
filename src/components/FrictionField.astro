@@ -316,7 +316,7 @@ const payload = JSON.stringify(field);
 
   .axis {
     position: absolute;
-    z-index: 2;
+    z-index: var(--z-raise);
     pointer-events: none;
     font-size: var(--text-xs);
     color: var(--color-muted);
@@ -347,7 +347,7 @@ const payload = JSON.stringify(field);
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 3;
+    z-index: var(--z-field);
     pointer-events: none;
     max-width: 22rem;
     padding: var(--space-xs) var(--space-sm);

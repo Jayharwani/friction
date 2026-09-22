@@ -158,6 +158,16 @@
      a mouse-driven desktop make a toolbar look like a mobile app. */
   --tap: 44px;
 
+  /* Layering, named. Six ad-hoc integers between 1 and 10 was not a scale —
+     it was six people guessing, and nothing said which could cover which. */
+  --z-raise: 1; /* a stretched link, a heading above its own texture */
+  --z-grain: 1; /* the fixed page grain — deliberately level with --z-raise,
+                   so a card's own stretched link still sits under it */
+  --z-field: 3; /* the field's label, over its canvas */
+  --z-skip: 5; /* the skip link, when focused */
+  --z-nav: 10; /* the site header */
+  --z-pop: 20; /* a glossary term's definition, over everything on the page */
+
   --nav-h: 4.25rem;
   --page-gutter: clamp(1rem, 4vw, 3rem);
   --rule-hair: 1px;
@@ -394,7 +404,7 @@ body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: var(--z-grain);
   pointer-events: none;
   transform: translateZ(0);
   will-change: transform;
@@ -524,6 +534,15 @@ body::after {
    preference it does not exist rather than being overridden. The block
    below is a backstop for Astro's own view transitions.
    =================================================================== */
+
+/* An anchor inside the page — the margin contents on How it works — glides
+   rather than teleports. The only motion outside the inventory, because it
+   is the browser's, not ours. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   html {

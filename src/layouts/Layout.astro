@@ -65,7 +65,18 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="Friction" />
-    <meta name="twitter:card" content="summary" />
+    {/*
+      A committed raster, not an SVG and not a runtime render: no social
+      platform runs JavaScript and most will not preview an SVG. The board it
+      is captured from lives at src/pages/og.astro, which is built from the
+      live data — regenerate it after a scan and the numbers stay honest.
+    */}
+    <meta property="og:image" content={new URL(url('/og.png'), Astro.site).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Friction — public App Store and Google Play reviews, read every week." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={new URL(url('/og.png'), Astro.site).href} />
 
     <!--
       The only colours in the project written as hex: a meta tag cannot take a
@@ -183,7 +194,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     background: var(--color-paper);
     color: var(--color-ink);
     padding: var(--space-sm) var(--space-md);
-    z-index: 10;
+    z-index: var(--z-nav);
     border: 1px solid var(--color-ink);
   }
 
@@ -198,7 +209,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
   .site-header {
     position: fixed;
     inset: 0 0 auto;
-    z-index: 5;
+    z-index: var(--z-skip);
     border-bottom: var(--rule-hair) solid transparent;
   }
 

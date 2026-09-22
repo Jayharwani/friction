@@ -149,7 +149,7 @@ const platforms = [...new Set(evidence.map((e) => e.platform))];
 
   @media (pointer: coarse) {
     h2 a::after {
-      z-index: 1;
+      z-index: var(--z-raise);
     }
   }
 
