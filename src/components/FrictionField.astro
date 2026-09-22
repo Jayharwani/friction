@@ -74,6 +74,19 @@ const payload = JSON.stringify(field);
    */
   const MOBILE_MAX = 900;
 
+  /*
+   * Never call this on page load.
+   *
+   * Creating a WebGL context is synchronous and costs whatever the platform's
+   * GL stack costs to spin up: measured at 161ms of blocked main thread on a
+   * real GPU and 1,140ms under software rendering. The field sits five
+   * screens down, so paying that on arrival blocks the page for a surface
+   * nobody has scrolled to — and on a machine that has fallen back to
+   * software GL it is long enough to read as a frozen tab.
+   *
+   * It is called from mount(), behind the same observer that gates the
+   * import, so the cost lands only when the field is about to be used.
+   */
   function hasWebGL(): boolean {
     try {
       const c = document.createElement('canvas');
@@ -156,11 +169,12 @@ const payload = JSON.stringify(field);
 
     /*
      * The strip is the honest state until a 3D frame actually exists, so it
-     * is what every visitor gets first. Narrow or WebGL-less visitors keep
-     * it; everyone else has it swapped out by mount() once the scene paints.
+     * is what every visitor gets first. Narrow visitors keep it, and so does
+     * anyone without WebGL — but that is not tested here, because testing it
+     * costs a context. mount() decides, once the observer says it matters.
      */
     section.dataset.mode = 'strip';
-    if (window.innerWidth < MOBILE_MAX || !hasWebGL()) return;
+    if (window.innerWidth < MOBILE_MAX) return;
 
     armed = new IntersectionObserver(
       (entries, io) => {

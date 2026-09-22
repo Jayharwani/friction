@@ -222,6 +222,17 @@ const seed = {
     accent-color: var(--color-accent);
   }
 
+  /*
+   * A native range is 16px tall, which is a 16px target for a thumb. The
+   * track stays thin and centred inside the taller box, so this costs
+   * nothing visually and makes the calculator usable on a phone.
+   */
+  @media (pointer: coarse) {
+    input[type='range'] {
+      height: var(--tap);
+    }
+  }
+
   input:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 3px;
