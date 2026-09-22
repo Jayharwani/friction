@@ -427,6 +427,28 @@ body::after {
     display: inline-flex;
     align-items: center;
   }
+
+  /*
+   * Standalone links — a row in a list, a "see all" beside a heading — are
+   * targets in their own right and have to clear the floor too. Links inside
+   * a sentence are exempt by design: they wrap with the text, and padding
+   * them would break the line box around them.
+   *
+   * Listed by container rather than by a utility class so a new link list
+   * shows up as a miss in the audit rather than silently inheriting nothing.
+   */
+  .examples a,
+  .head .more,
+  .related a,
+  .related-list a,
+  .prev,
+  .next,
+  .toc a,
+  .row-link {
+    display: flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
 }
 
 /* ===================================================================

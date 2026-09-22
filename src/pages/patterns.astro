@@ -10,6 +10,8 @@
  * and counted.
  */
 import Layout from '../layouts/Layout.astro';
+import PageTexture from '../components/PageTexture.astro';
+import BrandMark from '../components/BrandMark.astro';
 import PatternCard from '../components/PatternCard.astro';
 import FrictionField from '../components/FrictionField.astro';
 import { buildPatterns, PATTERN_MIN_APPS } from '../lib/patterns';
@@ -25,6 +27,8 @@ const top = patterns[0];
   description="Complaint categories that appear across several different apps, counted from public store reviews."
 >
   <div class="band">
+    <PageTexture seed="patterns" />
+    <BrandMark variant="device" />
     <div class="shell">
       <h1>The same complaints show up across different apps.</h1>
       <p class="sub">
@@ -69,9 +73,18 @@ const top = patterns[0];
   /* ---- band ---- */
 
   .band {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     padding-block: var(--space-2xl);
     background: var(--color-paper-2);
     border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  /* The heading sits above its own texture. */
+  .band > .shell {
+    position: relative;
+    z-index: 1;
   }
 
   h1 {

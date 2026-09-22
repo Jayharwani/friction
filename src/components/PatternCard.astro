@@ -332,6 +332,14 @@ const reachPct = Math.round(pattern.reach * 100);
     text-decoration: none;
   }
 
+  /* Scoped styles outrank the global floor, so each list restates it. */
+  @media (pointer: coarse) {
+    .examples a {
+      align-content: center;
+      min-height: var(--tap);
+    }
+  }
+
   .examples a:hover .e-title,
   .examples a:focus-visible .e-title {
     color: var(--cat);

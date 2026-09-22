@@ -1,0 +1,125 @@
+---
+/**
+ * A seeded field of marks behind a page band.
+ *
+ * Every page gets its own arrangement, derived from its slug, so the pages
+ * are visibly distinct without a single extra word — and the same page draws
+ * the same field on every build, because the generator is a seeded PRNG and
+ * not Math.random.
+ *
+ * Deliberately not a gradient wash or a noise raster. Both are on this
+ * project's list of generated-page tells, and both fail the same way in dark
+ * mode. This is geometry in the project's own vocabulary: the rounded square
+ * of the mark, the round dot of the heat strip, and the hairline, at a
+ * density low enough to read as paper texture rather than as an image.
+ *
+ * Build-time SVG. No canvas, no client JavaScript, no runtime cost.
+ */
+interface Props {
+  /** Anything stable and per-page. The route is the obvious choice. */
+  seed: string;
+  /** Roughly how many marks. The default is tuned for a page band. */
+  density?: number;
+}
+
+const { seed, density = 34 } = Astro.props;
+
+/* FNV-1a: small, deterministic, and good enough to decorrelate short slugs. */
+function hash(s: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return h >>> 0;
+}
+
+/* mulberry32. One line of state, uniform enough for scattering marks. */
+function rng(state: number): () => number {
+  let a = state;
+  return () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const W = 1200;
+const H = 300;
+const next = rng(hash(seed));
+
+type Mark =
+  | { kind: 'square'; x: number; y: number; s: number; r: number; o: number }
+  | { kind: 'dot'; x: number; y: number; s: number; o: number }
+  | { kind: 'rule'; x: number; y: number; s: number; o: number };
+
+const marks: Mark[] = Array.from({ length: density }, () => {
+  const roll = next();
+  const x = next() * W;
+  const y = next() * H;
+  const o = 0.25 + next() * 0.75;
+
+  if (roll < 0.5) {
+    const s = 10 + next() * 26;
+    return { kind: 'square', x, y, s, r: s * 0.24, o };
+  }
+  if (roll < 0.8) return { kind: 'dot', x, y, s: 2 + next() * 4, o };
+  return { kind: 'rule', x, y, s: 24 + next() * 90, o };
+});
+---
+
+<svg
+  class="tex"
+  viewBox={`0 0 ${W} ${H}`}
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+  focusable="false"
+>
+  {
+    marks.map((m) =>
+      m.kind === 'square' ? (
+        <rect x={m.x.toFixed(1)} y={m.y.toFixed(1)} width={m.s.toFixed(1)} height={m.s.toFixed(1)} rx={m.r.toFixed(1)} style={`--o:${m.o.toFixed(2)}`} />
+      ) : m.kind === 'dot' ? (
+        <circle cx={m.x.toFixed(1)} cy={m.y.toFixed(1)} r={m.s.toFixed(1)} style={`--o:${m.o.toFixed(2)}`} />
+      ) : (
+        <line x1={m.x.toFixed(1)} y1={m.y.toFixed(1)} x2={(m.x + m.s).toFixed(1)} y2={m.y.toFixed(1)} style={`--o:${m.o.toFixed(2)}`} />
+      ),
+    )
+  }
+</svg>
+
+<style>
+  .tex {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /*
+     * The whole field is one low opacity. Individual marks vary within it,
+     * which is what stops the scatter reading as a regular pattern, but the
+     * ceiling is here so no page can accidentally get a loud one.
+     */
+    opacity: 0.55;
+  }
+
+  rect,
+  circle {
+    fill: var(--color-ink);
+    fill-opacity: calc(var(--o) * 0.05);
+  }
+
+  line {
+    stroke: var(--color-ink);
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-opacity: calc(var(--o) * 0.07);
+  }
+
+  /* One mark in the accent per field, so the texture belongs to this site. */
+  rect:nth-of-type(3n + 1) {
+    fill: var(--color-accent);
+    fill-opacity: calc(var(--o) * 0.07);
+  }
+</style>

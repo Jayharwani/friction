@@ -6,6 +6,8 @@
  * itself, so the page cannot drift out of step with what the site actually did.
  */
 import Layout from '../layouts/Layout.astro';
+import PageTexture from '../components/PageTexture.astro';
+import BrandMark from '../components/BrandMark.astro';
 import ScoreCalculator from '../components/ScoreCalculator.astro';
 import Flow from '../components/charts/Flow.astro';
 import Histogram from '../components/charts/Histogram.astro';
@@ -126,6 +128,8 @@ const componentMeaning: Record<string, string> = {
   description="Where Friction's data comes from, exactly how each score is computed, and what this method cannot tell you."
 >
   <div class="band">
+    <PageTexture seed="how-it-works" />
+    <BrandMark variant="device" />
     <div class="shell">
       <h1>How it works</h1>
       <p class="sub">Public reviews go in, scored problems come out.</p>
@@ -752,9 +756,18 @@ const componentMeaning: Record<string, string> = {
   /* ---- page header ---- */
 
   .band {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     padding-block: var(--space-2xl);
     background: var(--color-paper-2);
     border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  /* The heading sits above its own texture. */
+  .band > .shell {
+    position: relative;
+    z-index: 1;
   }
 
   h1 {

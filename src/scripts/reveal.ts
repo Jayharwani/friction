@@ -17,8 +17,15 @@ const REVEALED = 'data-revealed';
 
 let observer: IntersectionObserver | null = null;
 
+/*
+ * Both attributes, when both apply. A pattern card is a chart *and* carries a
+ * glyph that draws on, and setting only one of them left its chart marks
+ * permanently un-revealed — invisible under reduced motion, where nothing
+ * else was ever going to set it.
+ */
 function reveal(el: Element): void {
-  el.setAttribute(el.hasAttribute('data-glyph-draw') ? DRAWN : REVEALED, '');
+  if (el.hasAttribute('data-chart')) el.setAttribute(REVEALED, '');
+  if (el.hasAttribute('data-glyph-draw')) el.setAttribute(DRAWN, '');
 }
 
 /*
@@ -29,9 +36,12 @@ function reveal(el: Element): void {
 const DRAWN = 'data-drawn';
 
 export function watchCharts(): void {
-  const charts = [...document.querySelectorAll(`[data-chart]:not([${REVEALED}])`)];
-  const glyphs = [...document.querySelectorAll(`[data-glyph-draw]:not([${DRAWN}])`)];
-  const targets = [...charts, ...glyphs];
+  const targets = [
+    ...new Set([
+      ...document.querySelectorAll(`[data-chart]:not([${REVEALED}])`),
+      ...document.querySelectorAll(`[data-glyph-draw]:not([${DRAWN}])`),
+    ]),
+  ];
   if (targets.length === 0) return;
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

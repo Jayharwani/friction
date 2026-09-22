@@ -219,6 +219,15 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
     color: var(--color-muted);
   }
 
+  /* A breadcrumb is a standalone navigation link, so it clears the floor. */
+  @media (pointer: coarse) {
+    .crumb a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--tap);
+    }
+  }
+
   .columns {
     display: grid;
     gap: var(--space-xl);

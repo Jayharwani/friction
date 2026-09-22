@@ -1,0 +1,95 @@
+---
+/**
+ * The Friction mark.
+ *
+ * Nine cells, one hot and one warm beneath it: many reviews, and the one
+ * complaint that comes back. It is the heat strip reduced until it still
+ * reads at 20px, and it is the same drawing as the favicon.
+ *
+ * Two sizes of use, one drawing:
+ *   inline   beside the wordmark in the nav, in the accent
+ *   device   large and faint behind a page band, purely as texture
+ *
+ * The device variant is aria-hidden and decorative. The inline one is too:
+ * the wordmark "Friction" is always set beside it, so the mark never has to
+ * carry the name on its own.
+ */
+interface Props {
+  size?: number;
+  variant?: 'inline' | 'device';
+  class?: string;
+}
+
+const { size = 20, variant = 'inline', class: klass } = Astro.props;
+
+/* x, y and which of the three strengths the cell takes. */
+const CELLS = [
+  [8, 8, 'q'],
+  [48, 8, 'hot'],
+  [88, 8, 'q'],
+  [8, 48, 'q'],
+  [48, 48, 'warm'],
+  [88, 48, 'q'],
+  [8, 88, 'q'],
+  [48, 88, 'q'],
+  [88, 88, 'q'],
+] as const;
+---
+
+<svg
+  class:list={['brand', `is-${variant}`, klass]}
+  width={variant === 'device' ? undefined : size}
+  height={variant === 'device' ? undefined : size}
+  viewBox="0 0 128 128"
+  aria-hidden="true"
+>
+  {CELLS.map(([x, y, strength]) => <rect class={strength} x={x} y={y} width="32" height="32" rx="7" />)}
+</svg>
+
+<style>
+  .brand {
+    display: block;
+    flex: none;
+  }
+
+  .q {
+    fill: var(--color-rule);
+  }
+
+  .warm {
+    fill: color-mix(in oklch, var(--color-accent) 45%, var(--color-paper));
+  }
+
+  .hot {
+    fill: var(--color-accent);
+  }
+
+  /*
+   * The page device. Large, anchored to the band's trailing edge, and faint
+   * enough that it is texture rather than an image — it must never compete
+   * with the heading it sits behind.
+   */
+  .is-device {
+    position: absolute;
+    inset-block: auto;
+    top: 50%;
+    right: calc(var(--page-gutter) * -0.5);
+    width: min(38vw, 20rem);
+    height: auto;
+    translate: 0 -50%;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .is-device .q {
+    fill: color-mix(in oklch, var(--color-ink) 7%, transparent);
+  }
+
+  .is-device .warm {
+    fill: color-mix(in oklch, var(--color-accent) 12%, transparent);
+  }
+
+  .is-device .hot {
+    fill: color-mix(in oklch, var(--color-accent) 20%, transparent);
+  }
+</style>
