@@ -38,9 +38,13 @@ const BUDGET: Record<string, number> = {
  */
 const EXEMPT_TAGS = ['script', 'style', 'svg', 'head', 'nav', 'footer', 'table', 'details', 'dialog'];
 
-/** Class names that mark an element as data: captions, figures, cards, evidence. */
+/**
+ * Class names that mark an element as data: captions, figures, cards,
+ * evidence, and the cells of a real data table. An app's name and its store
+ * category are records, not sentences the site wrote.
+ */
 const EXEMPT_CLASS =
-  /\b(?:ch-caption|num|quote|card|slide|listing|chips|plain|weights|evidence|sr-only|toc|wall|proof|w-body|gap|field|strip|axis|heat|spark|hist|flow|funnel|record|dots|cover|timeline|bar|scatter|panel|sum-note|meta|stat|sig-|e-|f-|l-)/;
+  /\b(?:ch-caption|num|quote|card|slide|listing|chips|plain|weights|evidence|sr-only|toc|wall|proof|w-body|gap|field|strip|axis|heat|spark|hist|flow|funnel|record|dots|cover|timeline|bar|scatter|panel|sum-note|meta|stat|app-cell|cat-cell|sig-|e-|f-|l-)/;
 
 /**
  * Remove an element and everything inside it, matching tags rather than

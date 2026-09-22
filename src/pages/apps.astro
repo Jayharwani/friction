@@ -11,8 +11,13 @@
  */
 import Layout from '../layouts/Layout.astro';
 import AppCard from '../components/AppCard.astro';
+import AppIcon from '../components/AppIcon.astro';
+import CategoryGlyph from '../components/CategoryGlyph.astro';
+import DataTable from '../components/table/DataTable.astro';
+import BarCell from '../components/table/BarCell.astro';
 import { url } from '../lib/url';
 import { getProblems, getProducts } from '../lib/data';
+import { FAMILY_LABEL, familyOf, type Family } from '../lib/categories';
 
 const products = getProducts();
 const problems = getProblems();
@@ -33,6 +38,30 @@ const tracked = products.length;
 const withFindings = rows.filter((r) => r.problemCount > 0).length;
 
 const categories = [...new Set(products.map((p) => p.category))].sort();
+
+/* One scale per numeric column, so a bar means the same thing down a column. */
+const maxProblems = Math.max(1, ...rows.map((r) => r.problemCount));
+const maxReviews = Math.max(1, ...rows.map((r) => r.reviewCount));
+
+/* The family an app's problems mostly fall into, which is what tints its
+   row's bars. An app with no findings has none and stays neutral. */
+const rowsWithFamily = rows.map((r) => {
+  const mine = problems.filter((p) => p.productSlug === r.product.slug);
+  const tally = new Map<Family, number>();
+  for (const p of mine) {
+    const f = familyOf(p.category);
+    tally.set(f, (tally.get(f) ?? 0) + 1);
+  }
+  const lead: Family | undefined = [...tally.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+  return { ...r, family: lead };
+});
+
+const TABLE_COLUMNS = [
+  { key: 'app', label: 'App', sortable: true },
+  { key: 'category', label: 'Category', sortable: true },
+  { key: 'problems', label: 'Problems', numeric: true, sortable: true },
+  { key: 'reviews', label: 'Reviews', numeric: true, sortable: true },
+];
 ---
 
 <Layout
@@ -43,8 +72,7 @@ const categories = [...new Set(products.map((p) => p.category))].sort();
     <header class="intro">
       <h1>Apps</h1>
       <p class="lede">
-        Friction tracks {tracked} apps. {withFindings} of them currently have at least one recurring
-        problem with enough evidence to record.
+        Friction tracks {tracked} apps. {withFindings} have a recurring problem on record.
       </p>
     </header>
 
@@ -96,34 +124,48 @@ const categories = [...new Set(products.map((p) => p.category))].sort();
       identify the app; Friction is not affiliated with any of them.
     </p>
 
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">App</th>
-          <th scope="col">Category</th>
-          <th scope="col" class="n">Problems</th>
-          <th scope="col" class="n">Reviews</th>
-        </tr>
-      </thead>
-      <tbody>
-        {
-          rows.map(({ product, problemCount, reviewCount }) => (
-            <tr>
-              <th scope="row">
-                {problemCount > 0 ? (
-                  <a href={url(`/products/${product.slug}`)}>{product.name}</a>
-                ) : (
-                  <span>{product.name}</span>
-                )}
-              </th>
-              <td class="cat">{product.category}</td>
-              <td class="n num">{problemCount > 0 ? problemCount : '—'}</td>
-              <td class="n num">{reviewCount > 0 ? reviewCount : '—'}</td>
-            </tr>
-          ))
-        }
-      </tbody>
-    </table>
+    <DataTable
+      class="bleed"
+      columns={TABLE_COLUMNS}
+      sort="problems"
+      caption={`Every tracked app, with the number of recurring problems and the number of reviews recorded against them. ${tracked} apps.`}
+      emptyLine="No app matches those filters."
+    >
+      {
+        rowsWithFamily.map(({ product, problemCount, reviewCount, family }, i) => (
+          <tr
+            data-row
+            data-family={family}
+            data-sort-app={product.name}
+            data-sort-category={product.category}
+            data-sort-problems={problemCount}
+            data-sort-reviews={reviewCount}
+          >
+            <th scope="row" class="app-cell">
+              <AppIcon slug={product.slug} name={product.name} size={32} />
+              {problemCount > 0 ? (
+                <a href={url(`/products/${product.slug}`)}>{product.name}</a>
+              ) : (
+                <span>{product.name}</span>
+              )}
+            </th>
+
+            <td class="cat-cell">
+              {family && (
+                <>
+                  <CategoryGlyph family={family} size={14} />
+                  <span class="sr-only">Mostly {FAMILY_LABEL[family]}. </span>
+                </>
+              )}
+              <span>{product.category}</span>
+            </td>
+
+            <BarCell value={problemCount} max={maxProblems} family={family} i={i} />
+            <BarCell value={reviewCount} max={maxReviews} family={family} i={i} />
+          </tr>
+        ))
+      }
+    </DataTable>
 
     <p class="note table-note">
       "Reviews" counts stored evidence, not every review read —{' '}
@@ -309,69 +351,52 @@ const categories = [...new Set(products.map((p) => p.category))].sort();
     max-width: var(--measure);
   }
 
-  table {
-    margin-top: var(--space-xl);
-    border-collapse: collapse;
-    width: 100%;
-    font-size: var(--text-sm);
-    text-align: left;
-  }
-
-  th,
-  td {
-    padding: var(--space-sm) var(--space-sm) var(--space-sm) 0;
-    border-top: var(--rule-hair) solid var(--color-rule);
-    font-weight: 400;
-  }
-
-  thead th {
-    border-top: 0;
-    border-bottom: var(--rule-hair) solid var(--color-ink);
-    font-weight: 600;
-    padding-bottom: var(--space-xs);
-  }
-
-  tbody th {
-    font-weight: 500;
+  /*
+   * The table's own craft lives in DataTable; all this page adds is what its
+   * two text cells look like. Every rule the old markup carried — a border
+   * under every row, a heavy rule under the header, its own sticky and hover
+   * treatment — is gone with it.
+   */
+  .app-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    height: 56px;
     font-size: var(--text-md);
+    font-weight: 500;
+  }
+
+  .app-cell :global(a) {
+    text-decoration: none;
+  }
+
+  .app-cell :global(a::after) {
+    /* The whole row is the target. */
+    content: '';
+    position: absolute;
+    inset: 0;
   }
 
   /* An app with no findings is present but not a link. */
-  tbody th span {
+  .app-cell > span {
     color: var(--color-muted);
     font-weight: 400;
   }
 
-  /* ---- table craft (spec 4.4) ---- */
-
-  /*
-   * The header stays put while a long table scrolls. It needs its own
-   * background or the rows would read straight through it.
-   */
-  thead th {
-    position: sticky;
-    top: var(--nav-h);
-    z-index: var(--z-raise);
-    background: var(--color-paper);
-  }
-
-  /* Whole-row hover, mixed off the page colour so it works in both themes. */
-  tbody tr:hover {
-    background: color-mix(in oklch, var(--color-ink) 5%, transparent);
-  }
-
-  tbody tr:has(a:focus-visible) {
-    background: color-mix(in oklch, var(--color-accent) 10%, transparent);
-  }
-
-  .cat {
+  .cat-cell {
     color: var(--color-muted);
   }
 
-  .n {
-    text-align: right;
-    padding-right: 0;
-    width: 6rem;
+  .cat-cell :global(.glyph) {
+    display: inline-block;
+    vertical-align: -0.16em;
+    margin-right: var(--space-2xs);
+    color: var(--cat);
+  }
+
+  /* The row is the positioning context its stretched link needs. */
+  :global([data-row]) {
+    position: relative;
   }
 
   .note {

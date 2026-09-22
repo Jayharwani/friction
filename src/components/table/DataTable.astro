@@ -1,0 +1,252 @@
+---
+/**
+ * The premium data table. One shell, used by every real table on the site.
+ *
+ * What makes it not a spec sheet:
+ *   · 56px rows, and no rule under any of them — the separation is an
+ *     alternating surface tint, which the eye reads as banding rather than
+ *     as a grid of boxes
+ *   · one rule on the whole table, under a sticky header
+ *   · sortable by click or keyboard, with the rows travelling to their new
+ *     positions rather than appearing in them
+ *   · an empty state that is a drawn mark and a line, never a blank body
+ *
+ * It stays a real `<table>` with real `<th scope>`. The styling never removes
+ * the semantics; sorting is a `<button>` inside the header cell, so it is
+ * reachable and operable from the keyboard with no extra work.
+ *
+ * Rows come in through the default slot. Each `<tr>` carries `data-row` and
+ * one `data-sort-<key>` attribute per sortable column, which is what the
+ * script sorts on — the DOM text is never parsed.
+ */
+import EmptyMark from '../EmptyMark.astro';
+
+export interface Column {
+  key: string;
+  label: string;
+  /** Right-aligned, tabular, and sorted high-to-low first. */
+  numeric?: boolean;
+  sortable?: boolean;
+  /** A short unit set after the figure, in muted type. */
+  unit?: string;
+}
+
+interface Props {
+  columns: Column[];
+  /** Which column the table arrives sorted by. */
+  sort?: string;
+  caption: string;
+  /** Shown in place of the body when every row is filtered out. */
+  emptyLine?: string;
+  class?: string;
+}
+
+const {
+  columns,
+  sort,
+  caption,
+  emptyLine = 'Nothing matches those filters.',
+  class: klass,
+} = Astro.props;
+---
+
+<div class:list={['wrap', klass]} data-table data-sort-key={sort}>
+  <table>
+    <caption class="sr-only">{caption}</caption>
+
+    <thead>
+      <tr>
+        {
+          columns.map((c) => (
+            <th
+              scope="col"
+              class:list={[c.numeric && 'n']}
+              data-col={c.key}
+              aria-sort={c.key === sort ? 'descending' : c.sortable ? 'none' : undefined}
+            >
+              {c.sortable ? (
+                <button type="button" data-sort={c.key} data-numeric={c.numeric ? '' : undefined}>
+                  <span>{c.label}</span>
+                  <svg class="caret" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">
+                    <path d="M3 4.75 6 7.75 9 4.75" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              ) : (
+                c.label
+              )}
+            </th>
+          ))
+        }
+      </tr>
+    </thead>
+
+    <tbody data-table-body>
+      <slot />
+    </tbody>
+  </table>
+
+  <p class="empty" data-table-empty hidden>
+    <EmptyMark kind="filter" size={26} />
+    <span>{emptyLine}</span>
+  </p>
+</div>
+
+<style>
+  .wrap {
+    position: relative;
+    margin-top: var(--space-lg);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Figures in a column must line up; this is the whole point of a table. */
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * Numeric columns take exactly what a figure and its bar need; the text
+   * columns share whatever is left. Without this the browser distributes by
+   * content and the numbers drift into the middle of the table.
+   */
+  :global(th.n),
+  :global(td.n) {
+    width: 9rem;
+  }
+
+  /* ---- header: the only rule in the table ---- */
+
+  thead th {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: var(--z-raise);
+    padding: var(--space-sm) var(--space-md);
+    text-align: start;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-muted);
+    white-space: nowrap;
+    background: color-mix(in oklab, var(--color-paper) 82%, transparent);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 1px 0 var(--color-rule);
+  }
+
+  thead th.n {
+    text-align: end;
+  }
+
+  thead button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    min-height: var(--tap);
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .n button {
+    flex-direction: row-reverse;
+  }
+
+  thead button:hover,
+  thead button:focus-visible {
+    color: var(--color-accent);
+  }
+
+  .caret {
+    opacity: 0;
+  }
+
+  [aria-sort='descending'] .caret {
+    opacity: 1;
+  }
+
+  [aria-sort='ascending'] .caret {
+    opacity: 1;
+    rotate: 180deg;
+  }
+
+  /* ---- body: banding, not borders ---- */
+
+  tbody :global(tr) {
+    height: 56px;
+  }
+
+  /*
+   * The separation. A 3% tint on alternate rows, and no rule anywhere —
+   * a hairline under every row is the thing that makes a table read as a
+   * spec sheet from 1998.
+   */
+  tbody :global(tr:nth-child(even)) {
+    background: color-mix(in oklab, var(--color-paper-2) 45%, transparent);
+  }
+
+  tbody :global(tr:hover) {
+    background: color-mix(in oklab, var(--color-accent) 8%, var(--color-paper-2));
+  }
+
+  tbody :global(th),
+  tbody :global(td) {
+    padding: 0 var(--space-md);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    text-align: start;
+    vertical-align: middle;
+  }
+
+  tbody :global(.n) {
+    text-align: end;
+  }
+
+  tbody :global(tr:first-child th),
+  tbody :global(tr:first-child td) {
+    padding-top: var(--space-2xs);
+  }
+
+  /* ---- empty ---- */
+
+  .empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding-block: var(--space-3xl);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  /* ---- motion ---- */
+
+  @media (prefers-reduced-motion: no-preference) {
+    tbody :global(tr) {
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+
+    /* Rows arrive once, staggered by their own index. */
+    :global([data-table][data-entered] tbody tr) {
+      animation: row-in var(--dur-short) var(--ease-out) backwards;
+      animation-delay: calc(var(--row-i, 0) * 18ms);
+    }
+
+    tbody :global(tr:active) {
+      translate: 0 1px;
+    }
+  }
+
+  @keyframes row-in {
+    from {
+      opacity: 0;
+      translate: 0 6px;
+    }
+  }
+</style>
+
+<script>
+  import { initDataTables } from '../../scripts/data-table';
+
+  document.addEventListener('astro:page-load', initDataTables);
+</script>

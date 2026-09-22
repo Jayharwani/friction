@@ -1,0 +1,93 @@
+---
+/**
+ * A numeric cell that shows its own distribution.
+ *
+ * The figure is the value; the bar behind it is that value as a share of the
+ * column's maximum. Reading down the column gives you the shape of the data
+ * without a chart beside the table — which is the whole reason the table can
+ * stay a table.
+ *
+ * The bar is a scaled element, not a width: `scaleX` is composited, a width
+ * transition is a layout pass per frame.
+ */
+interface Props {
+  value: number;
+  /** The column maximum, so every cell in a column shares one scale. */
+  max: number;
+  /** Set after the figure, in muted type. */
+  unit?: string;
+  /** Tints the bar with a family colour when the row has one. */
+  family?: string;
+  /** What to show when there is nothing to show. */
+  empty?: string;
+  /** Row index, for the fill stagger. */
+  i?: number;
+}
+
+const { value, max, unit, family, empty = '—', i = 0 } = Astro.props;
+
+const share = max > 0 ? Math.min(1, value / max) : 0;
+const has = value > 0;
+---
+
+<td class="cell n" data-family={family}>
+  {
+    has && (
+      <span
+        class="bar"
+        style={`--fill:${share.toFixed(4)}; --bar-i:${i}`}
+        aria-hidden="true"
+      />
+    )
+  }
+  <span class="v num">
+    {has ? value.toLocaleString('en-GB') : empty}
+    {has && unit && <span class="u">{unit}</span>}
+  </span>
+</td>
+
+<style>
+  .cell {
+    position: relative;
+    isolation: isolate;
+  }
+
+  /*
+   * Behind the figure, inset to the cell's own padding so the bars in a
+   * column start on one line. 12% of the family colour: present enough to
+   * read as a distribution, quiet enough that the number stays the subject.
+   */
+  .bar {
+    position: absolute;
+    z-index: -1;
+    inset: 8px var(--space-2xs) 8px auto;
+    width: calc(100% - var(--space-2xs) * 2);
+    border-radius: 4px;
+    background: color-mix(in oklab, var(--cat, var(--color-accent)) 12%, transparent);
+    transform: scaleX(var(--fill));
+    transform-origin: right;
+  }
+
+  .v {
+    position: relative;
+  }
+
+  .u {
+    margin-left: 0.25em;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-table][data-entered]) .bar {
+      animation: bar-fill var(--dur-long) var(--ease-out) backwards;
+      animation-delay: calc(var(--bar-i, 0) * 30ms);
+    }
+  }
+
+  @keyframes bar-fill {
+    from {
+      transform: scaleX(0);
+    }
+  }
+</style>
