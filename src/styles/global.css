@@ -21,6 +21,7 @@
      this is a blockquote and there are no cards anywhere in the project. */
 @import "tailwindcss";
 @import "./charts.css";
+@import "./categories.css";
 
 /* ===================================================================
    Friction — design tokens

@@ -1,0 +1,117 @@
+---
+/**
+ * One drawn mark per family. Eight of them, no icon library.
+ *
+ * Rules they all follow, so the set reads as a set: a 24-unit box, a 1.5
+ * stroke, round caps and joins, no fills, and nothing smaller than about
+ * 3 units — detail below that dies at 16px and turns the mark into a smudge.
+ *
+ * Each one is a picture of the family's failure, not a noun:
+ *   stability     a line that breaks and drops
+ *   speed         a line that stalls into a flat tail
+ *   money         a coin with a slice taken out of it
+ *   data          two halves that no longer meet
+ *   access        a closed loop with no way in
+ *   wayfinding    a path that forks and does not resolve
+ *   interruption  a steady line cut across
+ *   support       a question that goes unanswered
+ *
+ * The stroke is `currentColor`, so a parent carrying --cat sets it by
+ * writing `color: var(--cat)` once. The mark is aria-hidden by default:
+ * the family's name is always set beside it in text.
+ */
+import { FAMILY_LABEL, type Family } from '../lib/categories';
+
+interface Props {
+  family: Family;
+  size?: number;
+  /** Give the mark a label when no text name sits next to it. */
+  labelled?: boolean;
+  class?: string;
+}
+
+const { family, size = 24, labelled = false, class: klass } = Astro.props;
+
+/* One path set per family. Numbers, not a library. */
+const PATHS: Record<Family, string[]> = {
+  // A trace running level, then snapping down.
+  stability: ['M2 8h5.5l2.5 4', 'M14.5 12l2 -6', 'M18.5 6l1 10', 'M19.5 16h2.5'],
+  // Even steps that compress and flatten out.
+  speed: ['M2 6h4', 'M6 6v5', 'M6 11h6', 'M12 11v5', 'M12 16h10'],
+  // A coin, open on one side, with the value struck through.
+  money: ['M19 5.5a9 9 0 1 0 0 13', 'M12 7v10', 'M9 10.5h6', 'M9 13.5h6'],
+  // Two halves of one shape, pulled apart.
+  data: ['M11 3v18', 'M8 6H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4', 'M15 6h5a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-5'],
+  // A closed ring with a keyway that stops short.
+  access: ['M12 2.5a9.5 9.5 0 1 1 0 19 9.5 9.5 0 0 1 0-19', 'M12 7.5v5', 'M12 16.5v.5'],
+  // A path that splits and neither branch arrives.
+  wayfinding: ['M12 22V13', 'M12 13L5 6.5', 'M12 13l7-6.5', 'M5 6.5V3', 'M19 6.5V3'],
+  // A steady line, cut.
+  interruption: ['M2 12h6', 'M16 12h6', 'M11 4.5v15', 'M11 4.5l2.5 2.5', 'M11 19.5l2.5-2.5'],
+  // A question mark whose answer never lands.
+  support: ['M8 8a4 4 0 1 1 4 4v3', 'M12 19v.5', 'M2.5 21.5h5', 'M16.5 21.5h5'],
+};
+
+const label = `${FAMILY_LABEL[family]} problems`;
+---
+
+<svg
+  class:list={['glyph', klass]}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role={labelled ? 'img' : undefined}
+  aria-label={labelled ? label : undefined}
+  aria-hidden={labelled ? undefined : 'true'}
+>
+  {/* pathLength normalises every path to 100 so one dash rule covers all eight. */}
+  {PATHS[family].map((d) => <path d={d} pathLength="100" />)}
+</svg>
+
+<style>
+  .glyph {
+    display: block;
+    flex: none;
+  }
+
+  /*
+   * The draw-on. Each mark's paths are dashed to their own length and
+   * the offset runs to zero, so the mark writes itself rather than
+   * fading in. `pathLength` normalises every path to 100 units, which
+   * is what lets one rule cover eight marks of different sizes.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    :global([data-glyph-draw]) .glyph path {
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+    }
+
+    :global([data-glyph-draw][data-drawn]) .glyph path {
+      animation: glyph-draw var(--dur-long) var(--ease-out) forwards;
+    }
+
+    :global([data-glyph-draw][data-drawn]) .glyph path:nth-child(2) {
+      animation-delay: 60ms;
+    }
+    :global([data-glyph-draw][data-drawn]) .glyph path:nth-child(3) {
+      animation-delay: 120ms;
+    }
+    :global([data-glyph-draw][data-drawn]) .glyph path:nth-child(4) {
+      animation-delay: 180ms;
+    }
+    :global([data-glyph-draw][data-drawn]) .glyph path:nth-child(5) {
+      animation-delay: 240ms;
+    }
+  }
+
+  @keyframes glyph-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

@@ -1,0 +1,132 @@
+/* ===================================================================
+   The category palette — a data scale, not UI colour
+
+   Eight families, eight hues, generated rather than chosen:
+
+       hue(k) = (48 + 22.5) mod 45 + k * 45      k = 0..7
+
+   Lightness and chroma are constant across all eight. OKLCH is
+   perceptually uniform, so holding L and C fixed is what makes no
+   family louder than another — the property a hand-picked set never
+   has. The arithmetic lives in src/lib/categories.ts and
+   scripts/categories.test.ts asserts these values match it, so the
+   two cannot drift.
+
+   The ring is rotated so its gap is centred on the UI accent at hue
+   48, putting the nearest family exactly 22.5 degrees away — the
+   furthest eight evenly spaced hues can be from a fixed point.
+   --color-accent is links, focus rings, the score bar and the active
+   nav item; these eight are data. Never swap the roles: an
+   accent-coloured category or a category-coloured focus ring breaks
+   both systems at once.
+
+   Colour is never the only carrier. Every place a family colour
+   appears, its glyph and its label appear with it.
+   =================================================================== */
+
+:root {
+  /* Solved, not chosen: the highest chroma at which all eight hues stay
+     inside sRGB *and* every one clears 3:1 against its own 10% tint.
+     scripts/categories.test.ts pins them; probe-sweep measured them. */
+  --cat-l: 56%;
+  --cat-c: 0.09;
+  --cat-solid-l: 53%;
+
+  --cat-stability: oklch(var(--cat-l) var(--cat-c) 25.5);
+  --cat-speed: oklch(var(--cat-l) var(--cat-c) 70.5);
+  --cat-money: oklch(var(--cat-l) var(--cat-c) 115.5);
+  --cat-data: oklch(var(--cat-l) var(--cat-c) 160.5);
+  --cat-access: oklch(var(--cat-l) var(--cat-c) 205.5);
+  --cat-wayfinding: oklch(var(--cat-l) var(--cat-c) 250.5);
+  --cat-interruption: oklch(var(--cat-l) var(--cat-c) 295.5);
+  --cat-support: oklch(var(--cat-l) var(--cat-c) 340.5);
+}
+
+/* Dark lifts lightness and drops chroma a little: the same hues against
+   a dark surface read more saturated than they measure. */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    --cat-l: 72%;
+    --cat-c: 0.12;
+    --cat-solid-l: 71%;
+  }
+}
+
+:root[data-theme='dark'] {
+  --cat-l: 72%;
+  --cat-c: 0.12;
+  --cat-solid-l: 71%;
+}
+
+/*
+ * Every element that carries a family sets --cat and --cat-tint once,
+ * and everything inside it reads those. One attribute on a card is the
+ * whole encoding — no per-property colour rules anywhere downstream.
+ */
+[data-family='stability'] {
+  --cat: var(--cat-stability);
+}
+[data-family='speed'] {
+  --cat: var(--cat-speed);
+}
+[data-family='money'] {
+  --cat: var(--cat-money);
+}
+[data-family='data'] {
+  --cat: var(--cat-data);
+}
+[data-family='access'] {
+  --cat: var(--cat-access);
+}
+[data-family='wayfinding'] {
+  --cat: var(--cat-wayfinding);
+}
+[data-family='interruption'] {
+  --cat: var(--cat-interruption);
+}
+[data-family='support'] {
+  --cat: var(--cat-support);
+}
+
+[data-family] {
+  /* The background wash, and a slightly stronger one for nested fills. */
+  --cat-tint: color-mix(in oklch, var(--cat) 10%, var(--color-paper));
+  --cat-tint-2: color-mix(in oklch, var(--cat) 18%, var(--color-paper));
+  /* For a rule or a border that has to sit against the tint. */
+  --cat-edge: color-mix(in oklch, var(--cat) 42%, var(--color-rule));
+
+  /*
+   * The family colour as a solid panel, with paper set on top of it. Its
+   * lightness is not --cat-l: it is the darkest the scale can go in light
+   * mode (53%) and the lightest in dark (71%) while every one of the eight
+   * hues still clears 4.5:1 against --color-paper. Measured, not guessed.
+   */
+  --cat-solid: oklch(var(--cat-solid-l) var(--cat-c) var(--cat-h));
+}
+
+/* Each family also publishes its raw hue, so --cat-solid can rebuild the
+   colour at a different lightness without a second set of declarations. */
+[data-family='stability'] {
+  --cat-h: 25.5;
+}
+[data-family='speed'] {
+  --cat-h: 70.5;
+}
+[data-family='money'] {
+  --cat-h: 115.5;
+}
+[data-family='data'] {
+  --cat-h: 160.5;
+}
+[data-family='access'] {
+  --cat-h: 205.5;
+}
+[data-family='wayfinding'] {
+  --cat-h: 250.5;
+}
+[data-family='interruption'] {
+  --cat-h: 295.5;
+}
+[data-family='support'] {
+  --cat-h: 340.5;
+}

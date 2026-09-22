@@ -2,15 +2,28 @@
 /**
  * One cross-app pattern.
  *
- * The row of app icons is what carries the argument. Seven icons in a line
- * says "this is everywhere" faster than any sentence, and every icon is an
- * app the reader recognises.
+ * Three zones, each with one thing that leads:
+ *
+ *   1  the claim   — the app count at display size, and the icons overlapping
+ *   2  the reach   — one thick bar, labelled inside its own fill
+ *   3  the gap     — three panels, handled by GapBlock
+ *
+ * The count is the argument the card is making, so it is set at 72px and
+ * everything else is context. The icons overlap by about a third because a
+ * spaced row reads as a list and an overlapping one reads as a group — which
+ * is the claim. Eight are shown; the rest become a +N tile.
+ *
+ * The card takes its family's tint as a background and its family's colour
+ * for the glyph, the rules and the bar, so the eye sorts patterns by family
+ * before it reads a single word.
  */
 import type { Pattern } from '../lib/patterns';
 import { url } from '../lib/url';
 import { getProduct } from '../lib/data';
+import { familyOf, FAMILY_LABEL } from '../lib/categories';
 import GapBlock from './GapBlock.astro';
 import AppIcon from './AppIcon.astro';
+import CategoryGlyph from './CategoryGlyph.astro';
 
 interface Props {
   pattern: Pattern;
@@ -21,32 +34,60 @@ interface Props {
 
 const { pattern, trackedApps, compact = false } = Astro.props;
 
+const family = familyOf(pattern.category);
+
 const apps = pattern.apps.map((slug) => ({
   slug,
   name: getProduct(slug)?.name ?? slug,
 }));
+
+/* Eight icons is the most that reads as a group rather than a crowd. */
+const VISIBLE = 8;
+const shown = apps.slice(0, VISIBLE);
+const overflow = apps.length - shown.length;
+
+const iconSize = compact ? 34 : 56;
+const reachPct = Math.round(pattern.reach * 100);
 ---
 
-<article class="pattern" data-chart data-compact={compact ? '' : undefined}>
-  <header>
-    <h3>{pattern.category}</h3>
-    <p class="reach num">
-      <span class="big">{pattern.apps.length}</span> of {trackedApps} apps
-    </p>
-  </header>
+<article class="pattern" data-family={family} data-chart data-glyph-draw data-compact={compact ? '' : undefined}>
+  {/* ---------- 1. the claim ---------- */}
+  <div class="claim">
+    <div class="headline">
+      <p class="fam">
+        <CategoryGlyph family={family} size={compact ? 16 : 20} />
+        <span>{FAMILY_LABEL[family]}</span>
+      </p>
+      <h3>{pattern.category}</h3>
+      <p class="count num">
+        <span class="figure">{pattern.apps.length}</span>
+        <span class="of">of {trackedApps} apps affected</span>
+      </p>
+    </div>
 
-  <ul class="icons" aria-label={`Apps with this pattern: ${apps.map((a) => a.name).join(', ')}`}>
-    {
-      apps.map((a, i) => (
-        <li class="ch-pop" style={`--ch-i:${i}; --ch-step:40ms`}>
-          <AppIcon slug={a.slug} name={a.name} size={compact ? 26 : 34} />
-        </li>
-      ))
-    }
-  </ul>
+    <ul class="icons" aria-label={`Apps with this pattern: ${apps.map((a) => a.name).join(', ')}`}>
+      {
+        shown.map((a, i) => (
+          <li class="ch-pop" style={`--ch-i:${i}; --ch-step:40ms`}>
+            <AppIcon slug={a.slug} name={a.name} size={iconSize} />
+          </li>
+        ))
+      }
+      {
+        overflow > 0 && (
+          <li class="more num" style={`--ch-i:${shown.length}; --ch-step:40ms`} aria-hidden="true">
+            +{overflow}
+          </li>
+        )
+      }
+    </ul>
+  </div>
 
-  <p class="bar" aria-hidden="true">
-    <span class="fill ch-wipe" style={`--w:${(pattern.reach * 100).toFixed(0)}%`} />
+  {/* ---------- 2. the reach ---------- */}
+  <p class="bar">
+    <span class="fill ch-wipe" style={`--w:${reachPct}%`}>
+      <span class="in num">{reachPct}% of tracked apps</span>
+    </span>
   </p>
 
   <dl class="figs num">
@@ -60,6 +101,7 @@ const apps = pattern.apps.map((slug) => ({
     </div>
   </dl>
 
+  {/* ---------- 3. the gap ---------- */}
   {
     !compact && (
       <>
@@ -90,37 +132,74 @@ const apps = pattern.apps.map((slug) => ({
 <style>
   .pattern {
     padding: var(--space-lg);
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: 10px;
-    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--cat-edge);
+    border-radius: 12px;
+    background: var(--cat-tint);
   }
 
-  header {
+  /* ---- 1. the claim ---- */
+
+  .claim {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  /* Side by side once there is room for the icons to sit beside the figure. */
+  @media (min-width: 52rem) {
+    .pattern:not([data-compact]) .claim {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+  }
+
+  .fam {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-md);
-    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-xs);
+    color: var(--cat);
   }
 
   h3 {
+    margin-top: var(--space-3xs);
     font-size: var(--text-lg);
     font-weight: 600;
+    line-height: 1.15;
+    text-wrap: balance;
   }
 
   [data-compact] h3 {
     font-size: var(--text-md);
   }
 
-  .reach {
-    font-size: var(--text-xs);
-    color: var(--color-muted);
+  /*
+   * The figure is the card. Everything else on it is context, and the size
+   * gap is what says so — 72px against 13px, not 18px against 13px.
+   */
+  .count {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+    flex-wrap: wrap;
   }
 
-  .big {
-    font-size: var(--text-lg);
+  .figure {
+    font-size: clamp(3rem, 1.4rem + 5vw, 4.5rem);
     font-weight: 600;
-    color: var(--color-ink);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: var(--cat);
+  }
+
+  [data-compact] .figure {
+    font-size: clamp(2.2rem, 1.4rem + 3vw, 3rem);
+  }
+
+  .of {
+    font-size: var(--text-sm);
+    color: var(--color-muted);
   }
 
   /* ---- the icon row: the argument ---- */
@@ -128,32 +207,94 @@ const apps = pattern.apps.map((slug) => ({
   .icons {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2xs);
     list-style: none;
-    margin: var(--space-md) 0 0;
+    margin: 0;
     padding: 0;
   }
 
+  /*
+   * Overlap by about a third. The ring is the card's own tint rather than
+   * paper, so the icons read as sitting on this card and not floating.
+   */
+  .icons li {
+    /* -0.3em against the icon's own size is a clean 30% overlap at any size. */
+    margin-left: -0.3em;
+    font-size: var(--icon-size);
+    line-height: 0;
+    border-radius: 24%;
+    box-shadow: 0 0 0 3px var(--cat-tint);
+  }
+
+  .icons li:first-child {
+    margin-left: 0;
+  }
+
+  .pattern {
+    --icon-size: 56px;
+  }
+
+  [data-compact] {
+    --icon-size: 34px;
+  }
+
+  /*
+   * The tile matches the icons' box, but its text does not inherit that
+   * size — the li sets font-size to drive the overlap in em, so this has
+   * to put it back or the +N renders at 56px.
+   */
+  .more {
+    display: grid;
+    place-items: center;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    line-height: 1;
+    border-radius: 24%;
+    background: color-mix(in oklch, var(--cat) 24%, var(--color-paper));
+    color: var(--color-ink);
+    box-shadow: 0 0 0 3px var(--cat-tint);
+  }
+
+  /* ---- 2. the reach ---- */
+
+  /*
+   * 12px and filled, not a hairline. The proportion is set inside the fill
+   * so the bar needs no legend beside it.
+   */
   .bar {
-    height: 0.3rem;
-    margin: var(--space-md) 0 0;
-    border-radius: 2px;
-    background: var(--color-paper-3);
+    position: relative;
+    height: 1.5rem;
+    margin: var(--space-lg) 0 0;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--cat) 14%, var(--color-paper));
     overflow: hidden;
   }
 
   .fill {
-    display: block;
+    display: flex;
+    align-items: center;
     height: 100%;
     width: var(--w);
-    background: var(--color-accent);
+    min-width: fit-content;
+    padding-inline: var(--space-sm);
+    border-radius: 999px;
+    background: var(--cat);
     transform-origin: left;
+  }
+
+  .in {
+    font-size: var(--text-xs);
+    font-weight: 500;
+    white-space: nowrap;
+    /* Always legible: the fill is a solid 56%-lightness colour in both themes. */
+    color: var(--color-paper);
   }
 
   .figs {
     display: flex;
-    gap: var(--space-xl);
-    margin: var(--space-md) 0 0;
+    gap: var(--space-2xl);
+    margin: var(--space-lg) 0 0;
   }
 
   .figs dt {
@@ -162,9 +303,14 @@ const apps = pattern.apps.map((slug) => ({
   }
 
   .figs dd {
-    margin: 0;
-    font-size: var(--text-md);
+    margin: var(--space-3xs) 0 0;
+    font-size: var(--text-2xl);
     font-weight: 600;
+    line-height: 1;
+  }
+
+  [data-compact] .figs dd {
+    font-size: var(--text-xl);
   }
 
   /* ---- examples ---- */
@@ -176,7 +322,7 @@ const apps = pattern.apps.map((slug) => ({
   }
 
   .examples li + li {
-    border-top: var(--rule-hair) solid var(--color-rule);
+    border-top: var(--rule-hair) solid var(--cat-edge);
   }
 
   .examples a {
@@ -188,7 +334,7 @@ const apps = pattern.apps.map((slug) => ({
 
   .examples a:hover .e-title,
   .examples a:focus-visible .e-title {
-    color: var(--color-accent);
+    color: var(--cat);
   }
 
   .e-title {

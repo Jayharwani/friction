@@ -11,10 +11,9 @@
  */
 import Layout from '../layouts/Layout.astro';
 import PatternCard from '../components/PatternCard.astro';
-import AppIcon from '../components/AppIcon.astro';
 import FrictionField from '../components/FrictionField.astro';
 import { buildPatterns, PATTERN_MIN_APPS } from '../lib/patterns';
-import { getActiveProblems, getGaps, getProduct, getProducts } from '../lib/data';
+import { getActiveProblems, getGaps, getProducts } from '../lib/data';
 
 const tracked = getProducts().length;
 const patterns = buildPatterns(getActiveProblems(), tracked, getGaps());
@@ -36,28 +35,15 @@ const top = patterns[0];
   </div>
 
   <div class="shell">
-    {
-      top && (
-        <section class="lead" aria-label="Most widespread pattern">
-          <p class="lead-cat">{top.category}</p>
-          <ul class="lead-icons" aria-label={`Found in ${top.apps.length} apps`}>
-            {top.apps.map((slug, i) => (
-              <li class="ch-pop" style={`--ch-i:${i}; --ch-step:60ms`} data-chart>
-                <AppIcon slug={slug} name={getProduct(slug)?.name ?? slug} size={52} />
-              </li>
-            ))}
-          </ul>
-          <p class="lead-fig num">
-            <span>{top.apps.length} of {tracked} apps</span>
-            <span>{top.reviewers} reviewers</span>
-          </p>
-        </section>
-      )
-    }
+    {/*
+      The lead block used to sit here, showing the top pattern's icons, app
+      count and reviewer count. The first card below now carries all three at
+      display size, so it was the same data twice — see the hierarchy rules.
+    */}
 
     {
       patterns.length > 0 ? (
-        <section class="grid" aria-label="All patterns">
+        <section class="grid bleed" aria-label="All patterns">
           {patterns.map((pattern) => (
             <PatternCard pattern={pattern} trackedApps={tracked} />
           ))}

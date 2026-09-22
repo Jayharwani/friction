@@ -1,5 +1,5 @@
 /**
- * One-shot reveal for the chart kit.
+ * One-shot reveal for the chart kit and the category glyphs.
  *
  * Every chart renders in its finished state by default. This adds
  * `data-revealed` the first time a chart enters the viewport, which is what
@@ -18,11 +18,20 @@ const REVEALED = 'data-revealed';
 let observer: IntersectionObserver | null = null;
 
 function reveal(el: Element): void {
-  el.setAttribute(REVEALED, '');
+  el.setAttribute(el.hasAttribute('data-glyph-draw') ? DRAWN : REVEALED, '');
 }
 
+/*
+ * Two selectors, one mechanism. `[data-glyph-draw]` is a card whose family
+ * glyph writes itself on once; `[data-chart]` is a chart whose marks rise.
+ * Both are one-shot, both are already correct without the attribute.
+ */
+const DRAWN = 'data-drawn';
+
 export function watchCharts(): void {
-  const targets = document.querySelectorAll(`[data-chart]:not([${REVEALED}])`);
+  const charts = [...document.querySelectorAll(`[data-chart]:not([${REVEALED}])`)];
+  const glyphs = [...document.querySelectorAll(`[data-glyph-draw]:not([${DRAWN}])`)];
+  const targets = [...charts, ...glyphs];
   if (targets.length === 0) return;
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

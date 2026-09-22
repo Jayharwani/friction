@@ -12,6 +12,8 @@ import { getProduct } from '../lib/data';
 import { weeklySeries } from '../lib/charts';
 import Sparkline from './charts/Sparkline.astro';
 import AppIcon from './AppIcon.astro';
+import CategoryGlyph from './CategoryGlyph.astro';
+import { familyOf } from '../lib/categories';
 
 interface Props {
   problem: Problem;
@@ -25,13 +27,17 @@ const product = getProduct(problem.productSlug);
 const series = weeklySeries(problem.evidence);
 const reviews = problem.evidence.length;
 const platforms = [...new Set(problem.evidence.map((e) => e.platform))];
+const family = familyOf(problem.category);
 ---
 
 <article
   class="card"
+  data-family={family}
+  data-glyph-draw
   data-problem={filterable ? '' : undefined}
   data-app={problem.productSlug}
   data-category={problem.category}
+  data-familykey={family}
   data-verdict={problem.verdict}
   data-platforms={platforms.join(' ')}
   data-score={problem.score}
@@ -41,7 +47,10 @@ const platforms = [...new Set(problem.evidence.map((e) => e.platform))];
     <AppIcon slug={problem.productSlug} name={product?.name ?? problem.productSlug} size={32} />
     <div class="who">
       <p class="app">{product?.name ?? problem.productSlug}</p>
-      <p class="cat">{problem.category}</p>
+      <p class="cat">
+        <CategoryGlyph family={family} size={15} />
+        {problem.category}
+      </p>
     </div>
   </header>
 
@@ -64,15 +73,29 @@ const platforms = [...new Set(problem.evidence.map((e) => e.platform))];
 </article>
 
 <style>
+  /*
+   * The family reads before the sentence does: a tinted top edge across the
+   * full card width, in the family colour. Three pixels of fill, because a
+   * hairline is what made every card look identical.
+   */
   .card {
     position: relative;
     display: grid;
     grid-template-rows: auto auto 1fr auto;
     gap: var(--space-sm);
-    padding: var(--space-md);
+    padding: calc(var(--space-md) + 3px) var(--space-md) var(--space-md);
     border: var(--rule-hair) solid var(--color-rule);
     border-radius: 10px;
     background: var(--color-paper-2);
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--cat);
   }
 
   /* One link in the tree; the whole card is its target. */
@@ -85,8 +108,8 @@ const platforms = [...new Set(problem.evidence.map((e) => e.platform))];
 
   .card:has(a:hover),
   .card:has(a:focus-visible) {
-    background: color-mix(in oklch, var(--color-accent) 6%, var(--color-paper-2));
-    border-color: color-mix(in oklch, var(--color-accent) 30%, var(--color-rule));
+    background: var(--cat-tint);
+    border-color: var(--cat-edge);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -118,9 +141,17 @@ const platforms = [...new Set(problem.evidence.map((e) => e.platform))];
     line-height: 1.2;
   }
 
+  /* Glyph in the family colour, label in ink: colour never carries this alone. */
   .cat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3xs);
     font-size: var(--text-xs);
     color: var(--color-muted);
+  }
+
+  .cat :global(.glyph) {
+    color: var(--cat);
   }
 
   h3 {

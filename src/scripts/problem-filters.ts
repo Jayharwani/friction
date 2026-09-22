@@ -14,8 +14,13 @@ export function initProblemFilters(): void {
 
   const cards = [...grid.querySelectorAll<HTMLElement>('[data-problem]')];
   const selects = [...root.querySelectorAll<HTMLSelectElement>('[data-filter]')];
+  const chips = [...root.querySelectorAll<HTMLButtonElement>('[data-family-chip]')];
   const count = root.querySelector<HTMLElement>('[data-problems-count]');
   const empty = root.querySelector<HTMLElement>('[data-problems-empty]');
+
+  /* The family chips are one exclusive choice, held here rather than read
+     back out of the DOM on every card test. */
+  let family = 'all';
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const css = getComputedStyle(document.documentElement);
@@ -23,6 +28,7 @@ export function initProblemFilters(): void {
   const easing = css.getPropertyValue('--ease-out').trim() || 'ease-out';
 
   function matches(card: HTMLElement): boolean {
+    if (family !== 'all' && card.dataset.familykey !== family) return false;
     for (const select of selects) {
       const key = select.dataset.filter!;
       const want = select.value;
@@ -73,5 +79,16 @@ export function initProblemFilters(): void {
   }
 
   for (const select of selects) select.addEventListener('change', apply);
+
+  for (const chip of chips) {
+    chip.addEventListener('click', () => {
+      family = chip.dataset.familyChip ?? 'all';
+      for (const c of chips) {
+        c.setAttribute('aria-pressed', String(c === chip));
+      }
+      apply();
+    });
+  }
+
   apply();
 }

@@ -11,6 +11,8 @@ import ScoreDisclosure from '../../components/ScoreDisclosure.astro';
 import EvidenceItem from '../../components/EvidenceItem.astro';
 import RelatedStrip from '../../components/RelatedStrip.astro';
 import GapBlock from '../../components/GapBlock.astro';
+import CategoryGlyph from '../../components/CategoryGlyph.astro';
+import { familyOf } from '../../lib/categories';
 import Sparkline from '../../components/charts/Sparkline.astro';
 import StackedBar from '../../components/charts/StackedBar.astro';
 import VersionTimeline from '../../components/charts/VersionTimeline.astro';
@@ -48,6 +50,8 @@ const signals = signalCounts(problem.evidence).filter((sig) => sig.count > 0);
  */
 const gap = problem.verdict === 'Strong signal' ? getGaps()[problem.category] : undefined;
 
+const family = familyOf(problem.category);
+
 const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} from ${problem.evidence.length} app store reviews.`;
 ---
 
@@ -63,12 +67,13 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
       the score below every quote on mobile, and put the score disclosure after
       all the evidence links in the tab order.
     -->
-    <div class="detail bleed">
+    <div class="detail bleed" data-family={family}>
       <div class="columns">
       <header class="intro">
         <h1 transition:name={`title-${problem.slug}`}>{problem.title}</h1>
         <p class="summary">{problem.summary}</p>
         <p class="meta">
+          <CategoryGlyph family={family} size={15} />
           {problem.category}, {platformsLabel(problem.platforms)}, {problem.evidence.length}{' '}
           {problem.evidence.length === 1 ? 'review' : 'reviews'}
           {problem.status === 'stale' && <span class="stale">, no new evidence in 120 days</span>}
@@ -295,6 +300,17 @@ const description = `${problem.summary.slice(0, 150)} Scored ${problem.score} fr
     margin-bottom: var(--space-2xl);
     padding-bottom: var(--space-xl);
     border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    flex-wrap: wrap;
+  }
+
+  .meta :global(.glyph) {
+    color: var(--cat);
   }
 
   .gap-section h2 {

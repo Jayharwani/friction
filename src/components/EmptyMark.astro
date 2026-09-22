@@ -1,0 +1,60 @@
+---
+/**
+ * Drawn marks for empty states.
+ *
+ * An empty state set as a grey sentence is the moment a site reads as
+ * unfinished. Each of these is one small drawing plus one short line, in the
+ * same language as the category glyphs: 24-unit box, 1.5 stroke, no fills.
+ *
+ *   none      an outline with nothing in it — nothing was named
+ *   filter    a funnel that passes nothing — the filters match nothing
+ *   single    one mark on a track with no second — only one scan so far
+ *   quiet     a flat trace — no evidence in the window
+ */
+interface Props {
+  kind: 'none' | 'filter' | 'single' | 'quiet';
+  size?: number;
+  class?: string;
+}
+
+const { kind, size = 28, class: klass } = Astro.props;
+
+const PATHS: Record<Props['kind'], string[]> = {
+  none: ['M4.5 6.5h15v11h-15z', 'M4.5 6.5l15 11', 'M19.5 6.5l-15 11'],
+  filter: ['M3 4.5h18l-7 8v7l-4 2.5v-9.5z', 'M9 21.5h6'],
+  single: ['M2 12h20', 'M8 8.5v7', 'M16 11.5v1'],
+  quiet: ['M2 12h6', 'M8 12h2.5', 'M13 12h2.5', 'M17.5 12H22'],
+};
+
+/* Dashes on the strokes that stand for absence, solid on the rest. */
+const DASHED: Record<Props['kind'], boolean> = {
+  none: false,
+  filter: false,
+  single: true,
+  quiet: true,
+};
+---
+
+<svg
+  class:list={['mark', klass]}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  {PATHS[kind].map((d, i) => <path d={d} stroke-dasharray={DASHED[kind] && i > 0 ? '2 3' : undefined} />)}
+</svg>
+
+<style>
+  .mark {
+    display: block;
+    flex: none;
+    color: var(--color-neutral);
+    opacity: 0.85;
+  }
+</style>
