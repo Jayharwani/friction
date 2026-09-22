@@ -93,9 +93,17 @@ const verdictNote: Record<string, string> = {
     white-space: nowrap;
   }
 
+  /*
+   * A card, matching the two beneath it in the rail. The rule on top used to
+   * be the only thing holding it, which left the score reading as loose text
+   * beside two bordered blocks.
+   */
   .panel {
+    padding: var(--space-md);
+    border: var(--rule-hair) solid var(--color-rule);
     border-top: 2px solid var(--color-ink);
-    padding-top: var(--space-md);
+    border-radius: 12px;
+    background: var(--color-paper-2);
   }
 
   .score {

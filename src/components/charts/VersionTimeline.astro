@@ -1,18 +1,23 @@
 ---
 /**
- * App versions along a real time axis, with a mark wherever evidence appeared.
+ * App versions as one band along a real time axis.
  *
  * The axis is time, not version order, for two reasons. The stores number
  * independently — 0.6.4100 and 1.7.338 do not sort against each other — and
- * the gaps are the point: a reader should be able to see that a complaint
- * survived six releases across five months rather than arriving all at once.
+ * the elapsed time is the point: a reader should be able to see that a
+ * complaint survived six releases across five months rather than arriving
+ * all at once.
  *
- * Mark area is proportional to the number of reviews naming that version, so a
- * version reported twice is twice the mark, not twice the radius.
+ * Each version holds the track from the day it was first named until the day
+ * the next one was, so a segment's *width* is how long that version carried
+ * the problem, and the distance between two segment starts is real elapsed
+ * time. Its *fill* is how many reviews named it. Two encodings, both read
+ * off the same block.
  *
- * Labels sit in rows beneath rather than under their own marks. Six versions
- * clustered into three weeks put six labels on top of each other, and a
- * timeline you cannot read is worse than the table it replaced.
+ * This replaced a dot axis plus a table repeating version, date and count.
+ * If a chart needs a table under it to be understood then the chart is
+ * wrong — so the chart changed and the table is gone. The full listing is
+ * still in the figcaption for a screen reader.
  */
 import { formatDate } from '../../lib/data';
 import type { VersionMark } from '../../lib/charts';
@@ -23,33 +28,49 @@ interface Props {
 
 const { marks } = Astro.props;
 
-/** Positions are percentages across the axis. */
-const W = 100;
-const PAD = 4;
+const ordered = [...marks].sort((a, b) => a.first.localeCompare(b.first));
 
-const times = marks.map((m) => Date.parse(m.first));
+const times = ordered.map((m) => Date.parse(m.first));
 const lo = Math.min(...times);
 const hi = Math.max(...times);
-const span = Math.max(1, hi - lo);
 
-const peak = Math.max(1, ...marks.map((m) => m.count));
-const R_MIN = 1.6;
-const R_MAX = 4;
+/*
+ * The last version has no successor to end at, so the track runs on by a
+ * tenth of its own span — enough to give the final segment a body without
+ * implying a date nobody reported.
+ */
+const rawSpan = Math.max(1, hi - lo);
+const tail = ordered.length > 1 ? rawSpan / 10 : rawSpan;
+const span = rawSpan + tail;
 
-const nodes = marks.map((m, i) => ({
-  ...m,
-  i,
-  /* A single version has no span to sit in, so it takes the centre. */
-  x: marks.length === 1 ? W / 2 : PAD + ((Date.parse(m.first) - lo) / span) * (W - PAD * 2),
-  // Area-proportional: the radius grows with the square root of the count.
-  r: R_MIN + (R_MAX - R_MIN) * Math.sqrt(m.count / peak),
-}));
+const peak = Math.max(1, ...ordered.map((m) => m.count));
+
+const segments = ordered.map((m, i) => {
+  const start = Date.parse(m.first);
+  const end = i + 1 < ordered.length ? Date.parse(ordered[i + 1]!.first) : hi + tail;
+  /* A same-day pair would be a zero-width block, so every segment keeps a
+     floor of 6% — visible, and still obviously the narrowest thing there. */
+  const width = Math.max(6, ((end - start) / span) * 100);
+  return {
+    ...m,
+    i,
+    left: ((start - lo) / span) * 100,
+    width,
+    /* Fill runs 22% to 100% of the family colour: even one review has to be
+       visible, and the ramp still separates one from six. */
+    strength: 22 + 78 * (m.count / peak),
+    roomy: width >= 16,
+    /* Paper on a pale segment is invisible. Below roughly half strength the
+       label flips to ink, which is what the tint was always readable against. */
+    onDark: 22 + 78 * (m.count / peak) >= 55,
+  };
+});
 
 const dayGap = Math.round((hi - lo) / 86_400_000);
 
-const alt = `${marks.length} app ${marks.length === 1 ? 'version' : 'versions'} carried this problem${
+const alt = `${ordered.length} app ${ordered.length === 1 ? 'version' : 'versions'} carried this problem${
   dayGap > 0 ? `, spanning ${dayGap} days` : ''
-}: ${marks
+}: ${ordered
   .map(
     (m) =>
       `${m.version} on ${m.platform === 'ios' ? 'iOS' : 'Android'}, first reported ${formatDate(m.first)}, ${m.count} ${m.count === 1 ? 'review' : 'reviews'}`,
@@ -58,47 +79,30 @@ const alt = `${marks.length} app ${marks.length === 1 ? 'version' : 'versions'} 
 ---
 
 <figure class="vt" data-chart>
-  {/*
-    HTML rather than SVG. A stretched viewBox turns every circle into an
-    ellipse, and the axis has to span the full width, so there is no aspect
-    ratio that satisfies both.
-  */}
-  <div class="axis" aria-hidden="true">
+  <div class="band" aria-hidden="true">
     {
-      nodes.map((n) => (
+      segments.map((s) => (
         <span
-          class="ch-pop dot"
-          style={`--ch-i:${n.i}; --ch-step:30ms; left:${n.x}%; --d:${(n.r * 2).toFixed(2)}`}
-          title={`${n.version} — ${n.count} ${n.count === 1 ? 'review' : 'reviews'}, first on ${formatDate(n.first)}`}
-        />
+          class="seg ch-wipe"
+          style={`--ch-i:${s.i}; --ch-step:30ms; left:${s.left}%; width:${s.width}%; --strength:${s.strength.toFixed(0)}%`}
+          title={`${s.version} — ${s.count} ${s.count === 1 ? 'review' : 'reviews'}, first on ${formatDate(s.first)}`}
+        >
+          {s.roomy && (
+            <span class="lab num" data-on-dark={s.onDark ? '' : undefined}>
+              <span class="v">{s.version}</span>
+              <span class="n">{s.count}</span>
+            </span>
+          )}
+        </span>
       ))
     }
   </div>
 
-  {
-    dayGap > 0 && (
-      <p class="span num" aria-hidden="true">
-        <span>{formatDate(marks[0]!.first)}</span>
-        <span class="gap">{dayGap} days</span>
-        <span>{formatDate(marks.at(-1)!.first)}</span>
-      </p>
-    )
-  }
-
-  <ol class="rows">
-    {
-      nodes.map((n) => (
-        <li class="ch-fade" style={`--ch-i:${n.i}; --ch-step:30ms`}>
-          <span class="v num">{n.version}</span>
-          <span class="when num">{formatDate(n.first)}</span>
-          <span class="n num">
-            {n.count}
-            <span class="sr-only"> {n.count === 1 ? 'review' : 'reviews'}</span>
-          </span>
-        </li>
-      ))
-    }
-  </ol>
+  <p class="scale num" aria-hidden="true">
+    <span>{formatDate(ordered[0]!.first)}</span>
+    {dayGap > 0 && <span class="gap">{dayGap} days</span>}
+    <span>{formatDate(ordered.at(-1)!.first)}</span>
+  </p>
 
   <figcaption class="sr-only">{alt}</figcaption>
 </figure>
@@ -108,72 +112,72 @@ const alt = `${marks.length} app ${marks.length === 1 ? 'version' : 'versions'} 
     margin: 0;
   }
 
-  /* The axis is the rule; the dots sit on it. */
-  .axis {
+  /*
+   * 44px of fill, not a hairline with dots on it. The track is the family's
+   * tint so an unfilled stretch still reads as part of the chart.
+   */
+  .band {
     position: relative;
-    height: 1.25rem;
-    margin-bottom: var(--space-2xs);
+    height: 44px;
+    border-radius: 8px;
+    background: var(--cat-tint, var(--color-paper-3));
+    overflow: hidden;
   }
 
-  .axis::before {
-    content: '';
+  .seg {
     position: absolute;
-    inset: 50% 0 auto;
-    height: var(--rule-hair);
-    background: var(--color-rule);
+    inset-block: 0;
+    display: flex;
+    align-items: center;
+    padding-inline: var(--space-2xs);
+    /* One colour, one variable: how strongly this version was reported. */
+    background: color-mix(in oklch, var(--cat, var(--color-ink)) var(--strength), transparent);
+    border-left: var(--rule-hair) solid var(--color-paper);
+    transform-origin: left;
+    overflow: hidden;
   }
 
-  .dot {
-    position: absolute;
-    top: 50%;
-    /* --d is the diameter in the same units the marks were sized in. */
-    width: calc(var(--d) * 0.14rem);
-    height: calc(var(--d) * 0.14rem);
-    border-radius: 50%;
-    background: var(--color-accent);
-    translate: -50% -50%;
-    /* Ringed in the page colour so overlapping marks stay countable. */
-    box-shadow: 0 0 0 1.5px var(--color-paper);
+  .seg:first-child {
+    border-left: 0;
   }
 
-  .span {
+  .lab {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3xs);
+    min-width: 0;
+    font-size: var(--text-xs);
+    line-height: 1.1;
+    color: var(--color-ink);
+  }
+
+  /* Strong fills are --cat at full strength; paper clears 4.5:1 on it. */
+  .lab[data-on-dark] {
+    color: var(--color-paper);
+  }
+
+  .v {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .n {
+    flex: none;
+    opacity: 0.85;
+  }
+
+  .scale {
     display: flex;
     justify-content: space-between;
     gap: var(--space-xs);
+    margin-top: var(--space-2xs);
     font-size: var(--text-xs);
     color: var(--color-muted);
   }
 
   .gap {
-    color: var(--color-ink);
-  }
-
-  .rows {
-    list-style: none;
-    margin: var(--space-sm) 0 0;
-    padding: 0;
-    font-size: var(--text-xs);
-    color: var(--color-muted);
-  }
-
-  .rows li {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: baseline;
-    column-gap: var(--space-sm);
-    padding-block: var(--space-3xs);
-  }
-
-  .rows li + li {
-    border-top: var(--rule-hair) solid var(--color-rule);
-  }
-
-  .v {
-    color: var(--color-ink);
-  }
-
-  .n {
-    min-width: 1.4em;
-    text-align: right;
+    color: var(--color-neutral);
   }
 </style>

@@ -1,0 +1,187 @@
+---
+/**
+ * Where the evidence came from, as two objects.
+ *
+ * Two device marks, each filled from the bottom by that store's share, with
+ * the count in type beside it. Not a bar plus a legend: a bar with a key
+ * underneath makes the reader look twice at two things to learn one.
+ *
+ * The marks are drawn devices, not the platforms' logos. A corporate mark
+ * would be a trademark on a page that is not affiliated with either company,
+ * and the outlines below tell the two apart on their own — which is the only
+ * job they have. The platform name is always set in type beside the mark, so
+ * nothing here is carried by the drawing alone.
+ */
+import type { Evidence } from '../../../scripts/validate';
+
+interface Props {
+  evidence: Evidence[];
+}
+
+const { evidence } = Astro.props;
+
+const total = evidence.length;
+
+const rows = (
+  [
+    { key: 'ios', name: 'iOS' },
+    { key: 'android', name: 'Android' },
+  ] as const
+).map(({ key, name }) => {
+  const count = evidence.filter((e) => e.platform === key).length;
+  return {
+    key,
+    name,
+    count,
+    share: total === 0 ? 0 : Math.round((count / total) * 100),
+  };
+});
+
+const alt = `${rows.map((r) => `${r.count} of ${total} reviews from ${r.name}`).join(', ')}.`;
+---
+
+<figure class="pm" data-chart>
+  <ul class="marks">
+    {
+      rows.map((r, i) => (
+        <li class="row ch-rise" data-empty={r.count === 0 ? '' : undefined} style={`--ch-i:${i}; --ch-step:60ms`}>
+          <span class="device" aria-hidden="true">
+            <svg viewBox="0 0 24 36" width="26" height="39">
+              <defs>
+                <clipPath id={`body-${r.key}`}>
+                  {r.key === 'ios' ? (
+                    <rect x="2" y="1" width="20" height="34" rx="5" />
+                  ) : (
+                    <rect x="2.5" y="4" width="19" height="31" rx="2.5" />
+                  )}
+                </clipPath>
+              </defs>
+
+              {/* The fill rises from the bottom by this platform's share. */}
+              <rect
+                class="fill"
+                x="0"
+                y={36 - (36 * r.share) / 100}
+                width="24"
+                height={(36 * r.share) / 100}
+                clip-path={`url(#body-${r.key})`}
+              />
+
+              {r.key === 'ios' ? (
+                <g class="outline">
+                  <rect x="2" y="1" width="20" height="34" rx="5" />
+                  <path d="M9.5 32.5h5" />
+                </g>
+              ) : (
+                <g class="outline">
+                  <rect x="2.5" y="4" width="19" height="31" rx="2.5" />
+                  <path d="M6 4L4 1" />
+                  <path d="M18 4l2-3" />
+                </g>
+              )}
+            </svg>
+          </span>
+
+          <span class="meta">
+            <span class="name">{r.name}</span>
+            <span class="count num">
+              <span class="n">{r.count}</span>
+              <span class="pct">{r.share}%</span>
+            </span>
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <figcaption class="sr-only">{alt}</figcaption>
+</figure>
+
+<style>
+  .pm {
+    margin: 0;
+  }
+
+  .marks {
+    display: flex;
+    gap: var(--space-xl);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  /* Same rule as the signal tiles: the drawing recedes, the figures do not. */
+  .row[data-empty] .device {
+    opacity: 0.55;
+  }
+
+  .row[data-empty] .n {
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  .device svg {
+    display: block;
+    overflow: visible;
+  }
+
+  .outline {
+    fill: none;
+    stroke: var(--color-ink);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .fill {
+    fill: var(--cat, var(--color-ink));
+    opacity: 0.85;
+  }
+
+  .meta {
+    display: grid;
+    gap: 2px;
+  }
+
+  .name {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .count {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2xs);
+  }
+
+  .n {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .pct {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fill {
+      transform-origin: bottom;
+      animation: rise var(--dur-long) var(--ease-out) backwards;
+      animation-delay: calc(var(--ch-i, 0) * 60ms);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      transform: scaleY(0);
+    }
+  }
+</style>

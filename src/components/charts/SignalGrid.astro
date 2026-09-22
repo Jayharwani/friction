@@ -1,0 +1,231 @@
+---
+/**
+ * The extracted signals, as tiles.
+ *
+ * Every signal is always shown, including the ones nobody carried. A reader
+ * learns as much from "nobody named a competitor" as from "three people did",
+ * and a row that is simply absent teaches neither. A zero keeps its figure at
+ * full strength and dims only its ring, which goes dashed — present, and
+ * visibly empty, without pushing 12px type under the contrast floor.
+ *
+ * Each tile carries the count three ways: the figure, the ring, and the
+ * "of N" beneath it. The ring is an SVG circle with a dash offset, which is
+ * one element rather than a gauge library.
+ */
+import type { Evidence } from '../../../scripts/validate';
+import { SIGNAL_LABELS, signalCounts } from '../../lib/charts';
+
+interface Props {
+  evidence: Evidence[];
+}
+
+const { evidence } = Astro.props;
+
+const total = evidence.length;
+const counts = signalCounts(evidence);
+
+/*
+ * One drawn mark per signal, in the same language as the category glyphs:
+ * 24-unit box, 1.5 stroke, no fills.
+ */
+const MARKS: Record<string, string[]> = {
+  // Someone walking out through a door.
+  churnIntent: ['M14 3.5H6.5v17H14', 'M10.5 12h11', 'M18 8.5l3.5 3.5-3.5 3.5'],
+  // A line that was level, then fell after a marked point.
+  regressionClaim: ['M2 8h7', 'M9 8v8', 'M9 16h13', 'M9 4v2', 'M2 19.5h20'],
+  // A path that leaves the line and rejoins it.
+  workaroundDescribed: ['M2 16h4', 'M6 16c4 0 3-8 7-8', 'M13 8h9', 'M19 5l3 3-3 3'],
+  // A card with a stripe.
+  billingComplaint: ['M2.5 6.5h19v11h-19z', 'M2.5 10.5h19', 'M6 14.5h4'],
+  // Two marks facing each other.
+  competitorNamed: ['M9.5 4.5v15', 'M14.5 4.5v15', 'M2 12h5', 'M17 12h5'],
+};
+
+const tiles = SIGNAL_LABELS.map(([key, label]) => {
+  const count = counts.find((c) => c.key === key)?.count ?? 0;
+  return {
+    key,
+    label,
+    count,
+    /* The ring's circumference is normalised to 100 by pathLength. */
+    filled: total === 0 ? 0 : Math.round((count / total) * 100),
+  };
+});
+
+const named = tiles.filter((t) => t.count > 0);
+const alt =
+  named.length === 0
+    ? `None of these ${total} reviews carried any of the extracted signals.`
+    : `Of ${total} reviews: ${named.map((t) => `${t.count} ${t.label}`).join(', ')}.`;
+---
+
+<figure class="sig" data-chart>
+  <ul class="tiles">
+    {
+      tiles.map((t, i) => (
+        <li
+          class="tile ch-rise"
+          data-empty={t.count === 0 ? '' : undefined}
+          style={`--ch-i:${i}; --ch-step:40ms; --filled:${t.filled}`}
+        >
+          <span class="ring" aria-hidden="true">
+            <svg viewBox="0 0 36 36" width="44" height="44">
+              <circle class="track" cx="18" cy="18" r="16" pathLength="100" />
+              <circle class="arc" cx="18" cy="18" r="16" pathLength="100" />
+            </svg>
+            <svg
+              class="mk"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              {(MARKS[t.key] ?? []).map((d) => (
+                <path d={d} />
+              ))}
+            </svg>
+          </span>
+
+          <span class="figs num">
+            <span class="n">{t.count}</span>
+            <span class="of">of {total}</span>
+          </span>
+
+          <span class="lab">{t.label}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <figcaption class="sr-only">{alt}</figcaption>
+</figure>
+
+<style>
+  .sig {
+    margin: 0;
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .tile {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: var(--space-xs);
+    row-gap: var(--space-3xs);
+    align-items: center;
+    padding: var(--space-xs);
+    border-radius: 8px;
+    background: var(--color-paper);
+  }
+
+  /*
+   * Present, and visibly empty — but still readable. Dimming the whole tile
+   * with opacity put its 12px label under 3:1, so the ring and the mark
+   * recede and the text stays at full strength.
+   */
+  .tile[data-empty] .ring {
+    opacity: 0.55;
+  }
+
+  .tile[data-empty] .n {
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  .ring {
+    position: relative;
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    color: var(--cat, var(--color-ink));
+  }
+
+  .ring svg {
+    grid-area: 1 / 1;
+  }
+
+  .track,
+  .arc {
+    fill: none;
+    stroke-width: 3;
+  }
+
+  .track {
+    stroke: var(--cat-tint-2, var(--color-paper-3));
+  }
+
+  .arc {
+    stroke: var(--cat, var(--color-ink));
+    stroke-linecap: round;
+    /* pathLength 100 makes the dash arithmetic the percentage directly. */
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--filled));
+    transform: rotate(-90deg);
+    transform-origin: center;
+  }
+
+  .tile[data-empty] .arc {
+    stroke: var(--color-neutral);
+    stroke-dasharray: 2 3;
+    stroke-dashoffset: 0;
+  }
+
+  .mk {
+    position: relative;
+    display: block;
+  }
+
+  .figs {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3xs);
+    align-self: end;
+  }
+
+  /* The count is the tile's point, so it is the tile's biggest thing. */
+  .n {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .of {
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .lab {
+    align-self: start;
+    font-size: var(--text-xs);
+    line-height: 1.25;
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .arc {
+      animation: arc-fill var(--dur-long) var(--ease-out) backwards;
+      animation-delay: calc(var(--ch-i, 0) * 40ms);
+    }
+  }
+
+  @keyframes arc-fill {
+    from {
+      stroke-dashoffset: 100;
+    }
+  }
+</style>
