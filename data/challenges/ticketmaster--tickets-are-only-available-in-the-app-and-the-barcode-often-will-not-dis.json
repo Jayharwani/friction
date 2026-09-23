@@ -1,0 +1,42 @@
+{
+  "slug": "ticketmaster--tickets-are-only-available-in-the-app-and-the-barcode-often-will-not-dis",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People must install an app to see a ticket they bought",
+  "whoItAffects": "Android users in the United States, across two app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A ticket that exists outside the app that sold it.",
+      "specifics": [
+        "Issue to the device wallet at purchase, not at the gate",
+        "Keep a printable fallback the venue can still scan",
+        "Draw the barcode from data already held on the device"
+      ],
+      "limitation": "A ticket that travels is also a ticket that resells, and controlling resale is why the app holds it."
+    },
+    "start": {
+      "proposition": "Issuing that puts the ticket in the holder’s hands at the moment of sale.",
+      "specifics": [
+        "Standard wallet passes, offline by default, no install required",
+        "Aimed at venues whose entry queue is the thing that fails"
+      ],
+      "limitation": "Venues buy ticketing from whoever runs the sale, so the person queuing is never the buyer being sold to."
+    },
+    "study": {
+      "proposition": "What does a gate do when the barcode will not load?",
+      "specifics": [
+        "Record entry failures at the door rather than inside the app",
+        "Compare venues that keep a box office fallback with those that do not"
+      ],
+      "limitation": "Entry data belongs to venues, and a failed entry is precisely what nobody wants recorded."
+    },
+    "write": {
+      "proposition": "The ticket you paid for lives somewhere you cannot reach.",
+      "specifics": [
+        "Follow one entry from the purchase page to the gate",
+        "Quote the reviewer told a digital wallet was an option"
+      ],
+      "limitation": "Ticketing anger is heavily covered; the barcode that never renders is the part that is not."
+    }
+  }
+}

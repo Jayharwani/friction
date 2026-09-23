@@ -46,8 +46,8 @@ export async function GET(context: APIContext): Promise<Response> {
       const description = `${p.summary} Scored ${p.score} of 100 from ${p.evidence.length} reviews across ${platformsLabel(p.platforms)}. Verdict: ${p.verdict}.`;
       return `    <item>
       <title>${xml(p.title)}</title>
-      <link>${xml(link(`/problems/${p.slug}`))}</link>
-      <guid isPermaLink="true">${xml(link(`/problems/${p.slug}`))}</guid>
+      <link>${xml(link(`/challenges/${p.slug}`))}</link>
+      <guid isPermaLink="true">${xml(link(`/challenges/${p.slug}`))}</guid>
       <pubDate>${new Date(`${first.date}T12:00:00Z`).toUTCString()}</pubDate>
       <category>${xml(p.category)}</category>
       <description>${xml(description)}</description>

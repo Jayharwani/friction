@@ -1,0 +1,201 @@
+---
+/**
+ * One isometric scene per family. Eight of them, drawn in one hand.
+ *
+ * Shared rules, which is what makes eight separate drawings read as a set:
+ *
+ *   · a 240×180 box, isometric at the standard 2:1 ratio
+ *   · one light from upper left, so every top face is the lightest tone and
+ *     every right face the darkest
+ *   · three tones only — the family hue at three strengths against the page
+ *   · a soft ground shadow tinted to the hue, never to black
+ *   · no outlines: the planes separate by tone, the way real light does
+ *
+ * Each scene is the failure as an object, not an icon of the category:
+ *
+ *   stability     a stack with one slab slid out and falling
+ *   speed         a belt of blocks bunching up against a closed gate
+ *   money         a slot with the coin caught halfway
+ *   data          two halves of a store with the bridge missing
+ *   access        a door in a wall with no handle
+ *   wayfinding    stepping stones that fork, one branch running out
+ *   interruption  a screen with a panel dropped across it
+ *   support       a counter with nobody behind it
+ */
+import { type Family } from '../../lib/categories';
+
+interface Props {
+  family: Family;
+  /** Rendered at the card size by default; the page header asks for large. */
+  size?: 'card' | 'large';
+  class?: string;
+}
+
+const { family, size = 'card', class: klass } = Astro.props;
+
+/*
+ * Faces are declared as polygon points. `t` is the tone: 0 top (lightest),
+ * 1 left, 2 right (darkest), 3 the accentless ground.
+ */
+type Face = { p: string; t: 0 | 1 | 2 | 3 };
+
+const SCENES: Record<Family, Face[]> = {
+  /* A stack of slabs, the third slid out and tipping. */
+  stability: [
+    { p: '60,132 120,166 180,132 120,98', t: 3 },
+    { p: '60,110 120,144 180,110 120,76', t: 0 },
+    { p: '60,110 60,122 120,156 120,144', t: 1 },
+    { p: '180,110 180,122 120,156 120,144', t: 2 },
+    { p: '60,86 120,120 180,86 120,52', t: 0 },
+    { p: '60,86 60,98 120,132 120,120', t: 1 },
+    { p: '180,86 180,98 120,132 120,120', t: 2 },
+    { p: '84,48 150,30 196,56 130,74', t: 0 },
+    { p: '84,48 84,60 130,86 130,74', t: 1 },
+    { p: '196,56 196,68 130,86 130,74', t: 2 },
+  ],
+  /* A belt running away downhill, its load bunched against a closed gate. */
+  speed: [
+    { p: '40,70 200,158 178,170 18,82', t: 3 },
+    { p: '18,82 178,170 178,178 18,90', t: 1 },
+    { p: '97,124 117,135 137,124 117,113', t: 0 },
+    { p: '97,124 97,138 117,149 117,135', t: 1 },
+    { p: '137,124 137,138 117,149 117,135', t: 2 },
+    { p: '124,139 144,150 164,139 144,128', t: 0 },
+    { p: '124,139 124,153 144,164 144,150', t: 1 },
+    { p: '164,139 164,153 144,164 144,150', t: 2 },
+    { p: '150,153 170,164 190,153 170,142', t: 0 },
+    { p: '150,153 150,167 170,178 170,164', t: 1 },
+    { p: '190,153 190,167 170,178 170,164', t: 2 },
+    { p: '186,104 204,104 204,172 186,172', t: 2 },
+  ],
+  /* A slot, and a coin stuck across its mouth. */
+  money: [
+    { p: '60,140 120,170 180,140 120,110', t: 3 },
+    { p: '62,96 120,126 178,96 120,66', t: 0 },
+    { p: '62,96 62,124 120,154 120,126', t: 1 },
+    { p: '178,96 178,124 120,154 120,126', t: 2 },
+    { p: '96,92 120,104 144,92 120,80', t: 2 },
+    { p: '120,40 136,50 136,80 120,90 104,80 104,50', t: 1 },
+    { p: '136,50 141,53 141,83 136,80', t: 2 },
+  ],
+  /* Two halves of a store, the span between them gone. */
+  data: [
+    { p: '24,132 108,132 168,162 84,162', t: 3 },
+    { p: '30,96 76,96 100,108 54,108', t: 0 },
+    { p: '30,96 30,126 54,138 54,108', t: 1 },
+    { p: '100,108 100,138 54,138 54,108', t: 2 },
+    { p: '140,96 186,96 210,108 164,108', t: 0 },
+    { p: '140,96 140,126 164,138 164,108', t: 1 },
+    { p: '210,108 210,138 164,138 164,108', t: 2 },
+    { p: '100,112 118,121 118,127 100,118', t: 2 },
+    { p: '140,112 122,121 122,127 140,118', t: 2 },
+  ],
+  /* A wall with a door in it, and no handle anywhere. */
+  access: [
+    { p: '48,140 120,176 192,140 120,104', t: 3 },
+    { p: '52,64 120,98 188,64 120,30', t: 0 },
+    { p: '52,64 52,132 120,166 120,98', t: 1 },
+    { p: '188,64 188,132 120,166 120,98', t: 2 },
+    { p: '88,94 120,110 120,152 88,136', t: 2 },
+  ],
+  /*
+   * Stepping stones that fork. Drawn in the same slab vocabulary as the rest
+   * of the set, because a ribbon path read as one diagonal stripe and the
+   * split — which is the whole idea — disappeared at card size.
+   */
+  wayfinding: [
+    { p: '38,50 60,62 82,50 60,38', t: 0 },
+    { p: '38,50 38,57 60,69 60,62', t: 1 },
+    { p: '82,50 82,57 60,69 60,62', t: 2 },
+    { p: '82,75 104,87 126,75 104,63', t: 0 },
+    { p: '82,75 82,82 104,94 104,87', t: 1 },
+    { p: '126,75 126,82 104,94 104,87', t: 2 },
+    { p: '126,100 148,112 170,100 148,88', t: 0 },
+    { p: '126,100 126,107 148,119 148,112', t: 1 },
+    { p: '170,100 170,107 148,119 148,112', t: 2 },
+    { p: '170,125 192,137 214,125 192,113', t: 0 },
+    { p: '170,125 170,132 192,144 192,137', t: 1 },
+    { p: '214,125 214,132 192,144 192,137', t: 2 },
+    { p: '82,125 104,137 126,125 104,113', t: 0 },
+    { p: '82,125 82,132 104,144 104,137', t: 1 },
+    { p: '126,125 126,132 104,144 104,137', t: 2 },
+    { p: '48,148 62,156 76,148 62,140', t: 1 },
+    { p: '26,166 34,171 42,166 34,161', t: 2 },
+  ],
+  /*
+   * A standing screen with something dropped across its face. Upright rather
+   * than stacked: two flat slabs read as the stability scene, and these two
+   * sit next to each other on the index.
+   */
+  interruption: [
+    { p: '64,150 132,168 190,146 122,128', t: 3 },
+    { p: '64,60 144,100 144,152 64,112', t: 0 },
+    { p: '144,100 162,91 162,143 144,152', t: 2 },
+    { p: '64,60 144,100 162,91 82,51', t: 1 },
+    { p: '96,140 112,148 112,162 96,154', t: 2 },
+    { p: '52,84 176,146 176,164 52,102', t: 2 },
+  ],
+  /* A counter, and nobody behind it. */
+  support: [
+    { p: '40,140 120,178 200,140 120,102', t: 3 },
+    { p: '46,104 120,140 194,104 120,68', t: 0 },
+    { p: '46,104 46,124 120,160 120,140', t: 1 },
+    { p: '194,104 194,124 120,160 120,140', t: 2 },
+    { p: '132,60 168,78 168,96 132,78', t: 1 },
+    { p: '168,78 196,64 196,82 168,96', t: 2 },
+  ],
+};
+
+const faces = SCENES[family];
+---
+
+<svg
+  class:list={['scene', `is-${size}`, klass]}
+  viewBox="0 0 240 180"
+  role="img"
+  aria-label={`An illustration for the ${family} family.`}
+  data-family={family}
+>
+  {/* The ground shadow, tinted to the hue rather than to black. */}
+  <ellipse class="shade" cx="120" cy="164" rx="78" ry="16" />
+  {faces.map((f) => <polygon points={f.p} class={`t${f.t}`} />)}
+</svg>
+
+<style>
+  .scene {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .is-card {
+    max-width: 240px;
+  }
+
+  .shade {
+    fill: color-mix(in oklab, var(--cat) 26%, transparent);
+    filter: blur(9px);
+  }
+
+  /*
+   * Three tones from one hue, in the order light falls on an isometric
+   * solid: top lightest, left middle, right darkest. No outlines — the
+   * planes separate the way real light separates them.
+   */
+  .t0 {
+    fill: color-mix(in oklab, var(--cat) 82%, var(--color-paper));
+  }
+
+  .t1 {
+    fill: color-mix(in oklab, var(--cat) 55%, var(--color-paper));
+  }
+
+  .t2 {
+    fill: color-mix(in oklab, var(--cat) 34%, var(--color-paper));
+  }
+
+  /* The plane everything stands on. */
+  .t3 {
+    fill: color-mix(in oklab, var(--cat) 12%, var(--color-paper));
+  }
+</style>

@@ -1,0 +1,42 @@
+{
+  "slug": "slack--the-app-crashes-signs-you-out-and-will-not-reopen-without-reinstalling",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People reinstall the app to get back into their own work",
+  "whoItAffects": "Android users in the United States, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A session that survives a crash, and a repair that is not a reinstall.",
+      "specifics": [
+        "Keep the sign-in token out of whatever state the crash corrupts",
+        "Offer a reset that clears the broken state and keeps the account",
+        "Hold the second-factor screen when the authenticator takes focus"
+      ],
+      "limitation": "Reinstall-only faults usually live in stored state, which is the hardest thing to reproduce from a review."
+    },
+    "start": {
+      "proposition": "A recovery layer that captures what an app was holding when it died.",
+      "specifics": [
+        "Collects the crash with the account and session state attached",
+        "Aimed at teams whose chat tool is where the work actually happens"
+      ],
+      "limitation": "Crash reporting already runs inside these apps; the part missing is the part the person can see."
+    },
+    "study": {
+      "proposition": "What does an app take with it when reinstalling is the fix?",
+      "specifics": [
+        "Record what is lost each time: drafts, history, sign-in, settings",
+        "Compare the apps where reinstalling is the standard advice"
+      ],
+      "limitation": "People reinstall when nothing else has worked, so the sample is drawn only from the worst cases."
+    },
+    "write": {
+      "proposition": "Turn it off and on again, except it is your job.",
+      "specifics": [
+        "Follow one random sign-out through the reinstall it forces",
+        "Quote the reviewer locked out by the second step of sign-in"
+      ],
+      "limitation": "One build on one platform is a narrow story unless the same shape is found elsewhere."
+    }
+  }
+}

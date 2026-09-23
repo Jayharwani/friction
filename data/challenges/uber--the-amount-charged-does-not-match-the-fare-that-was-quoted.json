@@ -1,0 +1,42 @@
+{
+  "slug": "uber--the-amount-charged-does-not-match-the-fare-that-was-quoted",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People are charged more than the fare they were quoted",
+  "whoItAffects": "iPhone users in Australia and Canada, across two app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A receipt that shows every difference between the quote and the charge.",
+      "specifics": [
+        "Name each addition: waiting, route, cancellation, and who caused it",
+        "Show the quote exactly as it stood at booking, unedited",
+        "Dispute from the receipt line rather than from a support queue"
+      ],
+      "limitation": "A fare that changes on the way is sometimes correct, and the app has an interest in the reader accepting that."
+    },
+    "start": {
+      "proposition": "A ride where the price shown is the price charged, and the difference is the operator’s.",
+      "specifics": [
+        "Fixed quotes, with the variance carried by whoever made them",
+        "Aimed at airport runs, booked hours before anyone drives"
+      ],
+      "limitation": "Carrying that variance costs the operator, and the people who most want a fixed price are the least able to pay for one."
+    },
+    "study": {
+      "proposition": "How far does a final fare drift from its quote, and in which direction?",
+      "specifics": [
+        "Collect quote and charge in pairs, from riders’ own receipts",
+        "Separate a changed route from a fee added after the ride ended"
+      ],
+      "limitation": "Receipts are personal documents, and anyone collecting them samples only the people angry enough to send one."
+    },
+    "write": {
+      "proposition": "The number you agreed to, and the number that arrived.",
+      "specifics": [
+        "Follow one airport booking from quote to card statement",
+        "Quote the rider charged a waiting fee for their own waiting"
+      ],
+      "limitation": "Pricing that moves has been reported for years, and only the gap between quote and charge is a narrower claim."
+    }
+  }
+}

@@ -1,0 +1,329 @@
+---
+/**
+ * One challenge. Five parts, in order, and nothing else.
+ *
+ *   1  the challenge, in human terms
+ *   2  who this happens to
+ *   3  their own words — the centrepiece, not sidebar evidence
+ *   4  what people do instead
+ *   5  the four lenses
+ *
+ * There is no score, no chart and no bar anywhere on this page. Reach is one
+ * sentence built from the same counts the score uses, because "17 people
+ * raised this across 6 weeks, on both iOS and Android" carries what seven
+ * bars carried and a person can actually read it.
+ *
+ * Everything removed from here still exists, on /how-it-works.
+ */
+import Layout from '../../layouts/Layout.astro';
+import CategoryScene from '../../components/art/CategoryScene.astro';
+import LensCard from '../../components/LensCard.astro';
+import EvidenceItem from '../../components/EvidenceItem.astro';
+import EmptyMark from '../../components/EmptyMark.astro';
+import RelatedStrip from '../../components/RelatedStrip.astro';
+import AppIcon from '../../components/AppIcon.astro';
+import { url } from '../../lib/url';
+import { getChallenge, getProblems, getProduct, reachLine, surfaceLabel } from '../../lib/data';
+import { familyOf } from '../../lib/categories';
+import { LENSES, LENS_HUE } from '../../lib/lenses';
+import type { Problem } from '../../../scripts/validate';
+
+export function getStaticPaths() {
+  return getProblems().map((problem) => ({
+    params: { slug: problem.slug },
+    props: { problem },
+  }));
+}
+
+const { problem } = Astro.props as { problem: Problem };
+
+const product = getProduct(problem.productSlug);
+const challenge = getChallenge(problem.slug);
+const family = familyOf(problem.category);
+
+const title = challenge?.humanTitle ?? problem.title;
+const label = surfaceLabel(problem);
+const reach = reachLine(problem);
+
+/* Newest first: the most recent voice is the one that matters most. */
+const quotes = [...problem.evidence]
+  .sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt))
+  .slice(0, 6);
+---
+
+<Layout
+  title={title}
+  description={`${reach} ${problem.summary.slice(0, 120)}`}
+>
+  <div class="shell">
+    <div class="page bleed" data-family={family}>
+      <p class="crumb">
+        <a href={url('/challenges')}>Challenges</a>
+      </p>
+
+      {/* ---------- 1. the challenge, in human terms ---------- */}
+      <header class="intro">
+        <div class="words">
+          <p class="who-app">
+            <AppIcon slug={problem.productSlug} name={product?.name ?? problem.productSlug} size={28} />
+            <span>{product?.name ?? problem.productSlug}</span>
+            <span class="label">{label}</span>
+          </p>
+
+          <h1 transition:name={`title-${problem.slug}`}>{title}</h1>
+
+          <p class="reach">{reach}</p>
+
+          {/* ---------- 2. who this happens to ---------- */}
+          {challenge && <p class="who">{challenge.whoItAffects}</p>}
+        </div>
+
+        <CategoryScene family={family} class="hero-scene" />
+      </header>
+
+      {/* ---------- 3. their own words ---------- */}
+      <section class="voices" aria-labelledby="voices-heading">
+        <h2 id="voices-heading">In their own words</h2>
+        <p class="standing-note">
+          Neither app store gives a review a permanent public link, so each entry is a snapshot
+          taken on the date shown and the link goes to the app's review listing.
+        </p>
+
+        <div class="quote-list">
+          {quotes.map((e) => <EvidenceItem evidence={e} />)}
+        </div>
+      </section>
+
+      {/* ---------- 4. what people do instead ---------- */}
+      <section class="instead" aria-labelledby="instead-heading">
+        <h2 id="instead-heading">What people do instead</h2>
+        {
+          problem.workarounds.length > 0 ? (
+            <ul class="frags">
+              {problem.workarounds.map((w) => (
+                <li>{w}</li>
+              ))}
+            </ul>
+          ) : (
+            <p class="none">
+              <EmptyMark kind="quiet" size={26} />
+              <span>Nobody described a way around this.</span>
+            </p>
+          )
+        }
+      </section>
+
+      {/* ---------- 5. the four lenses ---------- */}
+      {
+        challenge ? (
+          <section class="lenses" aria-labelledby="lenses-heading">
+            <h2 id="lenses-heading">What you could do with this</h2>
+            <p class="written-note">
+              These four are written from the reviews above. Everything else on this page is quoted
+              or counted.
+            </p>
+
+            <div class="lens-grid">
+              {LENSES.map((lens) => (
+                <div style={`--lens:${LENS_HUE[lens]}`}>
+                  <LensCard
+                    lens={lens}
+                    proposition={challenge.lenses[lens].proposition}
+                    specifics={challenge.lenses[lens].specifics}
+                    limitation={challenge.lenses[lens].limitation}
+                    writtenBy={challenge.writtenBy}
+                    writtenAt={challenge.writtenAt}
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section class="lenses">
+            <p class="none">
+              <EmptyMark kind="single" size={26} />
+              <span>
+                This one has not been written up yet. Lenses are written for challenges reported
+                repeatedly or more.
+              </span>
+            </p>
+          </section>
+        )
+      }
+
+      <RelatedStrip problem={problem} />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .page {
+    padding-block: var(--space-lg) var(--space-4xl);
+  }
+
+  .crumb {
+    padding-block: var(--space-md) var(--space-xl);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  @media (pointer: coarse) {
+    .crumb a {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--tap);
+    }
+  }
+
+  /* ---- 1 and 2 ---- */
+
+  .intro {
+    display: grid;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  @media (min-width: 56rem) {
+    .intro {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 18rem);
+      gap: var(--space-3xl);
+    }
+  }
+
+  .who-app {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  /* The score, as a word. The number lives on /how-it-works. */
+  .label {
+    margin-left: var(--space-2xs);
+    padding: var(--space-3xs) var(--space-2xs);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    border-radius: var(--r-pill);
+    background: var(--cat-tint);
+    border: var(--rule-hair) solid var(--cat-edge);
+    color: var(--color-ink);
+  }
+
+  h1 {
+    margin-top: var(--space-md);
+    font-size: clamp(1.9rem, 1.1rem + 2.8vw, 3rem);
+    font-weight: 300;
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    max-width: 22em;
+  }
+
+  .reach {
+    margin-top: var(--space-md);
+    font-size: var(--text-md);
+    color: var(--color-ink);
+  }
+
+  .who {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    max-width: 44em;
+  }
+
+  .hero-scene {
+    justify-self: center;
+  }
+
+  /* ---- section heads ---- */
+
+  h2 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+  }
+
+  section {
+    margin-top: var(--space-4xl);
+  }
+
+  /* ---- 3. the voices ---- */
+
+  .standing-note {
+    max-width: var(--measure);
+    margin-bottom: var(--space-lg);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  /*
+   * Two columns of quotes, not a sidebar. These are the most valuable thing
+   * on the page and they are sized like it.
+   */
+  .quote-list {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 52rem) {
+    .quote-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ---- 4. workarounds ---- */
+
+  .frags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .frags li {
+    padding: var(--space-2xs) var(--space-sm);
+    font-size: var(--text-sm);
+    border-radius: var(--r-cell);
+    background: var(--cat-tint);
+    border: var(--rule-hair) solid var(--cat-edge);
+  }
+
+  .none {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    max-width: 40em;
+  }
+
+  /* ---- 5. lenses ---- */
+
+  .written-note {
+    max-width: var(--measure);
+    margin-bottom: var(--space-lg);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .lens-grid {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  @media (min-width: 46rem) {
+    .lens-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .lens-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

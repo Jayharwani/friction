@@ -1,0 +1,42 @@
+{
+  "slug": "duolingo--the-energy-system-stops-free-lessons-after-a-few-minutes",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People run out of energy before they finish two lessons",
+  "whoItAffects": "iPhone users in Canada, the United Kingdom and Ireland, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A free tier metered by time practised rather than by mistakes made.",
+      "specifics": [
+        "Refill on a schedule a learner can plan a day around",
+        "Show the refill clock before the lesson starts, not once it stops",
+        "Never end a session in the middle of an exercise"
+      ],
+      "limitation": "The limit is what persuades people to pay, so loosening it is a pricing decision rather than a design one."
+    },
+    "start": {
+      "proposition": "Practice software where the daily amount is fixed and paid for once.",
+      "specifics": [
+        "One price, no meter, and no interruption at the point of learning",
+        "Aimed at adults returning to a language after years away"
+      ],
+      "limitation": "A one-off price funds one version, and language material needs constant upkeep to stay worth opening."
+    },
+    "study": {
+      "proposition": "What happens to a practice habit when a meter sets the session length?",
+      "specifics": [
+        "Track streak length either side of the version that added the meter",
+        "Ask whether a short forced break helps retention or ends it"
+      ],
+      "limitation": "Spaced practice genuinely works, so a meter and good teaching can look identical from outside the app."
+    },
+    "write": {
+      "proposition": "The lesson that stops in the middle of itself.",
+      "specifics": [
+        "Set the meter beside the streak it interrupts",
+        "Quote the learner cut down to ten minutes a day"
+      ],
+      "limitation": "Free tiers tightening is a well-covered beat, and only the exact stopping point is new here."
+    }
+  }
+}

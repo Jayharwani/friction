@@ -25,10 +25,17 @@ export default defineConfig({
   // may be in someone's history.
   redirects: {
     '/methodology': `${BASE}/how-it-works`,
+    // /problems was the route for the whole of v1. Every one of those links
+    // still resolves: the page it pointed at is the same challenge, read the
+    // other way up.
+    '/problems': `${BASE}/challenges`,
+    // The per-challenge half is src/pages/problems/[slug].astro — see the note
+    // there for why a dynamic redirect cannot live in this map.
   },
   vite: {
     plugins: [tailwindcss()],
   },
-  // /og is the source board for the social card, not a destination.
-  integrations: [sitemap({ filter: (page) => !page.includes('/og') })],
+  // /og is the source board for the social card, not a destination, and the
+  // /problems tree is now 25 meta-refresh pages pointing at /challenges.
+  integrations: [sitemap({ filter: (page) => !/\/(og|art-sheet|problems)\//.test(page) })],
 });

@@ -3,7 +3,7 @@
  *
  * X is the last twelve ISO weeks, Z is the tracked problems, Y is how many
  * reviews reported that problem in that week. Every height on screen is a
- * count from data/problems/ — nothing here is decorative or invented.
+ * count from data/challenges/ — nothing here is decorative or invented.
  *
  * This module touches the filesystem through lib/data.ts, so it must never be
  * imported by client code. The browser side imports lib/ramp.ts instead.

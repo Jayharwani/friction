@@ -1,16 +1,18 @@
 ---
 /**
- * Up to three other problems that share this one's app or category.
+ * Up to three other challenges that share this one's app or category.
  *
- * Every problem page was a dead end: the only way out was the nav. Same app
+ * Every challenge page was a dead end: the only way out was the nav. Same app
  * first, because that is the strongest relation, then same category across
  * apps, which is how a reader finds that three apps all break the same way.
+ *
+ * No sparkline and no verdict here. This strip is a way out of the page, and
+ * a chart in it would be the machinery leaking back onto a surface page. The
+ * reach words carry what the sparkline carried.
  */
 import type { Problem } from '../../scripts/validate';
 import { url } from '../lib/url';
-import { getProblems, getProduct } from '../lib/data';
-import { weeklySeries } from '../lib/charts';
-import Sparkline from './charts/Sparkline.astro';
+import { getChallenge, getProblems, getProduct, surfaceLabel } from '../lib/data';
 
 interface Props {
   problem: Problem;
@@ -39,31 +41,35 @@ const siblings = getProblems()
 const here = siblings.findIndex((p) => p.slug === problem.slug);
 const previous = here > 0 ? siblings[here - 1] : undefined;
 const next = here >= 0 && here < siblings.length - 1 ? siblings[here + 1] : undefined;
+
+/** The human title where one has been written, the extracted one otherwise. */
+const named = (p: Problem) => getChallenge(p.slug)?.humanTitle ?? p.title;
 const appName = getProduct(problem.productSlug)?.name ?? problem.productSlug;
 
 const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
   problem: p,
   app: getProduct(p.productSlug)?.name ?? p.productSlug,
-  series: weeklySeries(p.evidence),
+  humanTitle: named(p),
+  label: surfaceLabel(p),
   relation: p.productSlug === problem.productSlug ? 'same app' : 'same category',
 }));
 ---
 
 {
   (previous || next) && (
-    <nav class="seq" aria-label={`Other problems in ${appName}`}>
+    <nav class="seq" aria-label={`Other challenges in ${appName}`}>
       {previous ? (
-        <a class="prev" href={url(`/problems/${previous.slug}`)}>
+        <a class="prev" href={url(`/challenges/${previous.slug}`)}>
           <span class="dir">Previous in {appName}</span>
-          <span class="t">{previous.title}</span>
+          <span class="t">{named(previous)}</span>
         </a>
       ) : (
         <span />
       )}
       {next && (
-        <a class="next" href={url(`/problems/${next.slug}`)}>
+        <a class="next" href={url(`/challenges/${next.slug}`)}>
           <span class="dir">Next in {appName}</span>
-          <span class="t">{next.title}</span>
+          <span class="t">{named(next)}</span>
         </a>
       )}
     </nav>
@@ -73,23 +79,20 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
 {
   related.length > 0 && (
     <section class="related" aria-labelledby="related-heading">
-      <h2 id="related-heading">Related problems</h2>
+      <h2 id="related-heading">Related challenges</h2>
       <ul>
-        {related.map(({ problem: p, app, series, relation }) => (
+        {related.map(({ problem: p, app, humanTitle, label, relation }) => (
           <li>
             <div class="body">
               <h3>
-                <a href={url(`/problems/${p.slug}`)}>{p.title}</a>
+                <a href={url(`/challenges/${p.slug}`)}>{humanTitle}</a>
               </h3>
               <p class="meta num">
                 {app}, {relation}, {p.evidence.length}{' '}
                 {p.evidence.length === 1 ? 'review' : 'reviews'}
               </p>
             </div>
-            <div class="trend">
-              <Sparkline series={series} />
-            </div>
-            <p class="verdict">{p.verdict}</p>
+            <p class="reach">{label}</p>
           </li>
         ))}
       </ul>
@@ -203,12 +206,7 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
     color: var(--color-muted);
   }
 
-  .trend {
-    flex: none;
-    translate: 0 0.35em;
-  }
-
-  .verdict {
+  .reach {
     flex: none;
     font-size: var(--text-xs);
     color: var(--color-muted);
@@ -222,7 +220,7 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
       gap: var(--space-xs) var(--space-md);
     }
 
-    .verdict {
+    .reach {
       text-align: left;
       min-width: 0;
     }

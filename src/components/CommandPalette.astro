@@ -27,7 +27,7 @@ const problems: Entry[] = getProblems().map((p) => {
   return {
     title: p.title,
     meta: `${app} · ${p.category}`,
-    href: url(`/problems/${p.slug}`),
+    href: url(`/challenges/${p.slug}`),
     kind: 'Problem',
     haystack: `${p.title} ${app} ${p.category} ${p.verdict}`.toLowerCase(),
   };

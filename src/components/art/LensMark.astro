@@ -1,0 +1,100 @@
+---
+/**
+ * One mark per lens. Four of them, drawn, in one hand.
+ *
+ * Shared rules so the set reads as a set: a 32-unit box, 1.6 stroke, round
+ * caps and joins, no fills, and a light implied from upper left in the one
+ * place any of them use a second tone.
+ *
+ * Each is the *act*, not the audience:
+ *   build   a tool laying a new surface over a gap
+ *   start   a shoot coming up through a crack
+ *   study   a lens over a specimen
+ *   write   a nib and the line it leaves
+ *
+ * The tone is the lens's own, set by the parent through --lens. Each mark is
+ * always captioned in text, so nothing here depends on the drawing alone.
+ */
+export type Lens = 'build' | 'start' | 'study' | 'write';
+
+interface Props {
+  lens: Lens;
+  size?: number;
+  labelled?: boolean;
+  class?: string;
+}
+
+const { lens, size = 32, labelled = false, class: klass } = Astro.props;
+
+const LABEL: Record<Lens, string> = {
+  build: 'Build it',
+  start: 'Start it',
+  study: 'Study it',
+  write: 'Write it',
+};
+
+/* [d, isAccentStroke] — the second tone is used once per mark, at most. */
+const PATHS: Record<Lens, Array<[string, boolean]>> = {
+  // A plank bridging a gap, with the gap still visible beneath it.
+  build: [
+    ['M3 20h7', false],
+    ['M22 20h7', false],
+    ['M8 13.5h16v4.5H8z', true],
+    ['M12.5 18v4', false],
+    ['M19.5 18v4', false],
+  ],
+  // A shoot through a split surface.
+  start: [
+    ['M3 24h26', false],
+    ['M13.5 24V15', true],
+    ['M13.5 17.5c-3.5 0-5.5-2-5.5-5.5 3.5 0 5.5 2 5.5 5.5z', true],
+    ['M13.5 14.5c0-3.5 2-5.5 5.5-5.5 0 3.5-2 5.5-5.5 5.5z', false],
+  ],
+  // A lens held over a marked specimen.
+  study: [
+    ['M6 25h20', false],
+    ['M11 25v-3h10v3', false],
+    ['M19 4.5a7 7 0 1 1 0 14 7 7 0 0 1 0-14z', true],
+    ['M13.5 16.5 8 22', false],
+  ],
+  // A nib, and the stroke it has already made.
+  write: [
+    ['M4 26c6-1 9-4 12-8', false],
+    ['M18 15.5 26.5 7a2.5 2.5 0 0 0-3.5-3.5L14.5 12z', true],
+    ['M13 13.5 18.5 19', false],
+    ['M4 26l2.5-5.5', false],
+  ],
+};
+---
+
+<svg
+  class:list={['lens-mark', klass]}
+  width={size}
+  height={size}
+  viewBox="0 0 32 32"
+  fill="none"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role={labelled ? 'img' : undefined}
+  aria-label={labelled ? LABEL[lens] : undefined}
+  aria-hidden={labelled ? undefined : 'true'}
+>
+  {PATHS[lens].map(([d, accent]) => <path d={d} class={accent ? 'hot' : 'quiet'} />)}
+</svg>
+
+<style>
+  .lens-mark {
+    display: block;
+    flex: none;
+  }
+
+  /* The body of the mark recedes; the one act in it takes the tone. */
+  .quiet {
+    stroke: var(--color-neutral);
+  }
+
+  .hot {
+    stroke: var(--lens, var(--color-accent));
+  }
+</style>

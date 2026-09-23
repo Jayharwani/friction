@@ -8,7 +8,7 @@
  * cards below render from, so it cannot drift.
  *
  * Without JavaScript the input is still a labelled field inside a form that
- * submits to /problems, where the full filterable list lives. Nothing here
+ * submits to /challenges, where the full filterable list lives. Nothing here
  * is a dead affordance.
  */
 import { url } from '../lib/url';
@@ -46,7 +46,7 @@ const families = FAMILIES.map((family) => ({
     <span class="line-2">in the apps everyone uses</span>
   </h1>
 
-  <form class="box" action={url('/problems')} method="get" role="search">
+  <form class="box" action={url('/challenges')} method="get" role="search">
     <label class="sr-only" for="hero-q">Search problems</label>
     <input
       id="hero-q"
@@ -70,11 +70,11 @@ const families = FAMILIES.map((family) => ({
     <p class="none" data-hero-none hidden>Nothing matches that.</p>
   </div>
 
-  <ul class="chips" data-hero-chips aria-label="Jump to a kind of problem">
+  <ul class="chips" data-hero-chips aria-label="Jump to a kind of challenge">
     {
       families.map(({ family, count }) => (
         <li>
-          <a href={url(`/problems?family=${family}`)} data-family={family} data-chip={family}>
+          <a href={url(`/challenges?family=${family}`)} data-family={family} data-chip={family}>
             <CategoryGlyph family={family} size={15} />
             <span>{FAMILY_LABEL[family]}</span>
             <span class="c-n num">{count}</span>

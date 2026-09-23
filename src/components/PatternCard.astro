@@ -108,7 +108,7 @@ const reachPct = Math.round(pattern.reach * 100);
         <ul class="examples">
           {pattern.examples.map((e) => (
             <li>
-              <a href={url(`/problems/${e.slug}`)}>
+              <a href={url(`/challenges/${e.slug}`)}>
                 <span class="e-title">{e.title}</span>
                 <span class="e-meta num">
                   {getProduct(e.productSlug)?.name ?? e.productSlug} · {e.score}

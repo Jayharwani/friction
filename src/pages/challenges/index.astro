@@ -1,0 +1,333 @@
+---
+/**
+ * The browsable set.
+ *
+ * Three filters. Two of them — app and category — narrow the grid the way
+ * any index does. The third asks a different question: not "which challenges
+ * are about X" but "which of these could I do something with, as the kind of
+ * person I am." That is the one that makes this a tool rather than a list,
+ * so it gets the top of the page and the other two get one quiet row.
+ *
+ * Picking a lens does two things at once: it drops the challenges where that
+ * lens has nothing to work with, and it swaps every remaining card's quote
+ * for that lens's proposition. The same grid, read as companies or as
+ * stories depending on who is reading it.
+ */
+import Layout from '../../layouts/Layout.astro';
+import PageTexture from '../../components/PageTexture.astro';
+import BrandMark from '../../components/BrandMark.astro';
+import ChallengeCard from '../../components/ChallengeCard.astro';
+import LensMark from '../../components/art/LensMark.astro';
+import EmptyMark from '../../components/EmptyMark.astro';
+import { getChallenge, getProblems, getProduct } from '../../lib/data';
+import { FAMILIES, FAMILY_LABEL, familyOf } from '../../lib/categories';
+import { LENSES, LENS_FIT_NOTE, LENS_HUE, LENS_LABEL, LENS_QUESTION, lensFit } from '../../lib/lenses';
+
+/* Most-reported first. The number is hidden now; the order it gave is not. */
+const problems = [...getProblems()].sort((a, b) => b.score - a.score);
+
+/** Apps with an active problem in each category — what `start` keys on. */
+const appsInCategory = new Map<string, number>();
+for (const p of problems) {
+  const apps = new Set(problems.filter((o) => o.category === p.category).map((o) => o.productSlug));
+  appsInCategory.set(p.category, apps.size);
+}
+
+const appsFor = (slug: string) => appsInCategory.get(slug) ?? 0;
+
+const fitsOf = (p: (typeof problems)[number]) =>
+  lensFit(p, appsFor(p.category), getChallenge(p.slug) !== undefined);
+
+const lensCount = Object.fromEntries(
+  LENSES.map((lens) => [
+    lens,
+    problems.filter((p) => fitsOf(p).includes(lens)).length,
+  ]),
+) as Record<(typeof LENSES)[number], number>;
+
+const apps = [...new Set(problems.map((p) => p.productSlug))]
+  .map((slug) => ({ slug, name: getProduct(slug)?.name ?? slug }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const families = FAMILIES.map((family) => ({
+  family,
+  count: problems.filter((p) => familyOf(p.category) === family).length,
+})).filter((f) => f.count > 0);
+---
+
+<Layout
+  title="Challenges"
+  description="Every recurring struggle Friction has found, in the words of the people it happens to, with four things you could do about each one."
+>
+  <div class="band">
+    <PageTexture seed="challenges" />
+    <BrandMark variant="device" />
+    <div class="shell">
+      <div class="bleed">
+        <h1>What people are struggling with.</h1>
+        <p class="sub">
+          {problems.length} challenges, each one raised by several people over several weeks. Pick
+          a lens to read them as your kind of work.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell" data-challenges>
+    <div class="lenses bleed" role="group" aria-label="Read through a lens">
+      <button type="button" class="lens is-all" data-lens-chip="all" aria-pressed="true">
+        <span class="l-title">Everything</span>
+        <span class="l-note">All {problems.length} challenges, in their own words</span>
+      </button>
+
+      {
+        LENSES.map((lens) => (
+          <button
+            type="button"
+            class="lens"
+            data-lens-chip={lens}
+            aria-pressed="false"
+            style={`--lens:${LENS_HUE[lens]}`}
+          >
+            <LensMark lens={lens} size={26} />
+            <span class="l-title">
+              {LENS_LABEL[lens]} <span class="l-count num">{lensCount[lens]}</span>
+            </span>
+            <span class="l-note">{LENS_QUESTION[lens]}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="bleed">
+      <p class="why" data-lens-why aria-live="polite">Every challenge, most-reported first.</p>
+    </div>
+
+    <div class="controls bleed" role="group" aria-label="Narrow the set">
+      <p class="field">
+        <label for="f-app">App</label>
+        <select id="f-app" data-filter="app">
+          <option value="all">All apps</option>
+          {apps.map((a) => <option value={a.slug}>{a.name}</option>)}
+        </select>
+      </p>
+
+      <p class="field">
+        <label for="f-family">Category</label>
+        <select id="f-family" data-filter="familykey">
+          <option value="all">All categories</option>
+          {
+            families.map(({ family, count }) => (
+              <option value={family}>
+                {FAMILY_LABEL[family]} ({count})
+              </option>
+            ))
+          }
+        </select>
+      </p>
+
+      <p class="count num" data-challenges-count aria-live="polite">{problems.length} challenges</p>
+    </div>
+
+    <section class="grid bleed" data-challenges-grid aria-label="Challenges">
+      {
+        problems.map((problem) => (
+          <ChallengeCard problem={problem} appsInCategory={appsFor(problem.category)} filterable />
+        ))
+      }
+    </section>
+
+    <p class="empty bleed" data-challenges-empty hidden>
+      <EmptyMark kind="filter" size={26} />
+      <span>Nothing matches those filters. Clearing the lens will bring the most back.</span>
+    </p>
+  </div>
+</Layout>
+
+<script>
+  import { initChallengeFilters } from '../../scripts/challenge-filters';
+
+  document.addEventListener('astro:page-load', initChallengeFilters);
+</script>
+
+<!--
+  The fit notes are read by the script rather than written into it, so the
+  sentence under the filter and the rule it describes come from one place.
+-->
+<script type="application/json" data-lens-notes is:inline set:html={JSON.stringify(LENS_FIT_NOTE)}></script>
+
+<style>
+  .band {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: var(--space-2xl);
+    background: var(--color-paper-2);
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .band > .shell {
+    position: relative;
+    z-index: var(--z-raise);
+  }
+
+  h1 {
+    font-size: clamp(1.7rem, 1rem + 2.2vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.028em;
+    text-wrap: balance;
+  }
+
+  .sub {
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+    max-width: 42em;
+  }
+
+  /* ---- the lens row ---- */
+
+  /*
+   * Four wide buttons, not chips. This is the page's main control and the
+   * only one a first-time reader has to understand, so it is sized like a
+   * choice rather than tucked in beside two selects.
+   */
+  .lenses {
+    display: grid;
+    gap: var(--space-xs);
+    padding-top: var(--space-xl);
+    /* 10rem, not 11: at 390px eleven put the five buttons in five rows and
+       pushed the first card most of a screen down. Ten fits two across. */
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  }
+
+  .lens {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3xs);
+    min-height: var(--tap);
+    padding: var(--space-sm) var(--space-md);
+    font: inherit;
+    text-align: left;
+    color: var(--color-ink);
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--r-card);
+    cursor: pointer;
+  }
+
+  .lens :global(.lens-mark) {
+    margin-bottom: var(--space-2xs);
+  }
+
+  /* "Everything" has no mark, so it takes the space back. */
+  .is-all {
+    align-content: center;
+  }
+
+  .l-title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .l-count {
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+
+  .l-note {
+    font-size: var(--text-xs);
+    line-height: 1.35;
+    color: var(--color-muted);
+  }
+
+  .lens:hover {
+    border-color: color-mix(in oklab, var(--lens, var(--color-ink)) 45%, var(--color-rule));
+  }
+
+  .lens:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .lens[aria-pressed='true'] {
+    border-color: var(--lens, var(--color-ink));
+    background: color-mix(in oklab, var(--lens, var(--color-ink)) 8%, var(--color-paper-2));
+  }
+
+  .lens[aria-pressed='true'] .l-count {
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .lens {
+      transition:
+        background-color var(--dur-micro) var(--ease-out),
+        border-color var(--dur-micro) var(--ease-out);
+    }
+  }
+
+  .why {
+    padding-top: var(--space-md);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+    max-width: 46em;
+  }
+
+  /* ---- the quiet row ---- */
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: var(--space-md) var(--space-lg);
+    padding-block: var(--space-lg);
+  }
+
+  .field {
+    margin: 0;
+  }
+
+  label {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+    margin-bottom: var(--space-2xs);
+  }
+
+  select {
+    font: inherit;
+    font-size: var(--text-xs);
+    color: var(--color-ink);
+    background: var(--color-paper-2);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--r-cell);
+    padding: var(--space-2xs) var(--space-xs);
+  }
+
+  select:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .count {
+    margin: 0 0 var(--space-2xs) auto;
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--space-md);
+    padding-bottom: var(--space-3xl);
+  }
+
+  .empty {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding-block: var(--space-2xl) var(--space-3xl);
+    color: var(--color-muted);
+  }
+</style>

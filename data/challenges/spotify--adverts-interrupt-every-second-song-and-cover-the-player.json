@@ -1,0 +1,42 @@
+{
+  "slug": "spotify--adverts-interrupt-every-second-song-and-cover-the-player",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People cannot see the player for the adverts covering it",
+  "whoItAffects": "iPhone and Android users in the United Kingdom and the United States, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "Keep the advert out of the surfaces a listener has to touch.",
+      "specifics": [
+        "Never cover album art, the saved list, or search results",
+        "Put a floor under the gap between two audio adverts",
+        "State the frequency in the free tier’s own description"
+      ],
+      "limitation": "The free tier exists in order to be interrupted, so every change here trades against what pays for it."
+    },
+    "start": {
+      "proposition": "Listening software whose free limits are published and then held.",
+      "specifics": [
+        "One stated rate, changed only with notice",
+        "Aimed at people who will never pay but will stay for years"
+      ],
+      "limitation": "Music is licensed per play and the licence holders set the terms, so the software has little room to set them."
+    },
+    "study": {
+      "proposition": "Where is the point at which interruption stops being tolerable?",
+      "specifics": [
+        "Vary the spacing rather than the volume and see what people abandon",
+        "Separate the audio interruption from the visual one, which reviewers report apart"
+      ],
+      "limitation": "Advertising already studies tolerance, though rarely with the listener’s own account of it alongside."
+    },
+    "write": {
+      "proposition": "Two songs, an advert, and then the album art disappears.",
+      "specifics": [
+        "Set the frequency reviewers describe against what the tier promises",
+        "Quote the listener who sat and counted"
+      ],
+      "limitation": "Complaining about adverts is the oldest complaint there is, and only the count makes it reportable."
+    }
+  }
+}

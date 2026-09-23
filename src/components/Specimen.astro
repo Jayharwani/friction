@@ -59,7 +59,7 @@ const COUNTRY: Record<string, string> = {
   </p>
 
   <h3 id="specimen-title" data-part="title">
-    <a href={url(`/problems/${problem.slug}`)}>{problem.title}</a>
+    <a href={url(`/challenges/${problem.slug}`)}>{problem.title}</a>
     <span class="callout" data-for="title">A complaint many people made separately</span>
   </h3>
 
@@ -95,7 +95,7 @@ const COUNTRY: Record<string, string> = {
   </p>
 
   <p class="more">
-    <a href={url(`/problems/${problem.slug}`)}>
+    <a href={url(`/challenges/${problem.slug}`)}>
       See all {reviews} {reviews === 1 ? 'review' : 'reviews'} and how this score was calculated
     </a>
   </p>

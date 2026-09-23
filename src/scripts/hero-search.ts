@@ -6,7 +6,7 @@
  * library. Twenty-five records is not a search problem; pretending it is
  * would be the tell.
  *
- * The input is inside a real form that submits to /problems, so with no
+ * The input is inside a real form that submits to /challenges, so with no
  * JavaScript the box still takes you somewhere useful. This only upgrades it.
  */
 import { url } from '../lib/url';
@@ -63,7 +63,7 @@ export function initHeroSearch(): void {
     for (const row of rows) {
       const li = document.createElement('li');
       const a = document.createElement('a');
-      a.href = url(`/problems/${row.slug}`);
+      a.href = url(`/challenges/${row.slug}`);
       a.dataset.family = row.family;
 
       /* The glyph is cloned from a chip so the markup stays in one place. */

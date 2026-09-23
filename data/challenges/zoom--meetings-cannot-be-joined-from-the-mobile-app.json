@@ -1,0 +1,42 @@
+{
+  "slug": "zoom--meetings-cannot-be-joined-from-the-mobile-app",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People cannot get into the meeting they are already late for",
+  "whoItAffects": "Android users in the United States, on a single app version.",
+  "lenses": {
+    "build": {
+      "proposition": "A join path that never waits on a check that can fail.",
+      "specifics": [
+        "Let the meeting open while the update check runs, not after it",
+        "Ask for verification once per device and then stop asking",
+        "Keep the session alive when the camera is opened"
+      ],
+      "limitation": "An update prompt with no update behind it is a release problem, which the app itself cannot decide its way out of."
+    },
+    "start": {
+      "proposition": "A joining layer that gets a person into a call however the client fails.",
+      "specifics": [
+        "Falls back to the browser and to the phone line without being asked",
+        "Aimed at people joining from somebody else’s invitation"
+      ],
+      "limitation": "Those fallbacks belong to the host’s plan, and the host decides whether they are offered at all."
+    },
+    "study": {
+      "proposition": "Do meeting failures happen in the call, or before it starts?",
+      "specifics": [
+        "Log joins separately from calls in any failure report",
+        "Compare what people do next after a blocked join and a dropped call"
+      ],
+      "limitation": "The people who could not join are exactly the ones absent from the meeting that would have counted them."
+    },
+    "write": {
+      "proposition": "The meeting you are in the room for and cannot enter.",
+      "specifics": [
+        "Follow one blocked join back to the prompt that caused it",
+        "Quote the reviewer told to update, with no update to install"
+      ],
+      "limitation": "It is a small, specific failure, and one app version is thin evidence for a pattern."
+    }
+  }
+}

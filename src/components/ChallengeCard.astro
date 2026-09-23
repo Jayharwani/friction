@@ -1,0 +1,227 @@
+---
+/**
+ * One challenge as a card.
+ *
+ * What is not here is the point. No sparkline, no score, no verdict and no
+ * category text label — the scene carries the category, and the number the
+ * score used to show is now a word. All of it still exists on /how-it-works.
+ *
+ * The quote is the shortest one on the challenge, whole and unedited. A
+ * fragment is what makes the grid read as people rather than records, and
+ * choosing the shortest keeps it a fragment without ever cutting a sentence
+ * that someone actually wrote.
+ *
+ * All four lens propositions are rendered and three are hidden. Picking a
+ * lens on the index swaps which one shows, so a founder reads the grid as
+ * companies and a writer reads the same grid as stories, with no refetch.
+ */
+import type { Problem } from '../../scripts/validate';
+import { url } from '../lib/url';
+import { getChallenge, getProduct, surfaceLabel } from '../lib/data';
+import { familyOf } from '../lib/categories';
+import { LENSES, LENS_LABEL, LENS_HUE, lensFit } from '../lib/lenses';
+import CategoryScene from './art/CategoryScene.astro';
+import LensMark from './art/LensMark.astro';
+import AppIcon from './AppIcon.astro';
+
+interface Props {
+  problem: Problem;
+  /** How many apps have an active problem in this one's category. */
+  appsInCategory: number;
+  /** Data attributes for the client-side filters. */
+  filterable?: boolean;
+}
+
+const { problem, appsInCategory, filterable = false } = Astro.props;
+
+const product = getProduct(problem.productSlug);
+const challenge = getChallenge(problem.slug);
+const family = familyOf(problem.category);
+const fits = lensFit(problem, appsInCategory, challenge !== undefined);
+
+const title = challenge?.humanTitle ?? problem.title;
+
+/* Shortest first: the fragment that fits without anything being cut. */
+const quote = [...problem.evidence].sort((a, b) => a.quote.length - b.quote.length)[0]?.quote;
+---
+
+<article
+  class="card"
+  data-family={family}
+  data-challenge={filterable ? '' : undefined}
+  data-app={problem.productSlug}
+  data-familykey={family}
+  data-lensfit={fits.join(' ')}
+  data-title={title}
+>
+  <div class="scene-band">
+    <CategoryScene family={family} />
+  </div>
+
+  <div class="body">
+    <p class="app">
+      <AppIcon slug={problem.productSlug} name={product?.name ?? problem.productSlug} size={20} />
+      <span>{product?.name ?? problem.productSlug}</span>
+    </p>
+
+    <h3>
+      <a href={url(`/challenges/${problem.slug}`)}>{title}</a>
+    </h3>
+
+    {quote && <p class="quote" data-when="all">{quote}</p>}
+
+    {
+      challenge &&
+        LENSES.map((lens) => (
+          <p
+            class="prop"
+            data-when={lens}
+            style={`--lens:${LENS_HUE[lens]}`}
+            hidden
+          >
+            <LensMark lens={lens} size={20} />
+            <span>
+              <span class="l-name">{LENS_LABEL[lens]}</span>
+              {challenge.lenses[lens].proposition}
+            </span>
+          </p>
+        ))
+    }
+
+    <p class="reach">{surfaceLabel(problem)}</p>
+  </div>
+</article>
+
+<style>
+  .card {
+    /* A reveal on one card must not invalidate the rest of the grid. */
+    contain: layout style paint;
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--r-card);
+    background: var(--color-paper-2);
+  }
+
+  /*
+   * The scene gets the top of the card outright. It is the only thing naming
+   * the category now, so giving it a strip and a tint is not decoration — it
+   * is the label.
+   */
+  .scene-band {
+    display: grid;
+    place-items: center;
+    padding: var(--space-2xs) var(--space-sm);
+    background: var(--cat-tint);
+    border-bottom: var(--rule-hair) solid var(--cat-edge);
+  }
+
+  /*
+   * Big enough to read as an object. At 12rem the stack and the slab were
+   * the same grey lozenge; the scene is the only thing naming the category
+   * now, so it gets the width it needs to be told apart.
+   */
+  .scene-band :global(.scene) {
+    width: 100%;
+    max-width: 16rem;
+  }
+
+  .body {
+    display: grid;
+    align-content: start;
+    gap: var(--space-xs);
+    padding: var(--space-md);
+  }
+
+  .app {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  h3 {
+    font-size: var(--text-md);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.012em;
+    text-wrap: pretty;
+  }
+
+  h3 a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* The whole card is the target; the heading link carries it. */
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  h3 a:focus-visible {
+    outline: none;
+  }
+
+  .card:has(a:focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  /* Someone's own words, set the way quotes are set everywhere else. */
+  .quote {
+    font-family: var(--font-quote);
+    font-size: var(--text-sm);
+    line-height: 1.45;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .quote::before {
+    content: '\201C';
+  }
+
+  .quote::after {
+    content: '\201D';
+  }
+
+  .prop {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-xs);
+    font-size: var(--text-sm);
+    line-height: 1.4;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  .l-name {
+    display: block;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--lens);
+  }
+
+  .reach {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card {
+      transition:
+        translate var(--dur-micro) var(--ease-out),
+        border-color var(--dur-micro) var(--ease-out);
+    }
+
+    .card:hover {
+      translate: 0 -2px;
+      border-color: var(--cat-edge);
+    }
+  }
+</style>

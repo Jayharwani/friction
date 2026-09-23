@@ -10,9 +10,11 @@
  *   filter    a funnel that passes nothing — the filters match nothing
  *   single    one mark on a track with no second — only one scan so far
  *   quiet     a flat trace — no evidence in the window
+ *   platform  a device with an empty screen — no quotes from this store
+ *   search    a lens over nothing — the query found nothing
  */
 interface Props {
-  kind: 'none' | 'filter' | 'single' | 'quiet';
+  kind: 'none' | 'filter' | 'single' | 'quiet' | 'platform' | 'search';
   size?: number;
   class?: string;
 }
@@ -24,6 +26,8 @@ const PATHS: Record<Props['kind'], string[]> = {
   filter: ['M3 4.5h18l-7 8v7l-4 2.5v-9.5z', 'M9 21.5h6'],
   single: ['M2 12h20', 'M8 8.5v7', 'M16 11.5v1'],
   quiet: ['M2 12h6', 'M8 12h2.5', 'M13 12h2.5', 'M17.5 12H22'],
+  platform: ['M6.5 2.5h11v19h-11z', 'M10 18.5h4', 'M9 8h6', 'M9 11.5h3'],
+  search: ['M10.5 3.5a7 7 0 1 1 0 14 7 7 0 0 1 0-14z', 'M15.5 15.5 21 21', 'M7.5 10.5h6'],
 };
 
 /* Dashes on the strokes that stand for absence, solid on the rest. */
@@ -32,6 +36,8 @@ const DASHED: Record<Props['kind'], boolean> = {
   filter: false,
   single: true,
   quiet: true,
+  platform: true,
+  search: true,
 };
 ---
 

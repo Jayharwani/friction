@@ -1,0 +1,42 @@
+{
+  "slug": "duolingo--free-trials-become-a-paid-year-without-warning-and-refunds-are-refused",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People who cancelled a trial were billed for the year anyway",
+  "whoItAffects": "iPhone and Android users in Australia, the United States and Canada, across two app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A trial that names the charge date and the amount before it starts, and again before it lands.",
+      "specifics": [
+        "Send the reminder from the app, not only from the store",
+        "Show the cancellation state the store holds, so the two cannot disagree",
+        "Confirm a cancellation in writing at the moment it is made"
+      ],
+      "limitation": "The billing relationship belongs to the app store, and the app cannot always see or change what it did."
+    },
+    "start": {
+      "proposition": "A subscription record kept outside whoever is selling the subscription.",
+      "specifics": [
+        "Reads the store receipt rather than the seller’s own dashboard",
+        "Warns before any trial converts, across everything at once"
+      ],
+      "limitation": "Receipt access is granted by the store and can be withdrawn, and trials converting quietly is what the stores earn from."
+    },
+    "study": {
+      "proposition": "How many people who believe they cancelled were still charged?",
+      "specifics": [
+        "Compare the store’s cancellation record with what people report doing",
+        "Separate a mistimed cancellation from one that never registered"
+      ],
+      "limitation": "Only the store holds the ground truth on either side, and it does not publish it."
+    },
+    "write": {
+      "proposition": "The week between cancelling and being charged for the year.",
+      "specifics": [
+        "Follow one refusal through the app, the store and the card",
+        "Quote the reviewer who cancelled two days early and paid anyway"
+      ],
+      "limitation": "Every subscription story reads the same way until the receipts are actually in it."
+    }
+  }
+}

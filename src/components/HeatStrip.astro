@@ -61,7 +61,7 @@ function step(count: number): number {
         rows.map((row) => (
           <tr>
             <th scope="row" class="lbl">
-              <a href={url(`/problems/${row.slug}`)}>{row.title}</a>
+              <a href={url(`/challenges/${row.slug}`)}>{row.title}</a>
             </th>
             {row.counts.map((n, i) => (
               <td

@@ -17,9 +17,9 @@ import { join } from 'node:path';
 
 /** Hard limits, in words. A page not listed here is reported but not gated. */
 const BUDGET: Record<string, number> = {
-  'index.html': 120,
+  'index.html': 100,
   'patterns/index.html': 90,
-  'problems/index.html': 60,
+  'challenges/index.html': 90,
   'about/index.html': 80,
   'archive/index.html': 40,
   'apps/index.html': 40,

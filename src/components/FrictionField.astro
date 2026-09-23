@@ -46,7 +46,7 @@ const payload = JSON.stringify(field);
       <HeatMatrix
         rows={field.rows.map((r) => ({
           label: r.title,
-          href: url(`/problems/${r.slug}`),
+          href: url(`/challenges/${r.slug}`),
           category: r.category,
           values: r.counts,
         }))}
@@ -160,7 +160,7 @@ const payload = JSON.stringify(field);
         label,
         reducedMotion,
         onSelect(slug: string) {
-          window.location.href = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/problems/${slug}`;
+          window.location.href = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/challenges/${slug}`;
         },
       });
     } catch {

@@ -1,0 +1,42 @@
+{
+  "slug": "teams--sign-in-fails-and-a-stale-account-cannot-be-removed-from-the-app",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People are stuck signing in to an account that no longer exists",
+  "whoItAffects": "Android users in the United States, across two app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A way to remove an account from the device without removing the app.",
+      "specifics": [
+        "List the signed-in identities and let one of them be deleted",
+        "Fall back to the identity picker when an organisation is gone",
+        "Return a named error at the login screen instead of a page"
+      ],
+      "limitation": "Identity state is owned by the directory, and a device cannot always tell a revoked account from an unreachable one."
+    },
+    "start": {
+      "proposition": "An identity switcher that treats work accounts as things people leave.",
+      "specifics": [
+        "Clears an account from the device the moment access ends",
+        "Aimed at contractors and anyone belonging to more than one organisation"
+      ],
+      "limitation": "Every directory handles departure differently, and any app doing this is a guest inside all of them."
+    },
+    "study": {
+      "proposition": "What is left on a device when someone leaves an organisation?",
+      "specifics": [
+        "Follow the remains: tokens, caches, and the sign-in screen itself",
+        "Compare what the person sees with what the directory believes"
+      ],
+      "limitation": "Departures are private, and the people best placed to describe one have just lost the access needed to ask."
+    },
+    "write": {
+      "proposition": "You left the company. The app did not.",
+      "specifics": [
+        "Follow one leaver through a login screen that will not let go",
+        "Quote the reviewer prompted daily for an account that is gone"
+      ],
+      "limitation": "It reads as an edge case, and nothing in these reviews shows how often it happens."
+    }
+  }
+}
