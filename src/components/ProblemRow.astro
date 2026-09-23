@@ -3,9 +3,9 @@
  * One problem in a list. A ledger row separated by a hairline — no card, no
  * border, no shadow.
  *
- * The verdict carries the meaning for a first-time reader and the number does
- * not, so the word is set at body size and the score is secondary. Both are
- * words-first: the verdict is never carried by colour.
+ * No sparkline, no score and no verdict number: what a reader needs from a
+ * row is which challenge it is and how widely it was reported. The rest is
+ * on /how-it-works.
  *
  * The whole row is clickable via a stretched pseudo-element on the title link,
  * which keeps exactly one link per row in the accessibility tree.
@@ -13,34 +13,22 @@
 import type { Problem } from '../../scripts/validate';
 import { url } from '../lib/url';
 import { platformsLabel } from '../lib/data';
-import { weeklySeries } from '../lib/charts';
-import { TERMS } from '../lib/terms';
-import Sparkline from './charts/Sparkline.astro';
-import Term from './Term.astro';
+import { getChallenge, surfaceLabel } from '../lib/data';
 
 interface Props {
   problem: Problem;
-  /**
-   * Mark the verdict and the score with their definitions. Set on the first
-   * row of a list only: a page where all twenty-five rows carry a dotted
-   * underline is noise.
-   */
-  teach?: boolean;
 }
 
-const { problem, teach = false } = Astro.props;
+const { problem } = Astro.props;
 const reviews = problem.evidence.length;
-
-// Twelve weeks of this problem's evidence, between the metadata and the
-// verdict. It is what turns a list of titles into something scannable.
-const series = weeklySeries(problem.evidence);
+const title = getChallenge(problem.slug)?.humanTitle ?? problem.title;
 ---
 
 <article class="row">
   <div class="body">
     <h3>
       <a href={url(`/challenges/${problem.slug}`)} transition:name={`title-${problem.slug}`}>
-        {problem.title}
+        {title}
       </a>
     </h3>
     <p class="meta num">
@@ -49,24 +37,8 @@ const series = weeklySeries(problem.evidence);
     </p>
   </div>
 
-  <div class="trend">
-    <Sparkline series={series} />
-  </div>
-
   <div class="figures">
-    <p class="verdict">
-      {
-        teach ? (
-          <Term label={problem.verdict} definition={TERMS[problem.verdict] ?? ''} />
-        ) : (
-          problem.verdict
-        )
-      }
-    </p>
-    <p class="score num">
-      {teach ? <Term label="evidence score" definition={TERMS.score!} /> : 'evidence score'}
-      {' '}{problem.score}
-    </p>
+    <p class="verdict">{surfaceLabel(problem)}</p>
   </div>
 </article>
 
@@ -91,20 +63,8 @@ const series = weeklySeries(problem.evidence);
 
   .body {
     min-width: 0;
-    /* Takes the slack, so the sparkline and figures stay a fixed width. */
+    /* Takes the slack, so the label column stays a fixed width. */
     flex: 1 1 auto;
-  }
-
-  /* Between the metadata and the verdict, aligned with the baseline of both. */
-  .trend {
-    flex: none;
-    translate: 0 0.35em;
-  }
-
-  @media (max-width: 52rem) {
-    .trend {
-      display: none;
-    }
   }
 
   h3 {
@@ -141,22 +101,15 @@ const series = weeklySeries(problem.evidence);
   .figures {
     flex: none;
     text-align: right;
-    /* Fixed, so "Thin evidence" and "Recurring" do not move the sparkline
-       column between one row and the next. */
-    min-width: 7.5em;
+    /* Fixed, so "Early signal" and "Widely reported" do not move the column
+       edge between one row and the next. */
+    min-width: 9em;
   }
 
   /* The word first, at full opacity. */
   .verdict {
     font-size: var(--text-md);
     font-weight: 500;
-    white-space: nowrap;
-  }
-
-  .score {
-    margin-top: var(--space-2xs);
-    font-size: var(--text-xs);
-    color: var(--color-muted);
     white-space: nowrap;
   }
 
@@ -174,14 +127,5 @@ const series = weeklySeries(problem.evidence);
       min-width: 0;
     }
 
-    /* Back on a phone, under the metadata where there is room for it. */
-    .trend {
-      display: block;
-      translate: 0;
-    }
-
-    .score {
-      margin-top: 0;
-    }
   }
 </style>

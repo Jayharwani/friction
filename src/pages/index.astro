@@ -10,9 +10,8 @@
  */
 import Layout from '../layouts/Layout.astro';
 import HeroSearch from '../components/HeroSearch.astro';
-import Explainer from '../components/Explainer.astro';
 import PatternCard from '../components/PatternCard.astro';
-import ProblemCard from '../components/ProblemCard.astro';
+import ChallengeCard from '../components/ChallengeCard.astro';
 import AppIcon from '../components/AppIcon.astro';
 import { url } from '../lib/url';
 import {
@@ -21,7 +20,6 @@ import {
   getGaps,
   getLatestRun,
   getProblems,
-  getProduct,
   getProducts,
 } from '../lib/data';
 import { buildPatterns } from '../lib/patterns';
@@ -32,31 +30,14 @@ const run = getLatestRun();
 const products = getProducts();
 
 const reviewsRead = run?.funnel.fetched.total ?? 0;
-const specimen = active[0];
-const specimenProduct = specimen ? getProduct(specimen.productSlug) : undefined;
 
 const patterns = buildPatterns(active, products.length, getGaps()).slice(0, 4);
 const latest = all.slice(0, 6);
 
-/* Excerpts for the explainer's scatter — real review text, trimmed. */
-const specimenQuotes = (specimen?.evidence ?? []).map((e) => ({
-  text: e.quote,
-  rating: e.rating,
-  member: true,
-}));
-const otherQuotes = all
-  .filter((p) => p.slug !== specimen?.slug)
-  .flatMap((p) => p.evidence)
-  .filter((e) => e.rating <= 2)
-  .map((e) => ({ text: e.quote, rating: e.rating, member: false }));
+/** Apps sharing a category — what the challenge cards need for the lenses. */
+const appsIn = (category: string) =>
+  new Set(all.filter((p) => p.category === category).map((p) => p.productSlug)).size;
 
-const excerpts: { text: string; rating: number; member: boolean }[] = [];
-for (let i = 0; i < 26; i++) {
-  const fromMembers = i % 4 === 1 && specimenQuotes.length > 0;
-  const pool = fromMembers ? specimenQuotes : otherQuotes;
-  const pick = pool[Math.floor(i / (fromMembers ? 4 : 1.35)) % pool.length];
-  if (pick) excerpts.push(pick);
-}
 ---
 
 <Layout title="Friction">
@@ -71,7 +52,7 @@ for (let i = 0; i < 26; i++) {
           <dd>{reviewsRead.toLocaleString('en-GB')}</dd>
         </div>
         <div>
-          <dt>Problems tracked</dt>
+          <dt>Challenges tracked</dt>
           <dd>{all.length}</dd>
         </div>
         <div>
@@ -97,21 +78,6 @@ for (let i = 0; i < 26; i++) {
   </section>
 
   {/* ---------- 2. How it works ---------- */}
-  <section class="band">
-    <div class="shell">
-      {
-        specimen && specimenProduct && (
-          <Explainer
-            problem={specimen}
-            productName={specimenProduct.name}
-            reviewsRead={reviewsRead}
-            excerpts={excerpts}
-          />
-        )
-      }
-    </div>
-  </section>
-
   {/* ---------- 3. Patterns ---------- */}
   {
     patterns.length > 0 && (
@@ -138,7 +104,11 @@ for (let i = 0; i < 26; i++) {
     </header>
 
     <div class="cards bleed">
-      {latest.map((problem) => <ProblemCard problem={problem} />)}
+      {
+        latest.map((problem) => (
+          <ChallengeCard problem={problem} appsInCategory={appsIn(problem.category)} />
+        ))
+      }
     </div>
   </section>
 </Layout>

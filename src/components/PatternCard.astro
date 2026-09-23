@@ -19,7 +19,7 @@
  */
 import type { Pattern } from '../lib/patterns';
 import { url } from '../lib/url';
-import { getProduct } from '../lib/data';
+import { getChallenge, getProduct } from '../lib/data';
 import { familyOf, FAMILY_LABEL } from '../lib/categories';
 import GapBlock from './GapBlock.astro';
 import AppIcon from './AppIcon.astro';
@@ -92,7 +92,7 @@ const reachPct = Math.round(pattern.reach * 100);
 
   <dl class="figs num">
     <div>
-      <dt>Problems</dt>
+      <dt>Challenges</dt>
       <dd>{pattern.problemCount}</dd>
     </div>
     <div>
@@ -109,9 +109,9 @@ const reachPct = Math.round(pattern.reach * 100);
           {pattern.examples.map((e) => (
             <li>
               <a href={url(`/challenges/${e.slug}`)}>
-                <span class="e-title">{e.title}</span>
+                <span class="e-title">{getChallenge(e.slug)?.humanTitle ?? e.title}</span>
                 <span class="e-meta num">
-                  {getProduct(e.productSlug)?.name ?? e.productSlug} · {e.score}
+                  {getProduct(e.productSlug)?.name ?? e.productSlug}
                 </span>
               </a>
             </li>

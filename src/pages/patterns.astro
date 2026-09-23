@@ -13,7 +13,6 @@ import Layout from '../layouts/Layout.astro';
 import PageTexture from '../components/PageTexture.astro';
 import BrandMark from '../components/BrandMark.astro';
 import PatternCard from '../components/PatternCard.astro';
-import FrictionField from '../components/FrictionField.astro';
 import { buildPatterns, PATTERN_MIN_APPS } from '../lib/patterns';
 import { getActiveProblems, getGaps, getProducts } from '../lib/data';
 
@@ -65,7 +64,6 @@ const top = patterns[0];
       whole dataset at once, which is exactly what this page argues about —
       on a pitch it was a picture, and here it is the evidence.
     */}
-    <FrictionField />
   </div>
 </Layout>
 

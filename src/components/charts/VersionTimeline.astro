@@ -68,7 +68,7 @@ const segments = ordered.map((m, i) => {
 
 const dayGap = Math.round((hi - lo) / 86_400_000);
 
-const alt = `${ordered.length} app ${ordered.length === 1 ? 'version' : 'versions'} carried this problem${
+const alt = `${ordered.length} app ${ordered.length === 1 ? 'version' : 'versions'} carried this challenge${
   dayGap > 0 ? `, spanning ${dayGap} days` : ''
 }: ${ordered
   .map(

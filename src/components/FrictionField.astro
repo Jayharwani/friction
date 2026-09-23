@@ -26,14 +26,14 @@ const payload = JSON.stringify(field);
 
 <section class="field" data-field aria-labelledby="field-heading">
   <div class="intro">
-    <h2 id="field-heading">Twelve weeks of complaints, by problem</h2>
+    <h2 id="field-heading">Twelve weeks of complaints, by challenge</h2>
     {/* One caption per mode: "ridges" is a lie about the 2D strip, and the
         strip is what most visitors see first. */}
     <p class="caption cap-strip">
-      Darker cells are problems more people reported that week.
+      Darker cells are challenges more people reported that week.
     </p>
     <p class="caption cap-field">
-      Taller ridges are problems more people reported that week. Hover one to see which.
+      Taller ridges are challenges more people reported that week. Hover one to see which.
     </p>
   </div>
 
@@ -51,8 +51,8 @@ const payload = JSON.stringify(field);
           values: r.counts,
         }))}
         columns={field.weekLabels}
-        rowHeader="Problem"
-        caption={`Reviews per week for ${field.rows.length} problems over the last ${field.weekLabels.length} weeks.`}
+        rowHeader="Challenge"
+        caption={`Reviews per week for ${field.rows.length} challenges over the last ${field.weekLabels.length} weeks.`}
       />
     </div>
 
@@ -68,7 +68,7 @@ const payload = JSON.stringify(field);
       <span>{field.weekLabels.at(-1)}</span>
     </p>
     <p class="axis axis-z" aria-hidden="true">
-      <span class="axis-name">{field.rows.length} problems</span>
+      <span class="axis-name">{field.rows.length} challenges</span>
     </p>
   </div>
 

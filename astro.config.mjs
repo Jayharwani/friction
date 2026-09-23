@@ -29,6 +29,8 @@ export default defineConfig({
     // still resolves: the page it pointed at is the same challenge, read the
     // other way up.
     '/problems': `${BASE}/challenges`,
+    // The archive is a section of How it works now, not a page of its own.
+    '/archive': `${BASE}/how-it-works#every-scan`,
     // The per-challenge half is src/pages/problems/[slug].astro — see the note
     // there for why a dynamic redirect cannot live in this map.
   },

@@ -43,7 +43,7 @@ const bars = buckets.map((b, i) => ({
 const passing = buckets.filter((b) => b.from >= threshold).reduce((s, b) => s + b.count, 0);
 const total = buckets.reduce((s, b) => s + b.count, 0);
 
-const alt = `${total} active problems scored between ${lo} and ${hi}. ${passing} sit at or above the threshold of ${threshold.toFixed(1)}. ${buckets
+const alt = `${total} active challenges scored between ${lo} and ${hi}. ${passing} sit at or above the threshold of ${threshold.toFixed(1)}. ${buckets
   .map((b) => `${b.from} to ${b.to}: ${b.count}`)
   .join('; ')}.`;
 ---
@@ -63,7 +63,7 @@ const alt = `${total} active problems scored between ${lo} and ${hi}. ${passing}
             height={b.h}
           >
             <title>
-              {b.count} {b.count === 1 ? 'problem' : 'problems'} scoring {b.from} to {b.to}
+              {b.count} {b.count === 1 ? 'challenge' : 'challenges'} scoring {b.from} to {b.to}
             </title>
           </rect>
         ) : null,

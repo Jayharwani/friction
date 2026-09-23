@@ -14,7 +14,16 @@ import Histogram from '../components/charts/Histogram.astro';
 import Funnel from '../components/charts/Funnel.astro';
 import SpecBento from '../components/table/SpecBento.astro';
 import CompareRows from '../components/table/CompareRows.astro';
-import { scoreBuckets } from '../lib/charts';
+import RunCard from '../components/table/RunCard.astro';
+import FrictionField from '../components/FrictionField.astro';
+import ScoreDisclosure from '../components/ScoreDisclosure.astro';
+import Sparkline from '../components/charts/Sparkline.astro';
+import VersionTimeline from '../components/charts/VersionTimeline.astro';
+import PlatformMarks from '../components/charts/PlatformMarks.astro';
+import SignalGrid from '../components/charts/SignalGrid.astro';
+import CoverageGrid from '../components/charts/CoverageGrid.astro';
+import EmptyMark from '../components/EmptyMark.astro';
+import { scoreBuckets, versionMarks, weeklySeries } from '../lib/charts';
 import { url } from '../lib/url';
 import {
   formatDate,
@@ -23,9 +32,11 @@ import {
   getGaps,
   getLatestRun,
   getPassRate,
+  getChallenge,
   getProblems,
   getProduct,
   getProducts,
+  getRuns,
 } from '../lib/data';
 import {
   COMPONENT_LABELS,
@@ -55,6 +66,18 @@ const worthBuilding = active.filter((p) => p.verdict === 'Strong signal').length
 // The calculator starts from a real problem: the highest-scoring active one.
 const seedProblem = active[0];
 const seedProduct = seedProblem ? getProduct(seedProblem.productSlug) : undefined;
+
+/*
+ * The worked example below is the same challenge, so a reader who has just
+ * dragged the calculator sees the real thing it was modelling rather than a
+ * second, unrelated one.
+ */
+const seedChallenge = seedProblem ? getChallenge(seedProblem.slug) : undefined;
+const seedSeries = seedProblem ? weeklySeries(seedProblem.evidence) : null;
+const seedVersions = seedProblem ? versionMarks(seedProblem) : [];
+
+/* Newest scan first. Folded in from /archive, which no longer has a page. */
+const runs = getRuns();
 
 /*
  * The live population at each branch of decideVerdict, in the order the
@@ -127,7 +150,7 @@ const componentMeaning: Record<string, string> = {
     <div class="hero-in">
       <h1>
         <span class="h-roman">How it works</span>
-        <span class="h-serif">public reviews in, scored problems out</span>
+        <span class="h-serif">public reviews in, scored challenges out</span>
       </h1>
 
       <dl class="proof num">
@@ -177,9 +200,9 @@ const componentMeaning: Record<string, string> = {
     </div>
   </section>
 
-  <section class="band full" aria-labelledby="how-reviews-become-problems">
+  <section class="band full" aria-labelledby="how-reviews-become-challenges">
     <div class="band-in">
-      <h2 id="how-reviews-become-problems">How reviews become problems</h2>
+      <h2 id="how-reviews-become-challenges">How reviews become challenges</h2>
       <p class="lede-c">Ten thousand in. A hundred and fifty out.</p>
 
     {
@@ -201,7 +224,7 @@ const componentMeaning: Record<string, string> = {
           The scan on <time datetime={run.date}>{formatDate(run.date)}</time> kept{' '}
           {run.funnel.capped.total} of {run.funnel.fetched.total.toLocaleString('en-GB')} reviews.
           All of that filtering is code, and it runs before any model sees anything. Every run is in
-          the <a href={url('/archive')}>archive</a>.
+          the <a href="#every-scan">scan record</a>.
         </p>
       )
     }
@@ -218,7 +241,7 @@ const componentMeaning: Record<string, string> = {
           label: 'The model does',
           mark: ['M3 6.5h7', 'M3 12h7', 'M3 17.5h7', 'M14 12h7', 'M18 8.5l3 3.5-3 3.5'],
           items: [
-            'group reviews describing the same problem',
+            'group reviews describing the same struggle',
             'copy a short verbatim quote from each',
           ],
         },
@@ -285,9 +308,9 @@ const componentMeaning: Record<string, string> = {
     </div>
   </section>
 
-  <section class="band full" aria-labelledby="the-verdict-and-why-most-problems-fail">
+  <section class="band full" aria-labelledby="the-verdict-and-why-most-challenges-fail">
     <div class="band-in">
-      <h2 id="the-verdict-and-why-most-problems-fail">The verdict</h2>
+      <h2 id="the-verdict-and-why-most-challenges-fail">The verdict</h2>
       <p class="lede-c">Three tests, in order.</p>
 
     <Flow
@@ -299,7 +322,7 @@ const componentMeaning: Record<string, string> = {
       fallthrough={{ verdict: 'Recurring', count: recurring.length }}
     />
     <p class="ch-caption">
-      Where the {active.length} active problems currently sit, tested in this order.
+      Where the {active.length} active challenges currently sit, tested in this order.
     </p>
 
     <Histogram buckets={buckets} threshold={threshold} markScore={seedProblem?.score} />
@@ -310,10 +333,91 @@ const componentMeaning: Record<string, string> = {
       rate of {passRate.toFixed(0)}%. A low one is the point.
     </p>
 
-    {/* ---------- 5. the one written field ---------- */}
+    {/* the next band starts here */}
 
     </div>
   </section>
+
+  {/* ---------- 5. one challenge, underneath ---------- */}
+
+  <section class="band band-quiet full" aria-labelledby="one-challenge-underneath">
+    <div class="band-in">
+      <p class="eyebrow">The worked example</p>
+      <h2 id="one-challenge-underneath">One challenge, underneath</h2>
+      <p class="lede-c">Everything the challenge page does not show you.</p>
+
+      {
+        seedProblem && seedProduct ? (
+          <div class="worked">
+            <p class="w-which">
+              <a href={url(`/challenges/${seedProblem.slug}`)}>
+                {seedChallenge?.humanTitle ?? seedProblem.title}
+              </a>{' '}
+              <span class="w-app">in {seedProduct.name}</span>
+            </p>
+
+            <ScoreDisclosure problem={seedProblem} />
+
+            <div class="w-grid">
+              <figure>
+                <figcaption>Evidence over twelve weeks</figcaption>
+                {seedSeries && (
+                  <Sparkline
+                    series={seedSeries}
+                    label={`${seedSeries.total} of ${seedProblem.evidence.length} reviews arrived in the last twelve weeks.`}
+                  />
+                )}
+              </figure>
+
+              <figure>
+                <figcaption>Which releases it survived</figcaption>
+                {seedVersions.length > 0 ? (
+                  <VersionTimeline marks={seedVersions} />
+                ) : (
+                  <p class="w-none">
+                    <EmptyMark kind="single" size={22} />
+                    <span>One version only.</span>
+                  </p>
+                )}
+              </figure>
+
+              <figure>
+                <figcaption>Which store it came from</figcaption>
+                <PlatformMarks evidence={seedProblem.evidence} />
+              </figure>
+
+              <figure>
+                <figcaption>What each review signalled</figcaption>
+                <SignalGrid evidence={seedProblem.evidence} />
+              </figure>
+            </div>
+
+            <p class="ch-caption">
+              Every challenge carries all of this. On the challenge itself it is one sentence —
+              {' '}<span class="quoted">{seedProblem.inputs.uniqueReviewers} people raised this</span>
+              {' '}— because a person can read that and cannot read seven bars.
+            </p>
+          </div>
+        ) : (
+          <p class="w-none">
+            <EmptyMark kind="none" size={24} />
+            <span>No active challenge to work through yet.</span>
+          </p>
+        )
+      }
+    </div>
+  </section>
+
+  {/* ---------- 6. every challenge at once ---------- */}
+
+  <section class="band full" aria-labelledby="field-heading">
+    <div class="band-in is-wide">
+      <p class="eyebrow">All of them at once</p>
+      <FrictionField />
+    </div>
+  </section>
+
+  {/* ---------- 7. the one written field ---------- */}
 
   <section class="band band-quiet full" aria-labelledby="the-one-written-field">
     <div class="band-in">
@@ -350,6 +454,60 @@ const componentMeaning: Record<string, string> = {
 
     {/* ---------- full prose, collapsed ---------- */}
 
+    </div>
+  </section>
+
+  {/* ---------- 8. every scan, folded in from /archive ---------- */}
+
+  <section class="band full" aria-labelledby="every-scan">
+    <div class="band-in">
+      <p class="eyebrow">The record</p>
+      <h2 id="every-scan">Every scan so far</h2>
+      <p class="lede-c">What each run read, and which stores answered.</p>
+
+      {
+        runs.length === 0 ? (
+          <p class="w-none">
+            <EmptyMark kind="none" size={24} />
+            <span>No scan has completed yet.</span>
+          </p>
+        ) : (
+          <ol class="scans">
+            {runs.map((run, i) => {
+              const prev = runs[i + 1];
+              return (
+                <li>
+                  <RunCard
+                    date={run.date}
+                    stages={[
+                      { label: 'Read', value: run.funnel.fetched.total },
+                      { label: 'Screened', value: run.funnel.screened.total },
+                      { label: 'Complaints', value: run.funnel.filtered.total },
+                      { label: 'Carried', value: run.funnel.capped.total },
+                    ]}
+                    problems={run.problemsTotal ?? 0}
+                    fresh={run.problemsNew ?? 0}
+                    coverage={{
+                      ok: run.products.filter((x) => x.playOk).length,
+                      of: run.products.length,
+                    }}
+                    delta={
+                      prev
+                        ? {
+                            problems: (run.problemsTotal ?? 0) - (prev.problemsTotal ?? 0),
+                            fetched: run.funnel.fetched.total - prev.funnel.fetched.total,
+                          }
+                        : undefined
+                    }
+                    connected={i < runs.length - 1}
+                  />
+                  <CoverageGrid run={run} names={(slug) => getProduct(slug)?.name ?? slug} />
+                </li>
+              );
+            })}
+          </ol>
+        )
+      }
     </div>
   </section>
 
@@ -395,7 +553,7 @@ const componentMeaning: Record<string, string> = {
             </div>
           </details>
           <details class="q">
-            <summary><span>How reviews become problems</span></summary>
+            <summary><span>How reviews become challenges</span></summary>
             <div class="a">
 
 
@@ -436,7 +594,7 @@ const componentMeaning: Record<string, string> = {
             </div>
           </details>
           <details class="q">
-            <summary><span>The verdict, and why most problems fail</span></summary>
+            <summary><span>The verdict, and why most challenges fail</span></summary>
             <div class="a">
 
 
@@ -454,7 +612,7 @@ const componentMeaning: Record<string, string> = {
           {
             active.length > 0 && (
               <>
-                {' '}Of {active.length} active {active.length === 1 ? 'problem' : 'problems'},{' '}
+                {' '}Of {active.length} active {active.length === 1 ? 'challenge' : 'challenges'},{' '}
                 {worthBuilding} {worthBuilding === 1 ? 'carries' : 'carry'} the "Strong signal"
                 verdict, a pass rate of {passRate.toFixed(0)}%.
               </>
@@ -560,7 +718,7 @@ const componentMeaning: Record<string, string> = {
         {
           problems.length === 0 && (
             <p class="empty-note">
-              No problems have been recorded yet, so the threshold and pass rate above are computed from
+              No challenges have been recorded yet, so the threshold and pass rate above are computed from
               an empty set.
             </p>
           )
@@ -1039,6 +1197,11 @@ const componentMeaning: Record<string, string> = {
     margin-inline: auto;
   }
 
+  /* The field is a surface, not a column of text. It gets the extra width. */
+  .band-in.is-wide {
+    width: min(76rem, 100% - (var(--page-gutter) * 2));
+  }
+
   /* ---- the page hero ---- */
 
   .page-hero {
@@ -1221,4 +1384,62 @@ const componentMeaning: Record<string, string> = {
     }
   }
 
+
+  /* ---- the worked example ---- */
+
+  .worked {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  .w-which {
+    font-size: var(--text-md);
+  }
+
+  .w-app {
+    color: var(--color-muted);
+  }
+
+  .w-grid {
+    display: grid;
+    gap: var(--space-lg);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+
+  .w-grid figcaption {
+    margin-bottom: var(--space-xs);
+    font-size: var(--text-xs);
+    color: var(--color-muted);
+  }
+
+  .w-grid figure {
+    margin: 0;
+  }
+
+  .w-none {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-muted);
+  }
+
+  .quoted {
+    font-family: var(--font-quote);
+  }
+
+  /* ---- the scan record ---- */
+
+  .scans {
+    display: grid;
+    gap: var(--space-xl);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .scans li {
+    display: grid;
+    gap: var(--space-md);
+  }
 </style>

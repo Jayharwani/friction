@@ -59,14 +59,14 @@ const rowsWithFamily = rows.map((r) => {
 const TABLE_COLUMNS = [
   { key: 'app', label: 'App', sortable: true },
   { key: 'category', label: 'Category', sortable: true },
-  { key: 'problems', label: 'Problems', numeric: true, sortable: true },
+  { key: 'problems', label: 'Challenges', numeric: true, sortable: true },
   { key: 'reviews', label: 'Reviews', numeric: true, sortable: true },
 ];
 ---
 
 <Layout
   title="Apps"
-  description="Every app Friction tracks, with the number of recurring problems found in its public store reviews."
+  description="Every app Friction tracks, with the number of recurring challenges found in its public store reviews."
 >
   <div class="shell" data-apps data-view="grid">
     <header class="intro">
@@ -79,7 +79,7 @@ const TABLE_COLUMNS = [
     <div class="controls bleed" role="group" aria-label="Sort, filter and view">
       <fieldset class="seg">
         <legend>Sort</legend>
-        <label><input type="radio" name="apps-sort" value="problems" checked /><span>Problems</span></label>
+        <label><input type="radio" name="apps-sort" value="problems" checked /><span>Challenges</span></label>
         <label><input type="radio" name="apps-sort" value="reviews" /><span>Reviews</span></label>
         <label><input type="radio" name="apps-sort" value="name" /><span>A–Z</span></label>
       </fieldset>
@@ -128,7 +128,7 @@ const TABLE_COLUMNS = [
       class="bleed"
       columns={TABLE_COLUMNS}
       sort="problems"
-      caption={`Every tracked app, with the number of recurring problems and the number of reviews recorded against them. ${tracked} apps.`}
+      caption={`Every tracked app, with the number of recurring challenges and the number of reviews recorded against them. ${tracked} apps.`}
       emptyLine="No app matches those filters."
     >
       {

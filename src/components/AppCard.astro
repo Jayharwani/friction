@@ -1,7 +1,11 @@
 ---
 /**
- * One app in the grid: what it is, how much has been found, and the shape of
- * that evidence over twelve weeks.
+ * One app in the grid: what it is, how much has been found, and which kinds
+ * of failure it is.
+ *
+ * The sparkline and the verdict bar that used to close this card are on
+ * /how-it-works. What a reader wants here is which apps have a lot of one
+ * kind of problem, and the family strip is what answers that.
  *
  * The icon is used small and unaltered, to identify the app beside its name.
  * It is served from this origin, never hotlinked, and the page carries the
@@ -9,11 +13,8 @@
  */
 import type { Problem, Product } from '../../scripts/validate';
 import { url } from '../lib/url';
-import { verdictMix, weeklySeries } from '../lib/charts';
 import CategoryGlyph from './CategoryGlyph.astro';
 import { FAMILIES, FAMILY_LABEL, familyOf } from '../lib/categories';
-import Sparkline from './charts/Sparkline.astro';
-import StackedBar from './charts/StackedBar.astro';
 
 interface Props {
   product: Product;
@@ -24,8 +25,6 @@ const { product, problems } = Astro.props;
 
 const reviewCount = problems.reduce((n, p) => n + p.evidence.length, 0);
 const evidence = problems.flatMap((p) => p.evidence);
-const series = weeklySeries(evidence);
-const mix = verdictMix(problems);
 const has = problems.length > 0;
 
 const href = url(`/products/${product.slug}`);
@@ -83,7 +82,7 @@ const familyMix = FAMILIES.map((family) => ({
       <>
         <dl class="figs num">
           <div>
-            <dt>Problems</dt>
+            <dt>Challenges</dt>
             <dd>{problems.length}</dd>
           </div>
           <div>
@@ -91,14 +90,6 @@ const familyMix = FAMILIES.map((family) => ({
             <dd>{reviewCount}</dd>
           </div>
         </dl>
-
-        <div class="trend">
-          <Sparkline
-            series={series}
-            label={`${series.total} of ${product.name}'s ${reviewCount} recorded reviews arrived in the last twelve weeks.`}
-          />
-          <span class="trend-label">last 12 weeks</span>
-        </div>
 
         <ul class="fams" aria-label={`Problem families: ${familyMix.map((f) => `${f.count} ${FAMILY_LABEL[f.family]}`).join(', ')}`}>
           {familyMix.map(({ family, count }) => (
@@ -109,8 +100,6 @@ const familyMix = FAMILIES.map((family) => ({
             </li>
           ))}
         </ul>
-
-        <StackedBar segments={mix} of={`of ${product.name}'s problems`} />
       </>
     ) : (
       <p class="none">Nothing has cleared the filters for this app yet.</p>
@@ -235,17 +224,6 @@ const familyMix = FAMILIES.map((family) => ({
 
   .f-count {
     font-weight: 600;
-  }
-
-  .trend {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-  }
-
-  .trend-label {
-    font-size: var(--text-xs);
-    color: var(--color-muted);
   }
 
   .none {

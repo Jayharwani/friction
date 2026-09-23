@@ -21,14 +21,17 @@ const BUDGET: Record<string, number> = {
   'patterns/index.html': 90,
   'challenges/index.html': 90,
   'about/index.html': 80,
-  'archive/index.html': 40,
   'apps/index.html': 40,
   /* Raised from 160 when the page became seven full-bleed bands. Each one
      carries an eyebrow, a heading and a one-line lede, which is more visible
      prose than the single narrow column it replaced — while the 1,200-word
      methodology moved out of view into the FAQ's disclosures. More signposts,
-     less reading. */
-  'how-it-works/index.html': 200,
+     less reading.
+
+     Raised again from 200 when v2 moved every chart here and folded in the
+     archive: two more bands, each with its own signposting. This is the one
+     page the spec allows to be dense, and it is one of six. */
+  'how-it-works/index.html': 260,
 };
 
 /**
@@ -36,7 +39,9 @@ const BUDGET: Record<string, number> = {
  * budget is about how much the site explains itself in sentences, not about
  * how much evidence it shows.
  */
-const EXEMPT_TAGS = ['script', 'style', 'svg', 'head', 'nav', 'footer', 'table', 'details', 'dialog'];
+/* figcaption is here for the same reason .ch-caption is in EXEMPT_CLASS: the
+   label under a chart names an axis, it is not a sentence the site wrote. */
+const EXEMPT_TAGS = ['script', 'style', 'svg', 'head', 'nav', 'footer', 'table', 'details', 'dialog', 'figcaption'];
 
 /**
  * Class names that mark an element as data: captions, figures, cards,
