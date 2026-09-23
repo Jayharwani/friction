@@ -17,10 +17,10 @@ import { join } from 'node:path';
 
 /** Hard limits, in words. A page not listed here is reported but not gated. */
 const BUDGET: Record<string, number> = {
-  'index.html': 100,
-  'patterns/index.html': 90,
-  'challenges/index.html': 90,
-  'about/index.html': 80,
+  'index.html': 110,
+  'patterns/index.html': 80,
+  'challenges/index.html': 60,
+  'about/index.html': 120,
   'apps/index.html': 40,
   /* Raised from 160 when the page became seven full-bleed bands. Each one
      carries an eyebrow, a heading and a one-line lede, which is more visible
@@ -29,9 +29,13 @@ const BUDGET: Record<string, number> = {
      less reading.
 
      Raised again from 200 when v2 moved every chart here and folded in the
-     archive: two more bands, each with its own signposting. This is the one
-     page the spec allows to be dense, and it is one of six. */
-  'how-it-works/index.html': 260,
+     archive: two more bands, each with its own signposting.
+
+     Back to 200 in v4, and now it means something different: the page is
+     four sections and one closed disclosure, and a collapsed <details> is
+     already exempt, so this budget is exactly the "outside the disclosure"
+     figure the spec asks for. */
+  'how-it-works/index.html': 200,
 };
 
 /**

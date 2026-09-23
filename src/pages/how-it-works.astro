@@ -150,27 +150,29 @@ const componentMeaning: Record<string, string> = {
     <div class="hero-in">
       <h1>
         <span class="h-roman">How it works</span>
-        <span class="h-serif">public reviews in, scored challenges out</span>
+        <span class="h-serif">reviews in, challenges out</span>
       </h1>
 
       <dl class="proof num">
         <div><dt>Reviews read</dt><dd>{run ? run.funnel.fetched.total.toLocaleString('en-GB') : '—'}</dd></div>
         <div><dt>Carried forward</dt><dd>{run ? run.funnel.capped.total : '—'}</dd></div>
-        <div><dt>Problems tracked</dt><dd>{problems.length}</dd></div>
+        <div><dt>Challenges tracked</dt><dd>{problems.length}</dd></div>
         <div><dt>Written by a model</dt><dd>{gapCount}</dd></div>
       </dl>
     </div>
   </section>
 
-  <section class="band band-quiet full" aria-labelledby="where-the-data-comes-from">
+  {/* ---------- 1. where it comes from ---------- */}
+
+  <section class="band band-quiet full" aria-labelledby="where-it-comes-from">
     <div class="band-in">
-      <h2 id="where-the-data-comes-from">Where the data comes from</h2>
+      <h2 id="where-it-comes-from">Where it comes from</h2>
       <p class="lede-c">Two public feeds. No credentials, no agreement.</p>
 
     <CompareRows
       columns={[
-        { label: 'Apple App Store', figure: '5 of 5', sub: `${storefronts.length} storefronts, ten pages per app` },
-        { label: 'Google Play', figure: '3 of 5', sub: 'One storefront, most recent English reviews' },
+        { label: 'Apple App Store', figure: '5 of 5' },
+        { label: 'Google Play', figure: '3 of 5' },
       ]}
       rows={[
         { label: 'Star rating', states: [
@@ -191,49 +193,46 @@ const componentMeaning: Record<string, string> = {
         ] },
         { label: 'Title', states: [{ on: true }, { on: false }] },
       ]}
-      caption="Play carries no title and often no version, so it is an enhancement, never a dependency."
+      caption="Play is an enhancement, never a dependency."
     />
-
-
-    {/* ---------- 2. the funnel ---------- */}
 
     </div>
   </section>
 
-  <section class="band full" aria-labelledby="how-reviews-become-challenges">
+  {/* ---------- 2. what gets thrown away ---------- */}
+
+  <section class="band full" aria-labelledby="what-gets-thrown-away">
     <div class="band-in">
-      <h2 id="how-reviews-become-challenges">How reviews become challenges</h2>
+      <h2 id="what-gets-thrown-away">What gets thrown away</h2>
       <p class="lede-c">Ten thousand in. A hundred and fifty out.</p>
 
     {
       run && (
         <Funnel
+          compact
           stages={[
-            { label: 'Read', value: run.funnel.fetched.total, note: 'Every review pulled from both stores.' },
-            { label: 'Screened', value: run.funnel.screened.total, note: `Not seen before, under ${MAX_AGE_DAYS} days old, over ${MIN_TEXT_LENGTH} characters, past the crisis screen.` },
-            { label: 'Complaints', value: run.funnel.filtered.total, note: 'Three stars or fewer, and carrying a complaint marker.' },
-            { label: 'Carried', value: run.funnel.capped.total, note: `Ranked by marker count, then rating, then recency, capped at ${CANDIDATE_CAP}.` },
+            { label: 'Read', value: run.funnel.fetched.total },
+            { label: 'Screened', value: run.funnel.screened.total },
+            { label: 'Complaints', value: run.funnel.filtered.total },
+            { label: 'Carried', value: run.funnel.capped.total },
           ]}
         />
       )
     }
 
-    {
-      run && (
-        <p class="num ch-caption">
-          The scan on <time datetime={run.date}>{formatDate(run.date)}</time> kept{' '}
-          {run.funnel.capped.total} of {run.funnel.fetched.total.toLocaleString('en-GB')} reviews.
-          All of that filtering is code, and it runs before any model sees anything. Every run is in
-          the <a href="#every-scan">scan record</a>.
-        </p>
-      )
-    }
+      <p class="num ch-caption">
+        Every one of those cuts is code, running before any model sees anything.
+      </p>
+    </div>
+  </section>
 
-    {/*
-      The single most important claim on the site, so it is drawn rather than
-      listed. Two panels, deliberately unequal: what the model is allowed to
-      touch, and the three things it is forbidden from producing.
-    */}
+  {/* ---------- 3. what the model does, and never does ---------- */}
+
+  <section class="band band-quiet full" aria-labelledby="what-the-model-does">
+    <div class="band-in">
+      <h2 id="what-the-model-does">What the model does, and never does</h2>
+      <p class="lede-c">It groups and it quotes. Nothing else.</p>
+
     <CompareRows
       mode="lists"
       columns={[
@@ -255,21 +254,59 @@ const componentMeaning: Record<string, string> = {
     />
 
     <p class="ch-caption">
-      Every quote is then checked character by character against the review it cites. One failure
-      stops the run, and last week's data stays up.
+      Every quote is checked character by character against the review it came from.
     </p>
 
-    {/* ---------- 3. the score ---------- */}
 
     </div>
   </section>
 
-  <section class="band band-quiet full" aria-labelledby="how-the-score-is-computed">
+  {/* ---------- 4. the one written field ---------- */}
+
+  <section class="band full" aria-labelledby="the-one-written-field">
     <div class="band-in">
-      <h2 id="how-the-score-is-computed">How the score is computed</h2>
-      <p class="lede-c">Drag anything. It runs the real scoring code.</p>
+      <h2 id="the-one-written-field">The one written field</h2>
+
+    <div class="written">
+      <div class="w-col">
+        <p class="w-head">Extracted or computed</p>
+        <p class="w-body">
+          Quotes, ratings, versions, dates, counts, scores, verdicts — copied from a review or
+          calculated in TypeScript.
+        </p>
+      </div>
+      <div class="w-col is-written">
+        <p class="w-head"><span class="pill">written</span> What nobody offers</p>
+        <p class="w-body">
+          The four lenses, and one sentence per pattern. Each carries this badge and a date.
+        </p>
+        <p class="w-count num">
+          {gapCount}
+          <span>written {gapCount === 1 ? 'sentence' : 'sentences'}, site-wide</span>
+        </p>
+      </div>
+    </div>
+
+    <p class="ch-caption">
+      Every lens also states why it might not work. Read them on{' '}
+      <a href={url('/patterns')}>patterns</a>.
+    </p>
 
 
+    </div>
+  </section>
+
+  {/* ---------- the one door ---------- */}
+
+  <section class="band band-quiet full" aria-labelledby="method-heading">
+    <div class="band-in is-wide">
+      <details class="method">
+        <summary>
+          <span class="sum-title" id="method-heading">Full method — for anyone who wants to check the arithmetic</span>
+        </summary>
+
+        <div class="method-in">
+          <h3>How the score is computed</h3>
     {
       seedProblem && seedProduct && (
         <ScoreCalculator
@@ -303,16 +340,8 @@ const componentMeaning: Record<string, string> = {
       caption="Each component's weight, and what it counts."
     />
 
-    {/* ---------- 4. the verdict ---------- */}
 
-    </div>
-  </section>
-
-  <section class="band full" aria-labelledby="the-verdict-and-why-most-challenges-fail">
-    <div class="band-in">
-      <h2 id="the-verdict-and-why-most-challenges-fail">The verdict</h2>
-      <p class="lede-c">Three tests, in order.</p>
-
+          <h3>The verdict</h3>
     <Flow
       steps={[
         { test: 'Fewer than four distinct reviewers', verdict: 'Thin evidence', count: thin.length },
@@ -333,19 +362,8 @@ const componentMeaning: Record<string, string> = {
       rate of {passRate.toFixed(0)}%. A low one is the point.
     </p>
 
-    {/* the next band starts here */}
 
-    </div>
-  </section>
-
-  {/* ---------- 5. one challenge, underneath ---------- */}
-
-  <section class="band band-quiet full" aria-labelledby="one-challenge-underneath">
-    <div class="band-in">
-      <p class="eyebrow">The worked example</p>
-      <h2 id="one-challenge-underneath">One challenge, underneath</h2>
-      <p class="lede-c">Everything the challenge page does not show you.</p>
-
+          <h3>One challenge, underneath</h3>
       {
         seedProblem && seedProduct ? (
           <div class="worked">
@@ -405,66 +423,11 @@ const componentMeaning: Record<string, string> = {
           </p>
         )
       }
-    </div>
-  </section>
 
-  {/* ---------- 6. every challenge at once ---------- */}
+          <h3>Twelve weeks, every challenge at once</h3>
+          <FrictionField />
 
-  <section class="band full" aria-labelledby="field-heading">
-    <div class="band-in is-wide">
-      <p class="eyebrow">All of them at once</p>
-      <FrictionField />
-    </div>
-  </section>
-
-  {/* ---------- 7. the one written field ---------- */}
-
-  <section class="band band-quiet full" aria-labelledby="the-one-written-field">
-    <div class="band-in">
-      <p class="eyebrow">The exception</p>
-      <h2 id="the-one-written-field">The one written field</h2>
-      <p class="lede-c">Everything here is measured, except one sentence.</p>
-
-    <div class="written">
-      <div class="w-col">
-        <p class="w-head">Extracted or computed</p>
-        <p class="w-body">
-          Quotes, ratings, versions, dates, counts, components, scores, verdicts. Copied verbatim
-          from a review, or calculated in TypeScript. This is everything else on the site.
-        </p>
-      </div>
-      <div class="w-col is-written">
-        <p class="w-head"><span class="pill">written</span> What nobody offers</p>
-        <p class="w-body">
-          One sentence per pattern, naming a gap the reviews describe. Generated, dated, and
-          labelled everywhere it appears.
-        </p>
-        <p class="w-count num">
-          {gapCount}
-          <span>written {gapCount === 1 ? 'sentence' : 'sentences'}, site-wide</span>
-        </p>
-      </div>
-    </div>
-
-    <p class="ch-caption">
-      It is the only sentence on Friction that is neither copied nor calculated, which is why it
-      carries a label and a date wherever it appears. Read them on{' '}
-      <a href={url('/patterns')}>patterns</a>.
-    </p>
-
-    {/* ---------- full prose, collapsed ---------- */}
-
-    </div>
-  </section>
-
-  {/* ---------- 8. every scan, folded in from /archive ---------- */}
-
-  <section class="band full" aria-labelledby="every-scan">
-    <div class="band-in">
-      <p class="eyebrow">The record</p>
-      <h2 id="every-scan">Every scan so far</h2>
-      <p class="lede-c">What each run read, and which stores answered.</p>
-
+          <h3 id="every-scan">Every scan so far</h3>
       {
         runs.length === 0 ? (
           <p class="w-none">
@@ -508,18 +471,8 @@ const componentMeaning: Record<string, string> = {
           </ol>
         )
       }
-    </div>
-  </section>
 
-    <section class="band full" aria-labelledby="faq-heading">
-      <div class="band-in">
-        <p class="eyebrow">The long version</p>
-        <h2 id="faq-heading">Everything else, answered</h2>
-        <p class="lede-c"></p>
-        <div class="faq">
-          <details class="q">
-            <summary><span>Where the data comes from</span></summary>
-            <div class="a">
+        <h3>Where the data comes from</h3>
 
 
         <p>
@@ -550,11 +503,7 @@ const componentMeaning: Record<string, string> = {
               : ` In the most recent scan ${playGaps.length} of ${products.length} apps returned no Play data: ${playGaps.map((p) => p.slug).join(', ')}.`
           }
         </p>
-            </div>
-          </details>
-          <details class="q">
-            <summary><span>How reviews become challenges</span></summary>
-            <div class="a">
+        <h3>How reviews become challenges</h3>
 
 
         <p>
@@ -575,11 +524,7 @@ const componentMeaning: Record<string, string> = {
           it claims to come from. If any check fails the run stops and nothing is published, leaving the
           previous week's data in place.
         </p>
-            </div>
-          </details>
-          <details class="q">
-            <summary><span>How the score is computed</span></summary>
-            <div class="a">
+        <h3>How the score is computed</h3>
 
 
         <p>
@@ -591,11 +536,7 @@ const componentMeaning: Record<string, string> = {
           Open "How this score is calculated" on any problem page to see these seven values for that
           problem, with the raw counts behind each one and the arithmetic that produces the total.
         </p>
-            </div>
-          </details>
-          <details class="q">
-            <summary><span>The verdict, and why most challenges fail</span></summary>
-            <div class="a">
+        <h3>The verdict, and why most challenges fail</h3>
 
 
         <p>
@@ -626,11 +567,7 @@ const componentMeaning: Record<string, string> = {
           {MIN_BUILD_THRESHOLD}. A problem with no new evidence for {STALE_AFTER_DAYS} days is marked
           stale; it stays readable but is left out of the homepage and out of the threshold calculation.
         </p>
-            </div>
-          </details>
-          <details class="q">
-            <summary><span>What this method cannot tell you</span></summary>
-            <div class="a">
+        <h3>What this method cannot tell you</h3>
 
 
         <h4>Reviews have no permanent link</h4>
@@ -650,11 +587,7 @@ const componentMeaning: Record<string, string> = {
           small sample produces an unreliable score. Treat a scored problem as a starting point for your
           own research, not as a conclusion.
         </p>
-            </div>
-          </details>
-          <details class="q">
-            <summary><span>Privacy</span></summary>
-            <div class="a">
+        <h3>Privacy</h3>
 
 
         <ul>
@@ -673,11 +606,7 @@ const componentMeaning: Record<string, string> = {
             nothing more.
           </li>
         </ul>
-            </div>
-          </details>
-          <details class="q">
-            <summary><span>What is never tracked</span></summary>
-            <div class="a">
+        <h3>What is never tracked</h3>
 
 
         <p>
@@ -700,11 +629,7 @@ const componentMeaning: Record<string, string> = {
           Both screens match inflected forms as well as the exact words. They are deliberately broad.
           Excluding something that belonged is a cost worth paying here.
         </p>
-            </div>
-          </details>
-          <details class="q">
-            <summary><span>Non-commercial</span></summary>
-            <div class="a">
+        <h3>Non-commercial</h3>
 
 
         <p>
@@ -723,60 +648,12 @@ const componentMeaning: Record<string, string> = {
             </p>
           )
         }
-            </div>
-          </details>
+
         </div>
-      </div>
-    </section>
+      </details>
+    </div>
+  </section>
 </Layout>
-
-<script>
-  import { initCalculator } from '../scripts/calculator';
-
-  /**
-   * Marks the section being read in the margin contents. An
-   * IntersectionObserver, never a scroll listener, and it only sets an
-   * attribute — nothing here animates.
-   */
-  function watchSections(): void {
-    const links = new Map<string, HTMLAnchorElement>();
-    for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-toc]')) {
-      links.set(a.dataset.toc!, a);
-    }
-    if (links.size === 0) return;
-
-    const seen = new Set<string>();
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) seen.add(e.target.id);
-          else seen.delete(e.target.id);
-        }
-        // The topmost visible heading wins, so the mark never jumps backwards.
-        let current: string | null = null;
-        for (const id of links.keys()) {
-          if (seen.has(id)) { current = id; break; }
-        }
-        for (const [id, a] of links) {
-          if (id === current) a.setAttribute('aria-current', 'true');
-          else a.removeAttribute('aria-current');
-        }
-      },
-      { rootMargin: '-20% 0px -70% 0px' },
-    );
-
-    for (const id of links.keys()) {
-      const el = document.getElementById(id);
-      if (el) io.observe(el);
-    }
-    document.addEventListener('astro:before-swap', () => io.disconnect(), { once: true });
-  }
-
-  document.addEventListener('astro:page-load', () => {
-    watchSections();
-    initCalculator();
-  });
-</script>
 
 <style>
 
@@ -1300,90 +1177,95 @@ const componentMeaning: Record<string, string> = {
 
   /* ---- the FAQ ---- */
 
-  .faq {
-    max-width: 46rem;
-    margin-inline: auto;
-    border-top: var(--rule-hair) solid var(--color-rule);
-  }
+  /* ---- the one door ---- */
 
-  .q {
+  /*
+   * Everything an auditor could want is behind this: the calculator, the
+   * verdict logic, the worked example, the twelve-week field, the scan
+   * record and the full reference prose, all unedited. It is closed because
+   * the four sections above already answer the question a reader arrived
+   * with, and this is for the reader who wants to check the arithmetic.
+   */
+  .method {
+    border-top: var(--rule-hair) solid var(--color-rule);
     border-bottom: var(--rule-hair) solid var(--color-rule);
   }
 
-  .q summary {
+  .method summary {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-md);
     padding-block: var(--space-lg);
     min-height: var(--tap);
-    font-size: var(--text-md);
     cursor: pointer;
     list-style: none;
   }
 
-  .q summary::-webkit-details-marker {
+  .method summary::-webkit-details-marker {
     display: none;
   }
 
-  /* A plus that becomes a minus. Drawn, so it can rotate. */
-  .q summary::after {
+  .sum-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-md);
+    font-weight: 500;
+  }
+
+  /* The caret, drawn rather than typed, so it rotates. */
+  .sum-title::before {
     content: '';
     flex: none;
-    width: 14px;
-    height: 14px;
-    background:
-      linear-gradient(var(--color-neutral), var(--color-neutral)) center / 14px 1.5px no-repeat,
-      linear-gradient(var(--color-neutral), var(--color-neutral)) center / 1.5px 14px no-repeat;
+    width: 9px;
+    height: 9px;
+    border-right: 1.5px solid var(--color-neutral);
+    border-bottom: 1.5px solid var(--color-neutral);
+    rotate: -45deg;
+    translate: 0 -1px;
   }
 
-  .q[open] summary::after {
-    background:
-      linear-gradient(var(--color-accent), var(--color-accent)) center / 14px 1.5px no-repeat;
+  .method[open] .sum-title::before {
+    rotate: 45deg;
+    translate: 0 -2px;
+    border-color: var(--color-accent);
   }
 
-  .q summary:hover,
-  .q[open] summary {
+  .method summary:hover .sum-title,
+  .method[open] .sum-title {
     color: var(--color-accent);
   }
 
-  .q summary:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 2px;
+  .method-in {
+    padding-block: var(--space-xl) var(--space-3xl);
+    display: grid;
+    gap: var(--space-xl);
   }
 
-  .a {
-    padding-bottom: var(--space-xl);
+  .method-in h3 {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: var(--rule-hair) solid var(--color-rule);
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .method-in h3:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .method-in :global(p) {
     max-width: var(--measure);
   }
 
-  .a :global(h4) {
+  .method-in :global(h4) {
     margin-top: var(--space-lg);
     font-size: var(--text-sm);
     font-weight: 600;
     color: var(--color-muted);
   }
-
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
-      .q {
-        interpolate-size: allow-keywords;
-      }
-
-      .q::details-content {
-        block-size: 0;
-        overflow: hidden;
-        transition:
-          block-size var(--dur-short) var(--ease-out),
-          content-visibility var(--dur-short) allow-discrete;
-      }
-
-      .q[open]::details-content {
-        block-size: auto;
-      }
-    }
-  }
-
 
   /* ---- the worked example ---- */
 
