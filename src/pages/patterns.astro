@@ -2,23 +2,28 @@
 /**
  * Patterns — the layer the site was missing.
  *
- * Every other page shows problems one at a time. This one shows what happens
- * when you look across them: a complaint in one app is a bug, the same
- * complaint in seven is something else.
+ * Every other page shows challenges one at a time. This one shows what
+ * happens when you look across them: a complaint in one app is a bug, the
+ * same complaint in seven is something else.
  *
- * Nothing here is new data. It is the committed problems, grouped by category
- * and counted.
+ * The counting is unchanged — committed challenges, grouped by category. The
+ * lenses are not: they are written for the pattern rather than assembled
+ * from its members, because the thing to do about seven apps failing the
+ * same way is not the thing to do about any one of them.
  */
 import Layout from '../layouts/Layout.astro';
 import PageTexture from '../components/PageTexture.astro';
 import BrandMark from '../components/BrandMark.astro';
 import PatternCard from '../components/PatternCard.astro';
+import LensCard from '../components/LensCard.astro';
 import { buildPatterns, PATTERN_MIN_APPS } from '../lib/patterns';
-import { getActiveProblems, getGaps, getProducts } from '../lib/data';
+import { getActiveProblems, getGaps, getPatternLenses, getProducts } from '../lib/data';
+import { LENSES, LENS_HUE } from '../lib/lenses';
 
 const tracked = getProducts().length;
 const patterns = buildPatterns(getActiveProblems(), tracked, getGaps());
 const top = patterns[0];
+const written = getPatternLenses();
 ---
 
 <Layout
@@ -32,7 +37,7 @@ const top = patterns[0];
       <h1>The same complaints show up across different apps.</h1>
       <p class="sub">
         A complaint in one app is a bug. The same complaint in {top?.apps.length ?? PATTERN_MIN_APPS} is
-        something else.
+        a better place to start than any one of them.
       </p>
     </div>
   </div>
@@ -46,11 +51,30 @@ const top = patterns[0];
 
     {
       patterns.length > 0 ? (
-        <section class="grid bleed" aria-label="All patterns">
+        <div class="stack bleed">
           {patterns.map((pattern) => (
-            <PatternCard pattern={pattern} trackedApps={tracked} />
+            <section class="block" aria-label={pattern.category}>
+              <PatternCard pattern={pattern} trackedApps={tracked} />
+
+              {written[pattern.category] && (
+                <div class="lens-grid">
+                  {LENSES.map((lens) => (
+                    <div style={`--lens:${LENS_HUE[lens]}`}>
+                      <LensCard
+                        lens={lens}
+                        proposition={written[pattern.category]!.lenses[lens].proposition}
+                        specifics={written[pattern.category]!.lenses[lens].specifics}
+                        limitation={written[pattern.category]!.lenses[lens].limitation}
+                        writtenBy={written[pattern.category]!.writtenBy}
+                        writtenAt={written[pattern.category]!.writtenAt}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
           ))}
-        </section>
+        </div>
       ) : (
         <p class="empty">
           No category has reached {PATTERN_MIN_APPS} apps yet. Patterns appear here as coverage
@@ -132,12 +156,44 @@ const top = patterns[0];
     color: var(--color-muted);
   }
 
-  /* ---- the cards ---- */
+  /* ---- one block per pattern ---- */
 
-  .grid {
+  /*
+   * A stack, not a grid. Each pattern now carries four lens cards beneath
+   * its own claim, and side by side they read as eight unrelated cards
+   * rather than two patterns.
+   */
+  .stack {
     display: grid;
-    gap: var(--space-xl);
-    padding-bottom: var(--space-3xl);
+    gap: var(--space-4xl);
+    padding-block: var(--space-xl) var(--space-3xl);
+  }
+
+  .block {
+    display: grid;
+    gap: var(--space-lg);
+  }
+
+  .lens-grid {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  /* The hue wrapper stretches to the row; the card stretches with it. */
+  .lens-grid > div {
+    display: grid;
+  }
+
+  @media (min-width: 46rem) {
+    .lens-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .lens-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 
   .empty {

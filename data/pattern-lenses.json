@@ -1,0 +1,124 @@
+{
+  "note": "Lenses at pattern altitude. Same written step and same gate as data/challenges/*.json, keyed by category rather than by challenge slug, because the question a pattern raises is not the question any one of its members raises. Checked by `npm run lenses`.",
+  "patterns": {
+    "Pricing and billing": {
+      "writtenBy": "claude-opus-5",
+      "writtenAt": "2026-09-23",
+      "lenses": {
+        "build": {
+          "proposition": "A money screen showing what is owed, what is pending, and what was refused.",
+          "specifics": [
+            "Show the store's own subscription and refund state, not a copy of it",
+            "Timestamp every charge against the quote or trial that produced it",
+            "Let a dispute start from the charge line rather than a support queue"
+          ],
+          "limitation": "Most of that state is held by the store or the bank, and an app can only show what it is permitted to see."
+        },
+        "start": {
+          "proposition": "Somewhere to watch every app subscription and every disputed charge at once.",
+          "specifics": [
+            "Reads store receipts across apps rather than one seller's dashboard",
+            "Warns before a trial converts, and follows a refund after it is refused",
+            "Aimed at people paying for six apps and watching none of them"
+          ],
+          "limitation": "Receipt access is granted by the stores, who can withdraw it, and quiet conversion is what they earn from."
+        },
+        "study": {
+          "proposition": "Where does a refund request go when six different apps refuse it?",
+          "specifics": [
+            "Follow one request through app, store and card, in each app in turn",
+            "Compare what each party says it can and cannot do about the same charge"
+          ],
+          "limitation": "Only the people who complained in public can be sampled, and they are the ones it went worst for."
+        },
+        "write": {
+          "proposition": "Six apps, one sentence: no refund is available.",
+          "specifics": [
+            "Set the refusals side by side and quote them exactly",
+            "Follow one reader out to the store route reviewers found instead"
+          ],
+          "limitation": "Billing complaints are well covered one company at a time; the pattern across six is the part that is not."
+        }
+      }
+    },
+    "Crashes and stability": {
+      "writtenBy": "claude-opus-5",
+      "writtenAt": "2026-09-23",
+      "lenses": {
+        "build": {
+          "proposition": "Recovery that keeps what was in progress when the app dies.",
+          "specifics": [
+            "Write in-progress state somewhere a crash cannot reach",
+            "Restore the exact position, not just the screen it was on",
+            "Offer a repair that is not uninstalling and reinstalling"
+          ],
+          "limitation": "Preserving state across a crash means trusting state written by a process that was already failing."
+        },
+        "start": {
+          "proposition": "A recovery layer apps adopt instead of each writing their own.",
+          "specifics": [
+            "Captures the in-progress work and the session together",
+            "Restores both on the next open, whatever killed the app",
+            "Aimed at teams shipping to Android at weekly pace"
+          ],
+          "limitation": "It would live inside other people's release cycles, which is the slowest place there is to sell anything."
+        },
+        "study": {
+          "proposition": "What do people lose when reinstalling is the only advice that works?",
+          "specifics": [
+            "Record what is gone each time: drafts, history, sign-in, recordings",
+            "Compare across the apps where reinstalling is the standard answer"
+          ],
+          "limitation": "People reinstall only after everything else has failed, so the sample is the worst cases by construction."
+        },
+        "write": {
+          "proposition": "Seven apps, one instruction: uninstall and reinstall.",
+          "specifics": [
+            "Quote the seven workarounds beside each other",
+            "Follow one person through the reinstall that lost their work"
+          ],
+          "limitation": "Crash coverage usually stops at the crash; what the crash took with it is the missing half."
+        }
+      }
+    },
+    "Ads and interruptions": {
+      "writtenBy": "claude-opus-5",
+      "writtenAt": "2026-09-23",
+      "lenses": {
+        "build": {
+          "proposition": "A setting that turns off an interruption the person did not ask for.",
+          "specifics": [
+            "Separate what pays for the app from what merely promotes it",
+            "Never cover the thing the person opened the app to use",
+            "State the frequency where the tier is described"
+          ],
+          "limitation": "The interruption is usually the business model, so this is a pricing decision wearing the label of a setting."
+        },
+        "start": {
+          "proposition": "Software whose interruption rate is published and then held to.",
+          "specifics": [
+            "One stated rate for the free tier, changed only with notice",
+            "Aimed at people who will never pay but will stay for years"
+          ],
+          "limitation": "Whoever sells the interruption sets the rate, and they are rarely the people writing the app."
+        },
+        "study": {
+          "proposition": "At what frequency does an interruption stop being tolerated?",
+          "specifics": [
+            "Vary the spacing rather than the volume and see what people abandon",
+            "Separate an interruption that covers the screen from one that only delays"
+          ],
+          "limitation": "Advertising studies this already, though rarely with the interrupted person's own account beside it."
+        },
+        "write": {
+          "proposition": "The only way out anyone found was force-quitting.",
+          "specifics": [
+            "Set three apps' interruptions against what each tier promises",
+            "Quote the reviewer who sat and counted them"
+          ],
+          "limitation": "Complaining about adverts is the oldest complaint there is; three different kinds of app is the new part."
+        }
+      }
+    }
+  }
+}

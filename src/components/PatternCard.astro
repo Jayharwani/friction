@@ -47,7 +47,6 @@ const shown = apps.slice(0, VISIBLE);
 const overflow = apps.length - shown.length;
 
 const iconSize = compact ? 34 : 56;
-const reachPct = Math.round(pattern.reach * 100);
 ---
 
 <article class="pattern" data-family={family} data-chart data-compact={compact ? '' : undefined}>
@@ -82,13 +81,6 @@ const reachPct = Math.round(pattern.reach * 100);
       {overflow > 0 && <li class="more num" aria-hidden="true">+{overflow}</li>}
     </ul>
   </div>
-
-  {/* ---------- 2. the reach ---------- */}
-  <p class="bar">
-    <span class="fill ch-wipe" style={`--w:${reachPct}%`}>
-      <span class="in num">{reachPct}% of tracked apps</span>
-    </span>
-  </p>
 
   <dl class="figs num">
     <div>
@@ -265,41 +257,6 @@ const reachPct = Math.round(pattern.reach * 100);
     border-radius: var(--r-icon);
     background: color-mix(in oklch, var(--cat) 24%, var(--color-paper));
     color: var(--color-ink);
-  }
-
-  /* ---- 2. the reach ---- */
-
-  /*
-   * 12px and filled, not a hairline. The proportion is set inside the fill
-   * so the bar needs no legend beside it.
-   */
-  .bar {
-    position: relative;
-    height: 1.5rem;
-    margin: var(--space-lg) 0 0;
-    border-radius: var(--r-pill);
-    background: color-mix(in oklch, var(--cat) 14%, var(--color-paper));
-    overflow: hidden;
-  }
-
-  .fill {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    width: var(--w);
-    min-width: fit-content;
-    padding-inline: var(--space-sm);
-    border-radius: var(--r-pill);
-    background: var(--cat);
-    transform-origin: left;
-  }
-
-  .in {
-    font-size: var(--text-xs);
-    font-weight: 500;
-    white-space: nowrap;
-    /* Always legible: the fill is a solid 56%-lightness colour in both themes. */
-    color: var(--color-paper);
   }
 
   .figs {

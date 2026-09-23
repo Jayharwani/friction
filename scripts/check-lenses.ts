@@ -1,5 +1,7 @@
 /**
- * Run every written challenge through the same gates a scan would.
+ * Run every written lens through the same gates a scan would — the
+ * per-challenge ones in data/challenges, and the pattern-altitude ones in
+ * data/pattern-lenses.json.
  *
  * The lenses are produced by a prompted step, not by the build, so this is
  * what stops a bad one reaching the site: the file is checked against the
@@ -76,7 +78,56 @@ for (const file of files) {
   }
 }
 
-console.log(`\n${files.length} challenge${files.length === 1 ? '' : 's'} checked.`);
+/* ---- the same gate, at pattern altitude ---- */
+
+const PATTERNS = 'data/pattern-lenses.json';
+let patternCount = 0;
+
+if (existsSync(PATTERNS)) {
+  const { patterns } = JSON.parse(readFileSync(PATTERNS, 'utf8'));
+
+  /*
+   * A pattern names no company for the same reason a challenge does not: no
+   * reviewer in it named one, so there is nothing for the rule to allow.
+   */
+  const existingSolutions: string[] = [];
+
+  for (const [category, entry] of Object.entries(patterns)) {
+    patternCount += 1;
+    const fails: string[] = [];
+    const raw = entry as { writtenBy?: string; writtenAt?: string; lenses?: unknown };
+
+    if (!raw.writtenBy || !raw.writtenAt) fails.push('missing writtenBy/writtenAt provenance');
+
+    const parsed = LensesSchema.safeParse(raw.lenses);
+    if (!parsed.success) {
+      for (const i of parsed.error.issues) fails.push(`${i.path.join('.')}: ${i.message}`);
+    } else {
+      fails.push(...lensViolations(parsed.data));
+      const named = lensNamesUnknownCompany({ existingSolutions, lenses: parsed.data } as never);
+      if (named) fails.push(named);
+    }
+
+    const words = parsed.success
+      ? Object.values(parsed.data).map((l) =>
+          wordCount([l.proposition, ...l.specifics, l.limitation].join(' ')),
+        )
+      : [];
+
+    if (fails.length > 0) {
+      failed += 1;
+      console.error(`\n✗ pattern: ${category}`);
+      for (const f of fails) console.error(`    ${f}`);
+    } else {
+      console.log(`· pattern: ${category}`);
+      console.log(`    lenses: ${words.join(', ')} words`);
+    }
+  }
+}
+
+console.log(
+  `\n${files.length} challenge${files.length === 1 ? '' : 's'} and ${patternCount} pattern${patternCount === 1 ? '' : 's'} checked.`,
+);
 if (failed > 0) {
   console.error(`${failed} failed.`);
   process.exit(1);

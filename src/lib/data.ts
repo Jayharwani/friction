@@ -104,6 +104,29 @@ export function getChallenge(slug: string): Challenge | undefined {
 }
 
 /**
+ * Lenses at pattern altitude, keyed by category.
+ *
+ * Written by the same prompted step and held to the same gate, but asking a
+ * different question: a complaint in one app is a thing to fix, and the same
+ * complaint in six is a thing to start. A pattern with no entry simply shows
+ * no lenses, the same way a pattern with no gap line shows no gap.
+ */
+export interface PatternLenses {
+  writtenBy: string;
+  writtenAt: string;
+  lenses: Challenge['lenses'];
+}
+
+export const getPatternLenses = memo((): Record<string, PatternLenses> => {
+  const path = join(DATA, 'pattern-lenses.json');
+  if (!existsSync(path)) return {};
+  const parsed = JSON.parse(readFileSync(path, 'utf8')) as {
+    patterns?: Record<string, PatternLenses>;
+  };
+  return parsed.patterns ?? {};
+});
+
+/**
  * The score, as a word.
  *
  * Same thresholds the verdict uses — nothing is recomputed here, and the
