@@ -1,0 +1,42 @@
+{
+  "slug": "notion--the-mobile-app-freezes-and-lags-while-editing-pages",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People lose their place, and their work, when the editor freezes",
+  "whoItAffects": "iPhone, iPad and Android users, across six app versions rather than one bad release.",
+  "lenses": {
+    "build": {
+      "proposition": "An editor that keeps your text when the app stops responding.",
+      "specifics": [
+        "Write each keystroke to local storage, not only on save",
+        "Restore the caret and scroll position after a forced restart",
+        "Start with the close-and-reopen path reviewers keep describing"
+      ],
+      "limitation": "A mobile OS can kill a backgrounded app before it finishes writing anything to disk."
+    },
+    "start": {
+      "proposition": "A recovery layer that editors could license rather than build.",
+      "specifics": [
+        "Capture edits below the app, at the input layer",
+        "Sell to the teams shipping editors, not to the people typing"
+      ],
+      "limitation": "The apps losing the work are the ones who would have to buy it, and they already believe their sync works."
+    },
+    "study": {
+      "proposition": "How much writing is actually lost, and does anyone notice at the time?",
+      "specifics": [
+        "Instrument a real editor and compare keystrokes typed against keystrokes persisted",
+        "Ask whether people who lose work switch tools or simply repeat it"
+      ],
+      "limitation": "The apps holding this data will not share it, and self-reported loss is unreliable."
+    },
+    "write": {
+      "proposition": "Why the little saved indicator lies.",
+      "specifics": [
+        "Trace what saved means across three editors people trust",
+        "Open on the reviews describing a restart every few minutes"
+      ],
+      "limitation": "Autosave failure is well-trodden ground; the fresh angle is the gap between the indicator and the truth."
+    }
+  }
+}

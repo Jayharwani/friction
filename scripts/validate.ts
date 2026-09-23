@@ -228,6 +228,96 @@ export const ExtractedEvidenceSchema = z.object({
   signals: SignalsSchema,
 });
 
+/* ------------------------------------------------------------------ */
+/* Lenses (v2 §4)                                                      */
+/*                                                                     */
+/* The four lenses are the only *written* content on the site — every  */
+/* other field is quoted from a review or computed in TypeScript. That */
+/* asymmetry is handled two ways: a visible "written" badge wherever   */
+/* they appear, and these gates, which reject the whole run rather     */
+/* than trimming an offending phrase. A lens that has to be edited to  */
+/* pass was written wrong.                                             */
+/* ------------------------------------------------------------------ */
+
+/** Money, size and demand language. A lens knows none of these things. */
+const LENS_BANNED = [
+  /[$£€¥₹]/,
+  /\d\s*%/,
+  /\bpercent\b/i,
+  /\bmarket\b/i,
+  /\bbillion\b/i,
+  /\bmillion\b/i,
+  /\bTAM\b/,
+  /\bopportunity size\b/i,
+  /\bunderserved\b/i,
+  /\brapidly growing\b/i,
+  /\bexploding\b/i,
+  /\bmassive\b/i,
+  /\bhuge\b/i,
+];
+
+export const LENS_MAX_WORDS = 80;
+export const HUMAN_TITLE_MAX_WORDS = 12;
+
+/** Every string a lens carries, for the banned-phrase and length checks. */
+export function lensText(lens: {
+  proposition: string;
+  specifics: string[];
+  limitation: string;
+}): string {
+  return [lens.proposition, ...lens.specifics, lens.limitation].join(' ');
+}
+
+/*
+ * Structure only. The content rules — the banned vocabulary and the word
+ * cap — run as an explicit pass in `lensViolations` rather than as schema
+ * refinements, for the same reason the competitor check does: they produce
+ * a message naming the offending phrase, which a Zod issue cannot.
+ */
+const LensSchema = z.object({
+  proposition: z.string().min(1),
+  specifics: z.array(z.string().min(1)).min(2).max(3),
+  /* Not optional, and not allowed to be empty. A lens with no stated reason
+     it might fail is the thing this whole idea exists to avoid. */
+  limitation: z.string().min(1),
+});
+
+export const LensesSchema = z.object({
+  build: LensSchema,
+  start: LensSchema,
+  study: LensSchema,
+  write: LensSchema,
+});
+export type Lenses = z.infer<typeof LensesSchema>;
+
+/**
+ * Every content rule a lens must satisfy, as a list of failures.
+ *
+ * Returns the offending phrase in the message, because "lens contains market
+ * language" sends someone hunting and "start lens contains \"market\"" does not.
+ */
+export function lensViolations(lenses: Lenses): string[] {
+  const out: string[] = [];
+  for (const [key, lens] of Object.entries(lenses)) {
+    const text = lensText(lens);
+
+    for (const re of LENS_BANNED) {
+      const m = re.exec(text);
+      if (m) {
+        out.push(
+          `${key} lens contains "${m[0]}" — a lens may describe a possibility, not a market`,
+        );
+      }
+    }
+
+    const words = wordCount(text);
+    if (words > LENS_MAX_WORDS) {
+      out.push(`${key} lens is ${words} words, over the ${LENS_MAX_WORDS} cap`);
+    }
+  }
+  return out;
+}
+
 export const ExtractedProblemSchema = z.object({
   productSlug: z.string().min(1),
   title: z.string().min(1).max(90),
@@ -236,8 +326,66 @@ export const ExtractedProblemSchema = z.object({
   evidence: z.array(ExtractedEvidenceSchema).min(1),
   workarounds: z.array(z.string()).max(3),
   existingSolutions: z.array(z.string()).max(5),
+
+  /* The challenge fields. Optional on the schema so a run that predates
+     them still validates; the gate below requires them wherever lenses
+     are published. */
+  humanTitle: z
+    .string()
+    .min(1)
+    .refine((t) => wordCount(t) <= HUMAN_TITLE_MAX_WORDS, {
+      message: `humanTitle must be ${HUMAN_TITLE_MAX_WORDS} words or fewer`,
+    })
+    .optional(),
+  whoItAffects: z.string().min(1).optional(),
+  lenses: LensesSchema.optional(),
 });
 export type ExtractedProblem = z.infer<typeof ExtractedProblemSchema>;
+
+/**
+ * A lens may only reference a product a reviewer named.
+ *
+ * Schema-level checks cannot see sibling fields, so this runs as a pass over
+ * the parsed file. `existingSolutions` is itself extracted from reviews, so
+ * this keeps the one written field anchored to what people actually said.
+ */
+export function lensNamesUnknownCompany(problem: ExtractedProblem): string | null {
+  if (!problem.lenses) return null;
+  const allowed = problem.existingSolutions.map((n) => n.toLowerCase());
+  for (const [key, lens] of Object.entries(problem.lenses)) {
+    const text = lensText(lens);
+    /* Capitalised multi-word runs are the shape a product name takes. */
+    for (const m of text.matchAll(/\b([A-Z][a-zA-Z0-9]+(?: [A-Z][a-zA-Z0-9]+)*)\b/g)) {
+      const name = m[1]!;
+      if (name.split(' ').length > 3) continue;
+      if (SENTENCE_STARTERS.has(name.toLowerCase())) continue;
+      if (allowed.some((a) => a.includes(name.toLowerCase()) || name.toLowerCase().includes(a))) {
+        continue;
+      }
+      if (KNOWN_COMPANIES.has(name.toLowerCase())) {
+        return `${key} lens names "${name}", which no reviewer named`;
+      }
+    }
+  }
+  return null;
+}
+
+/* Words that open a sentence and are capitalised for that reason alone. */
+const SENTENCE_STARTERS = new Set([
+  'a', 'an', 'the', 'people', 'users', 'reviewers', 'most', 'many', 'some', 'it', 'this',
+  'that', 'they', 'there', 'when', 'where', 'what', 'who', 'how', 'why', 'if', 'but',
+  'and', 'or', 'for', 'build', 'start', 'study', 'write', 'ios', 'android', 'apple',
+  'google', 'play', 'app', 'store', 'no', 'not', 'nothing', 'every', 'each', 'one', 'two',
+]);
+
+/* Names that would be a competitor claim if a reviewer had not raised them. */
+const KNOWN_COMPANIES = new Set([
+  'notion', 'slack', 'zoom', 'canva', 'duolingo', 'spotify', 'airbnb', 'uber', 'strava',
+  'venmo', 'ticketmaster', 'expedia', 'teams', 'microsoft', 'google', 'apple', 'meta',
+  'figma', 'obsidian', 'evernote', 'dropbox', 'asana', 'trello', 'linear', 'babbel',
+  'busuu', 'memrise', 'anki', 'lyft', 'booking', 'kayak', 'garmin', 'komoot', 'paypal',
+  'cashapp', 'revolut', 'monzo', 'stubhub', 'seatgeek', 'apple music', 'youtube music',
+]);
 
 export const ExtractedFileSchema = z.array(ExtractedProblemSchema);
 
@@ -419,6 +567,15 @@ export function crossCheckExtracted(
   extracted.forEach((problem, index) => {
     const fail = (message: string) =>
       failures.push({ index, productSlug: problem.productSlug, message });
+
+    /* A lens may only reference a product a reviewer named. Schema rules
+       cannot see sibling fields, so the check runs here where both the
+       lenses and existingSolutions are in hand. */
+    if (problem.lenses) {
+      for (const v of lensViolations(problem.lenses)) fail(v);
+    }
+    const named = lensNamesUnknownCompany(problem);
+    if (named) fail(named);
 
     for (const e of problem.evidence) {
       const candidate = byId.get(e.reviewId);

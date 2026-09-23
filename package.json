@@ -17,7 +17,8 @@
     "prune": "tsx scripts/prune.ts",
     "test": "node --import tsx --test \"scripts/**/*.test.ts\"",
     "check": "astro check",
-    "words": "tsx scripts/words.ts"
+    "words": "tsx scripts/words.ts",
+    "lenses": "tsx scripts/check-lenses.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

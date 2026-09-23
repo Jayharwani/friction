@@ -1,0 +1,42 @@
+{
+  "slug": "expedia--refunds-are-refused-delayed-or-issued-as-credit-that-cannot-be-used",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People cannot get their money back when a trip falls through",
+  "whoItAffects": "iPhone and Android travellers in the United States and Canada, across six app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A refund tracker that shows where the money actually is.",
+      "specifics": [
+        "Name the state plainly: requested, promised, issued as credit, refused",
+        "Show the date a promise was made and whether it has passed",
+        "Start with the stated-window promise reviewers keep describing"
+      ],
+      "limitation": "The booking platform owns the refund state and has little reason to expose it honestly."
+    },
+    "start": {
+      "proposition": "A service that chases a travel refund on someone's behalf.",
+      "specifics": [
+        "Take the booking reference and the promised date, then pursue it",
+        "Charge only once the money actually arrives"
+      ],
+      "limitation": "Chargeback routes already exist through card issuers, and they cost the traveller nothing."
+    },
+    "study": {
+      "proposition": "What happens to a refund promise after its window passes?",
+      "specifics": [
+        "Collect stated refund windows against reported arrival dates",
+        "Test whether credit-instead-of-cash tracks with the kind of booking"
+      ],
+      "limitation": "The outcome is private between traveller and platform, so the sample is only whoever chooses to report it."
+    },
+    "write": {
+      "proposition": "The refund that quietly becomes credit you cannot spend.",
+      "specifics": [
+        "Follow one traveller from cancellation to the credit expiring",
+        "Quote the reviews where the promise repeats and the date slips"
+      ],
+      "limitation": "Consumer-rights reporting covers this ground already; the specific turn is credit offered as a refund."
+    }
+  }
+}

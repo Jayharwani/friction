@@ -34,7 +34,20 @@ A JSON array. Every element must match this exactly:
     }
   ],
   "workarounds": ["short phrase", "short phrase"],
-  "existingSolutions": ["Real Product Name"]
+  "existingSolutions": ["Real Product Name"],
+
+  "humanTitle": "People lose work when the app freezes mid-edit",
+  "whoItAffects": "Mostly iPhone users writing long documents, across six app versions since March.",
+  "lenses": {
+    "build": {
+      "proposition": "one line",
+      "specifics": ["what it does", "who for", "the first thing to make"],
+      "limitation": "the reason this might not work"
+    },
+    "start": { "proposition": "", "specifics": [], "limitation": "" },
+    "study": { "proposition": "", "specifics": [], "limitation": "" },
+    "write": { "proposition": "", "specifics": [], "limitation": "" }
+  }
 }
 ```
 
@@ -53,6 +66,60 @@ These are checked by `npm run validate` immediately after you finish. Any failur
 - **Group across platforms.** An iOS complaint and an Android complaint about the same behaviour are one problem with evidence from both, not two problems.
 - **If fewer than three reviews support a problem, do not emit it.** Thin problems are noise.
 - **Prefer 5 to 15 well-evidenced problems over 40 thin ones.** Depth beats coverage.
+
+## The challenge fields
+
+`humanTitle`, `whoItAffects` and `lenses` turn a recorded problem into something a
+reader can act on. They are the only fields on this site that are *written* rather
+than quoted or counted, and they are labelled as written wherever they appear.
+
+**`humanTitle` — maximum 12 words.** Rewrite the title so its subject is a person,
+not the software. "The mobile app freezes and lags while editing pages" becomes
+"People lose work when the app freezes mid-edit". Say what it costs someone.
+
+**`whoItAffects` — one sentence.** Draw it *only* from the platform, version and
+country fields on the evidence you grouped. If the evidence is all iOS, say iOS. If
+it spans six versions, say six versions. Never infer an occupation, an age, a
+company size or a use case that no reviewer stated.
+
+**`lenses` — four objects, maximum 60 words each.** Each answers "what could I do
+with this" for a different reader:
+
+- **build** — what product or feature would fix this, for a designer, PM or engineer
+- **start** — whether there is a company here, and what it would be, for a founder
+- **study** — what research question this opens, for a student or researcher
+- **write** — what the story or post is, for a creator
+
+Each carries a one-line `proposition`, two or three concrete `specifics`, and a
+`limitation`.
+
+**The limitation is the most important field in this document.** Four cards of
+uncritical enthusiasm is what every idea-generator produces and why none of them
+are trusted. Name the real reason each one might not work: the platform constraint
+for build, who already does this for start, the data you could not get for study,
+what has already been written for write. A card that tells a reader why it might
+fail is the one they believe.
+
+### What a lens may never contain
+
+`npm run validate` rejects the whole run on any of these. They are not style notes.
+
+- **No money, and no size.** No currency symbol, no percentage, no "market",
+  "billion", "million", "TAM" or "opportunity size". You do not know the market and
+  you cannot learn it from app store reviews.
+- **No demand claim.** Not "users are desperate for", not "there is clearly appetite
+  for". Reviews tell you what a few hundred people complained about, not what
+  anyone would buy.
+- **No company a reviewer did not name.** You may only reference a product that
+  appears in this problem's `existingSolutions`, which itself comes from reviewers'
+  own words.
+- **No growth, scale or traction language.** No "rapidly growing", "underserved
+  segment", "massive", "huge", "exploding".
+
+Write plainly. "A tool that recovers unsaved edits after a crash" is better than
+"An AI-powered resilience layer for creative professionals." If a lens reads like a
+pitch deck, it is wrong; if it reads like a colleague telling you what they noticed,
+it is right.
 
 ## The five signals
 
