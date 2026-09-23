@@ -520,44 +520,48 @@ body::after {
 
    Fourteen moments move on this site, and nothing else does. Adding a
    fifteenth is a decision, not a detail. Counted against the source, not
-   remembered: every entry below is one guarded block you can go and read.
+   remembered: every entry below is one guarded block you can go and read,
+   and `prefers-reduced-motion` was verified on every page after v2 rather
+   than assumed.
 
      1  The field settles on load, column by column, once.
         src/scripts/field.ts
      2  The field drifts, and leans toward the pointer. Both are capped
         at a few degrees and both stop when it scrolls out of view.
         src/scripts/field.ts
-     3  The statement, its line beneath, and the proof row rise once as
-        the page paints. @starting-style, no scroll trigger.
-        src/pages/index.astro
+     3  The wall of voices drifts six degrees over ninety-six seconds.
+        One transform on one element, and the only thing moving in the
+        first screen.
+        src/components/VoiceWall.astro
      4  The header takes a backdrop past 64px of scroll.
         src/layouts/Layout.astro
-     5  A problem title carries between the list and its own page.
+     5  A challenge title carries between a list and its own page.
         Astro view transitions, src/layouts/Layout.astro
      6  A disclosure opens, its height interpolating from zero. The score
         panel's bars grow with it; the full-methodology panel does not,
         because it holds prose and prose should not arrive in pieces.
         src/components/ScoreDisclosure.astro, src/pages/how-it-works.astro
-     7  A chart's marks rise or wipe in as it first comes into view,
-        staggered by index.
+     7  A chart's marks rise, wipe, pop or fade as it first comes into
+        view, staggered by index.
         src/styles/charts.css
-     8  The explainer's excerpts land, then move into their groups.
-        src/components/Explainer.astro
-     9  The hero card cross-fades between three real problems every six
-        seconds, and stops on hover, on focus, and in a background tab.
-        src/components/HeroCard.astro
-    10  A card lifts 2px under the pointer.
-        src/components/ProblemCard.astro
-    11  Filtered cards travel to their new positions rather than
-        appearing in them. FLIP, Web Animations API.
-        src/scripts/problem-filters.ts, src/scripts/apps-controls.ts
-    12  A category glyph writes itself on when its card first enters
+     8  A category glyph writes itself on when its card first enters
         view, path by path. stroke-dasharray, one shot.
         src/components/CategoryGlyph.astro
-    13  The version band's segments wipe in from the left, 30ms apart.
+     9  The version band's segments wipe in, 30ms apart.
         src/components/charts/VersionTimeline.astro
-    14  The signal tiles' rings fill from zero, 40ms apart.
+    10  The signal tiles' rings fill from zero, 40ms apart.
         src/components/charts/SignalGrid.astro
+    11  The platform marks rise as the pair enters view.
+        src/components/charts/PlatformMarks.astro
+    12  A table's rows, a bento's arcs, a bar cell's fill, a heat cell, a
+        run card's ring and a compare mark each arrive once, as their own
+        block enters view.
+        src/components/table/
+    13  A card lifts 2px under the pointer.
+        src/components/ChallengeCard.astro, src/components/LensCard.astro
+    14  Filtered cards travel to their new positions rather than
+        appearing in them. FLIP, Web Animations API.
+        src/scripts/challenge-filters.ts, src/scripts/apps-controls.ts
 
    The command palette's own entry is part of moment 6's vocabulary: it
    is the same short fade, and it is listed here so the count is honest.
