@@ -2,7 +2,7 @@
 /**
  * Search, on ⌘K or Ctrl+K.
  *
- * Twenty-five problems across fifteen apps and no search anywhere on the site
+ * Twenty-five challenges across fifteen apps and no search anywhere on the site
  * — that is a gap, not a flourish. Everything is indexed at build time into a
  * small JSON payload; there is no network request and no search service.
  *
@@ -11,6 +11,7 @@
  */
 import { getProblems, getProduct, getProductsWithProblems } from '../lib/data';
 import { url } from '../lib/url';
+import EmptyMark from './EmptyMark.astro';
 
 interface Entry {
   title: string;
@@ -70,7 +71,10 @@ const index = [...problems, ...apps, ...pages];
 
     <ul class="results" data-palette-results role="listbox" aria-label="Results"></ul>
 
-    <p class="empty" data-palette-empty hidden>Nothing matches that.</p>
+    <p class="empty" data-palette-empty hidden>
+      <EmptyMark kind="search" size={22} />
+      <span>Nothing matches that.</span>
+    </p>
   </form>
 
   <script is:inline type="application/json" data-palette-index set:html={JSON.stringify(index)} />
@@ -178,6 +182,9 @@ const index = [...problems, ...apps, ...pages];
   }
 
   .empty {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
     padding: var(--space-md);
     font-size: var(--text-sm);
     color: var(--color-muted);

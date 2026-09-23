@@ -66,8 +66,8 @@ const families = FAMILIES.map((family) => ({
       <div class="bleed">
         <h1>What people are struggling with.</h1>
         <p class="sub">
-          {problems.length} challenges, each one raised by several people over several weeks. Pick
-          a lens to read them as your kind of work.
+          {problems.length} challenges, each raised by several people over several weeks. Pick a
+          lens to read them as your kind of work.
         </p>
       </div>
     </div>
@@ -139,7 +139,7 @@ const families = FAMILIES.map((family) => ({
 
     <p class="empty bleed" data-challenges-empty hidden>
       <EmptyMark kind="filter" size={26} />
-      <span>Nothing matches those filters. Clearing the lens will bring the most back.</span>
+      <span>Nothing matches those filters. Clear the lens to see more.</span>
     </p>
   </div>
 </Layout>
@@ -241,8 +241,14 @@ const families = FAMILIES.map((family) => ({
     color: var(--color-muted);
   }
 
+  /*
+   * The ground is the UI accent, never the lens's own hue. The eight
+   * category hues are the data palette and they do not appear on a control
+   * — the mark inside the button is where this lens's tone lives, and a
+   * mark is allowed one.
+   */
   .lens:hover {
-    border-color: color-mix(in oklab, var(--lens, var(--color-ink)) 45%, var(--color-rule));
+    border-color: color-mix(in oklab, var(--color-accent) 45%, var(--color-rule));
   }
 
   .lens:focus-visible {
@@ -251,8 +257,8 @@ const families = FAMILIES.map((family) => ({
   }
 
   .lens[aria-pressed='true'] {
-    border-color: var(--lens, var(--color-ink));
-    background: color-mix(in oklab, var(--lens, var(--color-ink)) 8%, var(--color-paper-2));
+    border-color: var(--color-accent);
+    background: color-mix(in oklab, var(--color-accent) 10%, var(--color-paper-2));
   }
 
   .lens[aria-pressed='true'] .l-count {

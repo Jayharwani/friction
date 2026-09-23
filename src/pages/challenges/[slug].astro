@@ -64,18 +64,18 @@ const quotes = [...problem.evidence]
       {/* ---------- 1. the challenge, in human terms ---------- */}
       <header class="intro">
         <div class="words">
-          <p class="who-app">
+          <p class="who-app meta">
             <AppIcon slug={problem.productSlug} name={product?.name ?? problem.productSlug} size={28} />
             <span>{product?.name ?? problem.productSlug}</span>
             <span class="label">{label}</span>
           </p>
 
-          <h1 transition:name={`title-${problem.slug}`}>{title}</h1>
+          <h1 class="written-text" transition:name={`title-${problem.slug}`}>{title}</h1>
 
-          <p class="reach">{reach}</p>
+          <p class="reach num">{reach}</p>
 
           {/* ---------- 2. who this happens to ---------- */}
-          {challenge && <p class="who">{challenge.whoItAffects}</p>}
+          {challenge && <p class="who written-text">{challenge.whoItAffects}</p>}
         </div>
 
         <CategoryScene family={family} class="hero-scene" />
@@ -99,7 +99,7 @@ const quotes = [...problem.evidence]
         <h2 id="instead-heading">What people do instead</h2>
         {
           problem.workarounds.length > 0 ? (
-            <ul class="frags">
+            <ul class="chips frags">
               {problem.workarounds.map((w) => (
                 <li>{w}</li>
               ))}

@@ -16,13 +16,16 @@
  * screens down. Transforms cost none of that, the quotes stay real text
  * rather than a texture, and there is no fallback matrix to maintain.
  *
- * The wall is aria-hidden. It is a depiction of volume, not a list: every
- * quote in it is set at full size on its own challenge page, and putting
- * twenty-seven unreadable cards in front of the first real control would be
- * a worse outcome than describing the wall once, in the heading above it.
+ * Every card is a real link to the challenge that quote belongs to, so
+ * hovering brings one forward and clicking opens it. That means twenty-seven
+ * tab stops, which is why the wall sits *after* the headline and the call to
+ * action in the source: a keyboard reader gets the point and the way in
+ * before the wall, and the wall is still reachable rather than hidden from
+ * them. It is painted behind the text by z-index, not by source order.
  */
 import type { Problem } from '../../scripts/validate';
 import { getProduct } from '../lib/data';
+import { url } from '../lib/url';
 
 interface Props {
   problems: Problem[];
@@ -48,12 +51,21 @@ const SPAN = 150;
  * struggles rather than six loud ones. Shortest first inside each, because a
  * short line survives being turned away from the reader.
  */
-const byChallenge = problems.map(
-  (p) => [...p.evidence].sort((a, b) => a.quote.length - b.quote.length)[0]!,
+type Voice = { quote: string; slug: string; app: string };
+
+const voice = (p: Problem, quote: string): Voice => ({
+  quote,
+  slug: p.slug,
+  app: getProduct(p.productSlug)?.name ?? p.productSlug,
+});
+
+const byChallenge = problems.map((p) =>
+  voice(p, [...p.evidence].sort((a, b) => a.quote.length - b.quote.length)[0]!.quote),
 );
+const taken = new Set(byChallenge.map((v) => v.quote));
 const rest = problems
-  .flatMap((p) => p.evidence)
-  .filter((e) => !byChallenge.includes(e))
+  .flatMap((p) => p.evidence.map((e) => voice(p, e.quote)))
+  .filter((v) => !taken.has(v.quote))
   .sort((a, b) => a.quote.length - b.quote.length);
 
 const picked = [...byChallenge, ...rest].slice(0, COLUMNS * ROWS);
@@ -63,14 +75,13 @@ const picked = [...byChallenge, ...rest].slice(0, COLUMNS * ROWS);
  * do not end up side by side. The stride is coprime with the column count,
  * which walks the whole set before it repeats a column.
  */
-const cards = picked.map((evidence, i) => {
+const cards = picked.map((v, i) => {
   const at = (i * 11) % picked.length;
   const column = at % COLUMNS;
   const row = Math.floor(at / COLUMNS) % ROWS;
   const angle = -SPAN / 2 + (column / (COLUMNS - 1)) * SPAN;
   return {
-    evidence,
-    app: getProduct(evidence.productSlug)?.name ?? evidence.productSlug,
+    ...v,
     angle,
     row: row - (ROWS - 1) / 2,
     /* 0 at the centre, 1 at either edge: how far the card is turned away. */
@@ -82,21 +93,23 @@ const cards = picked.map((evidence, i) => {
 });
 ---
 
-<div class="wall" aria-hidden="true">
-  <div class="arc">
+<div class="wall">
+  <ul class="arc" aria-label="Recent complaints, and the challenge each one belongs to">
     {
-      cards.map(({ evidence, app, angle, row, away, lit, column }) => (
-        <figure
+      cards.map(({ quote, slug, app, angle, row, away, lit, column }) => (
+        <li
           class="voice"
           data-col={column}
           style={`--a:${angle.toFixed(2)}deg; --row:${row}; --away:${away.toFixed(3)}; --lit:${lit.toFixed(3)}`}
         >
-          <blockquote class="quote">{evidence.quote}</blockquote>
-          <figcaption class="src">{app}</figcaption>
-        </figure>
+          <a href={url(`/challenges/${slug}`)}>
+            <span class="quote">{quote}</span>
+            <span class="src">{app}</span>
+          </a>
+        </li>
       ))
     }
-  </div>
+  </ul>
 
   <div class="scrim"></div>
 </div>
@@ -123,6 +136,9 @@ const cards = picked.map((evidence, i) => {
     --r: 44rem;
     position: absolute;
     inset: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
     transform-style: preserve-3d;
     transform: translateZ(calc(var(--r) * -1));
   }
@@ -133,14 +149,15 @@ const cards = picked.map((evidence, i) => {
     top: 50%;
     width: 17rem;
     margin: 0;
-    padding: var(--space-sm) var(--space-md);
+    /* The wall itself takes no pointer events; its cards do. */
+    pointer-events: auto;
     border-radius: var(--r-card);
     border: var(--rule-hair) solid var(--color-rule);
     background: color-mix(in oklab, var(--color-paper-2) 88%, var(--color-paper-3));
     transform:
       translate(-50%, -50%)
-      rotateY(var(--a))
-      translateZ(var(--r))
+      rotateY(calc(var(--a) * var(--turn, 1)))
+      translateZ(calc(var(--r) + var(--pull, 0px)))
       translateY(calc(var(--row) * 13rem));
 
     /*
@@ -149,7 +166,33 @@ const cards = picked.map((evidence, i) => {
      * already doing the work — a card at seventy degrees is four characters
      * wide whatever its focus.
      */
-    opacity: calc(1 - var(--away) * var(--away) * 0.55);
+    opacity: calc(1 - var(--away) * var(--away) * 0.55 * var(--turn, 1));
+  }
+
+  /*
+   * Hover and keyboard focus both bring a card round to face the reader and
+   * forward out of the wall. `--turn` scales its own angle toward zero, so
+   * every card straightens by the same proportion whatever depth it sits at.
+   */
+  .voice:hover,
+  .voice:focus-within {
+    --turn: 0.25;
+    --pull: 90px;
+    z-index: 1;
+    border-color: color-mix(in oklab, var(--color-accent) 55%, var(--color-rule));
+  }
+
+  .voice a {
+    display: block;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: inherit;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .voice a:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
   }
 
   /* One light, from the left. It only ever touches the card's own surface. */
@@ -163,7 +206,7 @@ const cards = picked.map((evidence, i) => {
   }
 
   .quote {
-    margin: 0;
+    display: block;
     font-family: var(--font-quote);
     font-size: var(--text-sm);
     line-height: 1.4;
@@ -180,6 +223,7 @@ const cards = picked.map((evidence, i) => {
   }
 
   .src {
+    display: block;
     margin-top: var(--space-2xs);
     font-size: var(--text-xs);
     color: var(--color-muted);
@@ -216,12 +260,19 @@ const cards = picked.map((evidence, i) => {
 
     .voice {
       width: 11rem;
-      padding: var(--space-2xs) var(--space-sm);
       transform:
         translate(-50%, -50%)
-        rotateY(var(--a))
-        translateZ(var(--r))
+        rotateY(calc(var(--a) * var(--turn, 1)))
+        translateZ(calc(var(--r) + var(--pull, 0px)))
         translateY(calc(var(--row) * 8.5rem));
+
+      /* The scrim sits over the wall on a phone, so the cards below it are
+         decoration rather than targets. */
+      pointer-events: none;
+    }
+
+    .voice a {
+      padding: var(--space-2xs) var(--space-sm);
     }
 
     .voice[data-col='0'],
@@ -248,6 +299,13 @@ const cards = picked.map((evidence, i) => {
   @media (prefers-reduced-motion: no-preference) {
     .arc {
       animation: drift 96s var(--ease-in-out, ease-in-out) infinite alternate;
+    }
+
+    .voice {
+      transition:
+        transform var(--dur-short) var(--ease-out),
+        opacity var(--dur-short) var(--ease-out),
+        border-color var(--dur-short) var(--ease-out);
     }
   }
 

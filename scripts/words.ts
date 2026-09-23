@@ -35,6 +35,20 @@ const BUDGET: Record<string, number> = {
 };
 
 /**
+ * Budgets for whole families of generated pages, longest prefix wins. A
+ * challenge page is mostly quotes and written lenses, both exempt; what is
+ * left is the standing note about store links, the note about what was
+ * written, and four headings. Eighty is the spec's number for that.
+ */
+const PREFIX_BUDGET: Array<[string, number]> = [['challenges/', 80]];
+
+function budgetFor(file: string): number | null {
+  if (file in BUDGET) return BUDGET[file]!;
+  for (const [prefix, n] of PREFIX_BUDGET) if (file.startsWith(prefix)) return n;
+  return null;
+}
+
+/**
  * Regions that are data, not prose. Everything inside these is exempt: the
  * budget is about how much the site explains itself in sentences, not about
  * how much evidence it shows.
@@ -154,7 +168,7 @@ let over = 0;
 const rows: Array<[string, number, number | null]> = [];
 
 for (const file of files) {
-  const budget = BUDGET[file] ?? null;
+  const budget = budgetFor(file);
   if (budget === null && !all) continue;
   const words = prose(await readFile(join(dist, file), 'utf8')).length;
   rows.push([file, words, budget]);

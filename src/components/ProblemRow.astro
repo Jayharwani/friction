@@ -38,7 +38,7 @@ const title = getChallenge(problem.slug)?.humanTitle ?? problem.title;
   </div>
 
   <div class="figures">
-    <p class="verdict">{surfaceLabel(problem)}</p>
+    <p class="reach meta">{surfaceLabel(problem)}</p>
   </div>
 </article>
 
@@ -106,8 +106,9 @@ const title = getChallenge(problem.slug)?.humanTitle ?? problem.title;
     min-width: 9em;
   }
 
-  /* The word first, at full opacity. */
-  .verdict {
+  /* The word the score became. Not a verdict — that name belongs to the
+     pipeline's own four, which are on /how-it-works. */
+  .reach {
     font-size: var(--text-md);
     font-weight: 500;
     white-space: nowrap;

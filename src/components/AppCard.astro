@@ -14,6 +14,7 @@
 import type { Problem, Product } from '../../scripts/validate';
 import { url } from '../lib/url';
 import CategoryGlyph from './CategoryGlyph.astro';
+import EmptyMark from './EmptyMark.astro';
 import { FAMILIES, FAMILY_LABEL, familyOf } from '../lib/categories';
 
 interface Props {
@@ -102,7 +103,10 @@ const familyMix = FAMILIES.map((family) => ({
         </ul>
       </>
     ) : (
-      <p class="none">Nothing has cleared the filters for this app yet.</p>
+      <p class="none">
+        <EmptyMark kind="quiet" size={22} />
+        <span>Nothing has cleared the filters for this app yet.</span>
+      </p>
     )
   }
 </article>
@@ -227,6 +231,9 @@ const familyMix = FAMILIES.map((family) => ({
   }
 
   .none {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
     font-size: var(--text-sm);
     color: var(--color-muted);
   }

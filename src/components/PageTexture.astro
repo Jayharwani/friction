@@ -7,13 +7,19 @@
  * the same field on every build, because the generator is a seeded PRNG and
  * not Math.random.
  *
- * Deliberately not a gradient wash or a noise raster. Both are on this
- * project's list of generated-page tells, and both fail the same way in dark
- * mode. This is geometry in the project's own vocabulary: the rounded square
- * of the mark, the round dot of the heat strip, and the hairline, at a
- * density low enough to read as paper texture rather than as an image.
+ * Two layers, both seeded. Underneath, a mesh of four soft radial pools at
+ * irregular positions; over it, geometry in the project's own vocabulary —
+ * the rounded square of the mark, the round dot, the hairline.
  *
- * Build-time SVG. No canvas, no client JavaScript, no runtime cost.
+ * A mesh, specifically, and not a gradient wash. The wash this project bans
+ * is the even 45-degree fade every generated page ships with; four radial
+ * pools at seeded positions have no axis to read, which is the whole reason
+ * the mesh is the recommended replacement for one. Its total range is under
+ * three percent of the band's own surface colour, so it reads as unevenly
+ * lit paper rather than as a picture, and it holds in both themes because
+ * every stop is mixed from the page's own tokens.
+ *
+ * Build-time SVG and CSS. No canvas, no client JavaScript, no runtime cost.
  */
 interface Props {
   /** Anything stable and per-page. The route is the obvious choice. */
@@ -54,6 +60,28 @@ type Mark =
   | { kind: 'dot'; x: number; y: number; s: number; o: number }
   | { kind: 'rule'; x: number; y: number; s: number; o: number };
 
+/*
+ * Four pools, each with its own centre, radius and weight. Two thirds lean
+ * on the surface above the band and one third on the accent, at a strength
+ * where the accent is a temperature rather than a colour.
+ */
+const pools = Array.from({ length: 4 }, (_, i) => ({
+  x: (12 + next() * 76).toFixed(1),
+  y: (6 + next() * 88).toFixed(1),
+  r: (34 + next() * 38).toFixed(1),
+  accent: i === 1,
+  a: (1.6 + next() * 1.4).toFixed(2),
+}));
+
+const mesh = pools
+  .map(
+    (g) =>
+      `radial-gradient(${g.r}% ${g.r}% at ${g.x}% ${g.y}%, ` +
+      `color-mix(in oklab, ${g.accent ? 'var(--color-accent)' : 'var(--color-ink)'} ${g.a}%, transparent) 0%, ` +
+      `transparent 100%)`,
+  )
+  .join(', ');
+
 const marks: Mark[] = Array.from({ length: density }, () => {
   const roll = next();
   const x = next() * W;
@@ -68,6 +96,8 @@ const marks: Mark[] = Array.from({ length: density }, () => {
   return { kind: 'rule', x, y, s: 24 + next() * 90, o };
 });
 ---
+
+<div class="mesh" style={`background-image:${mesh}`} aria-hidden="true"></div>
 
 <svg
   class="tex"
@@ -90,6 +120,13 @@ const marks: Mark[] = Array.from({ length: density }, () => {
 </svg>
 
 <style>
+  /* Under the marks, over the band's own colour. */
+  .mesh {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
   .tex {
     position: absolute;
     inset: 0;

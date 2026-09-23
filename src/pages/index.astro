@@ -58,8 +58,6 @@ const featured = [...all].sort((a, b) => b.score - a.score).slice(1, 4);
 <Layout title="Friction">
   {/* ---------- 1. the wall ---------- */}
   <section class="hero">
-    <VoiceWall problems={all} />
-
     <div class="shell">
       <div class="bleed">
         <div class="say">
@@ -72,6 +70,11 @@ const featured = [...all].sort((a, b) => b.score - a.score).slice(1, 4);
         </div>
       </div>
     </div>
+
+    {/* After the copy in source order, behind it on the screen: a keyboard
+        reader reaches the promise and the way in before twenty-seven
+        quotes. */}
+    <VoiceWall problems={all} />
   </section>
 
   {/* ---------- 2. one challenge, whole ---------- */}
@@ -83,7 +86,7 @@ const featured = [...all].sort((a, b) => b.score - a.score).slice(1, 4);
 
           <div class="w-head">
             <div>
-              <h2 id="whole-heading">
+              <h2 id="whole-heading" class="written-text">
                 <a href={url(`/challenges/${shown.slug}`)}>{shownChallenge.humanTitle}</a>
               </h2>
               <p class="w-reach num">

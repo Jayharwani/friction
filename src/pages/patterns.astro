@@ -16,6 +16,7 @@ import PageTexture from '../components/PageTexture.astro';
 import BrandMark from '../components/BrandMark.astro';
 import PatternCard from '../components/PatternCard.astro';
 import LensCard from '../components/LensCard.astro';
+import EmptyMark from '../components/EmptyMark.astro';
 import { buildPatterns, PATTERN_MIN_APPS } from '../lib/patterns';
 import { getActiveProblems, getGaps, getPatternLenses, getProducts } from '../lib/data';
 import { LENSES, LENS_HUE } from '../lib/lenses';
@@ -77,8 +78,11 @@ const written = getPatternLenses();
         </div>
       ) : (
         <p class="empty">
-          No category has reached {PATTERN_MIN_APPS} apps yet. Patterns appear here as coverage
-          grows.
+          <EmptyMark kind="single" size={26} />
+          <span>
+            No category has reached {PATTERN_MIN_APPS} apps yet. Patterns appear here as coverage
+            grows.
+          </span>
         </p>
       )
     }
@@ -197,6 +201,9 @@ const written = getPatternLenses();
   }
 
   .empty {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
     padding-block: var(--space-2xl);
     color: var(--color-muted);
   }

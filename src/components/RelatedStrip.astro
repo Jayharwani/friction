@@ -61,7 +61,7 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
       {previous ? (
         <a class="prev" href={url(`/challenges/${previous.slug}`)}>
           <span class="dir">Previous in {appName}</span>
-          <span class="t">{named(previous)}</span>
+          <span class="t written-text">{named(previous)}</span>
         </a>
       ) : (
         <span />
@@ -69,7 +69,7 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
       {next && (
         <a class="next" href={url(`/challenges/${next.slug}`)}>
           <span class="dir">Next in {appName}</span>
-          <span class="t">{named(next)}</span>
+          <span class="t written-text">{named(next)}</span>
         </a>
       )}
     </nav>
@@ -84,7 +84,7 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
         {related.map(({ problem: p, app, humanTitle, label, relation }) => (
           <li>
             <div class="body">
-              <h3>
+              <h3 class="written-text">
                 <a href={url(`/challenges/${p.slug}`)}>{humanTitle}</a>
               </h3>
               <p class="meta num">
@@ -92,7 +92,7 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
                 {p.evidence.length === 1 ? 'review' : 'reviews'}
               </p>
             </div>
-            <p class="reach">{label}</p>
+            <p class="reach meta">{label}</p>
           </li>
         ))}
       </ul>
