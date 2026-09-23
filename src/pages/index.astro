@@ -2,110 +2,151 @@
 /**
  * Home — four screens, hard stop.
  *
- * Pitch, how it works, patterns, latest. The field is not here: a spatial
- * overview belongs after the reader knows what a problem is, not before.
+ *   1  the wall of voices, and what the site is for
+ *   2  one challenge, shown whole
+ *   3  the four lenses, explained
+ *   4  three challenges, and the way in
  *
- * Prose budget: 120 words. Counted, not estimated — every sentence outside
- * problem titles, quotes and data labels.
+ * Screen two is the argument: rather than describing the product, it is the
+ * product, at full size, on a real challenge. Everything else on this page
+ * is a door.
+ *
+ * Prose budget: 100 words. Counted by `npm run words`, not estimated —
+ * every sentence outside quotes, titles and data labels.
  */
 import Layout from '../layouts/Layout.astro';
-import HeroSearch from '../components/HeroSearch.astro';
-import PatternCard from '../components/PatternCard.astro';
+import VoiceWall from '../components/VoiceWall.astro';
 import ChallengeCard from '../components/ChallengeCard.astro';
-import AppIcon from '../components/AppIcon.astro';
+import LensCard from '../components/LensCard.astro';
+import LensMark from '../components/art/LensMark.astro';
+import EvidenceItem from '../components/EvidenceItem.astro';
+import CategoryScene from '../components/art/CategoryScene.astro';
 import { url } from '../lib/url';
-import {
-  formatDate,
-  getActiveProblems,
-  getGaps,
-  getLatestRun,
-  getProblems,
-  getProducts,
-} from '../lib/data';
-import { buildPatterns } from '../lib/patterns';
+import { getChallenge, getProblems, getProduct, reachLine } from '../lib/data';
+import { familyOf } from '../lib/categories';
+import { LENSES, LENS_HUE, LENS_LABEL } from '../lib/lenses';
 
 const all = getProblems();
-const active = getActiveProblems();
-const run = getLatestRun();
-const products = getProducts();
 
-const reviewsRead = run?.funnel.fetched.total ?? 0;
-
-const patterns = buildPatterns(active, products.length, getGaps()).slice(0, 4);
-const latest = all.slice(0, 6);
-
-/** Apps sharing a category — what the challenge cards need for the lenses. */
+/** Apps sharing a category — what a challenge card needs for its lenses. */
 const appsIn = (category: string) =>
   new Set(all.filter((p) => p.category === category).map((p) => p.productSlug)).size;
 
+/*
+ * Screen two shows the most widely reported challenge that has been written
+ * up. Not a curated favourite — the top of the same order /challenges opens
+ * in, so the page cannot quietly show its best work.
+ */
+const shown = [...all].sort((a, b) => b.score - a.score).find((p) => getChallenge(p.slug));
+const shownChallenge = shown ? getChallenge(shown.slug) : undefined;
+const shownProduct = shown ? getProduct(shown.productSlug) : undefined;
+const shownQuotes = shown
+  ? [...shown.evidence].sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt)).slice(0, 2)
+  : [];
+
+/** Twelve words each, and each one says what the reader would be doing. */
+const LENS_SAYS: Record<(typeof LENSES)[number], string> = {
+  build: 'The thing someone could make that would stop this happening.',
+  start: 'Whether enough apps fail the same way to carry a company.',
+  study: 'The question the reviews raise and nobody has answered yet.',
+  write: 'The story underneath, and which voices would carry it.',
+};
+
+const featured = [...all].sort((a, b) => b.score - a.score).slice(1, 4);
 ---
 
 <Layout title="Friction">
-  {/* ---------- 1. Pitch ---------- */}
+  {/* ---------- 1. the wall ---------- */}
   <section class="hero">
-    <div class="shell"><div class="bleed">
-      <HeroSearch />
+    <VoiceWall problems={all} />
 
-      <dl class="proof num">
-        <div>
-          <dt>Reviews read</dt>
-          <dd>{reviewsRead.toLocaleString('en-GB')}</dd>
+    <div class="shell">
+      <div class="bleed">
+        <div class="say">
+          <h1>Thousands of people already told you what to build.</h1>
+          <p class="sub">
+            Friction reads app store reviews every week and turns the repeated complaints into
+            things you could make.
+          </p>
+          <a class="go" href={url('/challenges')}>Read the {all.length} challenges</a>
         </div>
-        <div>
-          <dt>Challenges tracked</dt>
-          <dd>{all.length}</dd>
-        </div>
-        <div>
-          <dt>Apps watched</dt>
-          <dd>{products.length}</dd>
-        </div>
-        <div>
-          <dt>Last checked</dt>
-          <dd>{run ? formatDate(run.date) : '—'}</dd>
-        </div>
-      </dl>
-    </div></div>
-
-    <ul class="wall" aria-label={`Tracking ${products.length} apps`}>
-      {
-        products.map((p) => (
-          <li>
-            <AppIcon slug={p.slug} name={p.name} size={48} />
-          </li>
-        ))
-      }
-    </ul>
+      </div>
+    </div>
   </section>
 
-  {/* ---------- 2. How it works ---------- */}
-  {/* ---------- 3. Patterns ---------- */}
+  {/* ---------- 2. one challenge, whole ---------- */}
   {
-    patterns.length > 0 && (
-      <section class="shell section">
-        <header class="head bleed">
-          <h2>The same complaints show up across different apps.</h2>
-          <a class="more" href={url('/patterns')}>All patterns</a>
-        </header>
+    shown && shownChallenge && (
+      <section class="shell whole" aria-labelledby="whole-heading">
+        <div class="bleed">
+          <p class="eyebrow">One of them</p>
 
-        <div class="bento bleed">
-          {patterns.map((pattern) => (
-            <PatternCard pattern={pattern} trackedApps={products.length} compact />
-          ))}
+          <div class="w-head">
+            <div>
+              <h2 id="whole-heading">
+                <a href={url(`/challenges/${shown.slug}`)}>{shownChallenge.humanTitle}</a>
+              </h2>
+              <p class="w-reach num">
+                {reachLine(shown)} In {shownProduct?.name ?? shown.productSlug}.
+              </p>
+            </div>
+            <CategoryScene family={familyOf(shown.category)} class="w-scene" />
+          </div>
+
+          <div class="w-quotes">
+            {shownQuotes.map((e) => (
+              <EvidenceItem evidence={e} />
+            ))}
+          </div>
+
+          <div class="w-lenses">
+            {LENSES.map((lens) => (
+              <div style={`--lens:${LENS_HUE[lens]}`}>
+                <LensCard
+                  lens={lens}
+                  proposition={shownChallenge.lenses[lens].proposition}
+                  specifics={shownChallenge.lenses[lens].specifics}
+                  limitation={shownChallenge.lenses[lens].limitation}
+                  writtenBy={shownChallenge.writtenBy}
+                  writtenAt={shownChallenge.writtenAt}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     )
   }
 
-  {/* ---------- 4. Latest ---------- */}
-  <section class="shell section">
+  {/* ---------- 3. the four lenses ---------- */}
+  <section class="shell lenses" aria-labelledby="lenses-heading">
+    <div class="bleed">
+      <h2 id="lenses-heading">Every challenge, four ways.</h2>
+
+      <ul class="four">
+        {
+          LENSES.map((lens) => (
+            <li style={`--lens:${LENS_HUE[lens]}`}>
+              <LensMark lens={lens} size={34} />
+              <p class="four-title">{LENS_LABEL[lens]}</p>
+              <p class="says">{LENS_SAYS[lens]}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* ---------- 4. the way in ---------- */}
+  <section class="shell section" aria-labelledby="more-heading">
     <header class="head bleed">
-      <h2>Found this week</h2>
+      <h2 id="more-heading">Three more</h2>
       <a class="more" href={url('/challenges')}>All {all.length} challenges</a>
     </header>
 
     <div class="cards bleed">
       {
-        latest.map((problem) => (
+        featured.map((problem) => (
           <ChallengeCard problem={problem} appsInCategory={appsIn(problem.category)} />
         ))
       }
@@ -114,152 +155,238 @@ const appsIn = (category: string) =>
 </Layout>
 
 <style>
-  /* ---- 1. hero ---- */
+  /* ---- 1. the wall ---- */
 
   .hero {
-    padding-block: 0 var(--space-4xl);
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    min-height: min(82svh, 44rem);
+    overflow: hidden;
+    border-bottom: var(--rule-hair) solid var(--color-rule);
+  }
+
+  .hero > .shell {
+    position: relative;
+    z-index: var(--z-raise);
   }
 
   /*
-   * The proof row sits under the search as a single centred line of figures.
-   * Four numbers across is the page's first fact, and centring them keeps the
-   * hero on one axis rather than splitting it.
+   * Left, not centred. The wall runs the full width behind it and the scrim
+   * is a one-sided wash, so the headline sits on calm paper while the far
+   * half of the wall stays readable as a wall.
    */
-  .proof {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-xl) var(--space-2xl);
-    margin-top: var(--space-2xl);
-    text-align: center;
+  .say {
+    padding-block: var(--space-3xl);
+    max-width: 30rem;
   }
 
-  .proof dt {
-    font-size: var(--text-xs);
-    color: var(--color-muted);
+  @media (max-width: 52rem) {
+    .say {
+      max-width: 34rem;
+    }
+
+    /* Shorter: the phone arc is smaller, and 82svh left a screen of nothing
+       under the button. */
+    .hero {
+      min-height: min(70svh, 34rem);
+    }
   }
 
-  .proof dd {
-    margin: var(--space-3xs) 0 0;
-    font-size: var(--text-xl);
-    font-weight: 600;
-    line-height: 1;
-  }
-
-  /*
-   * The apps, at a size where they are recognised rather than inventoried.
-   * They overlap slightly, like the pattern cards' rows, so the wall reads
-   * as one set and not fifteen separate logos.
-   */
-  .wall {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    list-style: none;
-    margin: var(--space-3xl) auto 0;
-    padding: 0 var(--page-gutter);
-    max-width: 48rem;
-  }
-
-  .wall li {
-    margin-left: -0.18em;
-    font-size: 48px;
-    line-height: 0;
-    /* A border, not a shadow — see the note in PatternCard. */
-    border: 3px solid var(--color-paper);
-    border-radius: var(--r-icon);
-  }
-
-  .wall li:first-child {
-    margin-left: 0;
-  }
-
-  /* ---- 2. band ---- */
-
-  .band {
-    padding-block: var(--space-2xl) var(--space-3xl);
-    background: var(--color-paper-2);
-    border-block: var(--rule-hair) solid var(--color-rule);
-  }
-
-  /* ---- 3 and 4 ---- */
-
-  .section {
-    padding-block: var(--space-3xl) 0;
-  }
-
-  .section:last-of-type {
-    padding-bottom: var(--space-3xl);
-  }
-
-  .head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-lg);
-    flex-wrap: wrap;
-    margin-bottom: var(--space-xl);
-  }
-
-  h2 {
-    font-size: clamp(1.4rem, 1rem + 1.4vw, 2rem);
-    font-weight: 600;
-    line-height: 1.1;
-    letter-spacing: -0.024em;
-    max-width: 20em;
+  h1 {
+    font-size: clamp(2rem, 1.1rem + 3.4vw, 3.4rem);
+    font-weight: 300;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
     text-wrap: balance;
   }
 
-  .more {
-    font-size: var(--text-sm);
-    white-space: nowrap;
+  .sub {
+    margin-top: var(--space-md);
+    font-size: var(--text-md);
+    color: var(--color-muted);
+    text-wrap: pretty;
   }
 
-  .bento,
-  .cards {
+  .go {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    margin-top: var(--space-lg);
+    padding: var(--space-2xs) var(--space-lg);
+    border-radius: var(--r-pill);
+    background: var(--color-accent);
+    color: var(--color-paper);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .go:hover {
+    background: color-mix(in oklab, var(--color-accent) 86%, var(--color-ink));
+  }
+
+  .go:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  /* ---- 2. one challenge, whole ---- */
+
+  .whole {
+    padding-block: var(--space-4xl) var(--space-2xl);
+  }
+
+  .eyebrow {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--color-accent);
+    margin-bottom: var(--space-sm);
+  }
+
+  .w-head {
+    display: grid;
+    gap: var(--space-lg);
+    align-items: center;
+  }
+
+  @media (min-width: 56rem) {
+    .w-head {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 16rem);
+      gap: var(--space-2xl);
+    }
+  }
+
+  .w-head h2 {
+    font-size: clamp(1.5rem, 1rem + 1.8vw, 2.2rem);
+    font-weight: 300;
+    line-height: 1.06;
+    letter-spacing: -0.028em;
+    text-wrap: balance;
+  }
+
+  .w-head h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .w-head h2 a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.14em;
+  }
+
+  .w-reach {
+    margin-top: var(--space-sm);
+    color: var(--color-muted);
+  }
+
+  .w-quotes {
     display: grid;
     gap: var(--space-md);
+    margin-top: var(--space-2xl);
   }
 
-  @media (min-width: 46rem) {
-    .bento,
-    .cards {
+  @media (min-width: 52rem) {
+    .w-quotes {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (min-width: 70rem) {
-    .cards {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+  .w-lenses {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+  }
+
+  /* The hue wrapper stretches to the row; the card has to stretch with it,
+     or four cards of different lengths end at four different depths. */
+  .w-lenses > div {
+    display: grid;
+  }
+
+  @media (min-width: 46rem) {
+    .w-lenses {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  /* ---- entry ---- */
-
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (transition-behavior: allow-discrete) {
-      [data-enter] {
-        opacity: 1;
-        translate: 0 0;
-        transition:
-          opacity var(--dur-long) var(--ease-out),
-          translate var(--dur-long) var(--ease-out);
-      }
-
-      [data-enter='2'] {
-        transition-delay: 60ms;
-      }
-
-      [data-enter='3'] {
-        transition-delay: 120ms;
-      }
-
-      @starting-style {
-        [data-enter] {
-          opacity: 0;
-          translate: 0 8px;
-        }
-      }
+  @media (min-width: 80rem) {
+    .w-lenses {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+  }
+
+  /* ---- 3. the four ---- */
+
+  .lenses {
+    padding-block: var(--space-3xl);
+  }
+
+  .lenses h2 {
+    font-size: clamp(1.4rem, 1rem + 1.4vw, 1.9rem);
+    font-weight: 300;
+    letter-spacing: -0.024em;
+    margin-bottom: var(--space-xl);
+    text-wrap: balance;
+  }
+
+  .four {
+    display: grid;
+    gap: var(--space-xl);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  }
+
+  .four li {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2xs);
+    padding-top: var(--space-md);
+    border-top: 2px solid var(--lens);
+  }
+
+  .four-title {
+    margin-top: var(--space-2xs);
+    font-size: var(--text-md);
+    font-weight: 600;
+  }
+
+  .says {
+    font-size: var(--text-sm);
+    line-height: 1.45;
+    color: var(--color-muted);
+    text-wrap: pretty;
+  }
+
+  /* ---- 4. the way in ---- */
+
+  .section {
+    padding-block: var(--space-2xl) var(--space-4xl);
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-sm) var(--space-lg);
+    margin-bottom: var(--space-lg);
+  }
+
+  .head h2 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+
+  .more {
+    font-size: var(--text-sm);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+    gap: var(--space-md);
   }
 </style>

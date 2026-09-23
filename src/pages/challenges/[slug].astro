@@ -315,6 +315,12 @@ const quotes = [...problem.evidence]
     gap: var(--space-md);
   }
 
+  /* The hue wrapper stretches to the row; the card has to stretch with it,
+     or four cards of different lengths end at four different depths. */
+  .lens-grid > div {
+    display: grid;
+  }
+
   @media (min-width: 46rem) {
     .lens-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));

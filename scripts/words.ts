@@ -49,9 +49,19 @@ const EXEMPT_TAGS = ['script', 'style', 'svg', 'head', 'nav', 'footer', 'table',
  * category and a component's one-line definition are records, not sentences
  * the site wrote — they were exempt when they lived inside a <table> and
  * they do not become prose by moving into a card.
+ *
+ * `written-text` sits here for the same reason `gap` does. Both mark the
+ * written half of the site: produced by the prompted step, committed to
+ * data/, and carrying a "written" badge wherever they appear. They are the
+ * content the site exists to show, not the site explaining itself, and a
+ * budget that counted them would push toward showing fewer of them.
+ *
+ * It is that specific on purpose. The first version of this exemption was
+ * `lens`, which also matched a section called `lenses` and silently exempted
+ * a whole screen of real prose. An exemption has to name the thing it means.
  */
 const EXEMPT_CLASS =
-  /\b(?:ch-caption|num|quote|card|slide|listing|chips|plain|weights|evidence|sr-only|toc|wall|proof|w-body|gap|field|strip|axis|heat|spark|hist|flow|funnel|record|dots|cover|timeline|bar|scatter|panel|sum-note|meta|stat|app-cell|cat-cell|bento|run-card|matrix|compare|sig-|e-|f-|l-)/;
+  /\b(?:ch-caption|num|quote|card|slide|listing|chips|plain|weights|evidence|sr-only|toc|wall|proof|w-body|gap|field|strip|axis|heat|spark|hist|flow|funnel|record|dots|cover|timeline|bar|scatter|panel|sum-note|meta|stat|written-text|app-cell|cat-cell|bento|run-card|matrix|compare|sig-|e-|f-|l-)/;
 
 /**
  * Remove an element and everything inside it, matching tags rather than
