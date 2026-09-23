@@ -1,0 +1,42 @@
+{
+  "slug": "duolingo--lessons-hang-crash-or-fail-to-load-their-audio",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People lose a daily streak when the lesson will not load",
+  "whoItAffects": "iPhone users across five countries and four app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A lesson that is fully on the device before it starts.",
+      "specifics": [
+        "Fetch the next lesson's audio while the current one is being answered",
+        "Let a downloaded lesson run with no network at all",
+        "Start with the audio failure reviewers report most"
+      ],
+      "limitation": "Pre-caching audio for every path a learner might take is a lot of storage on a phone."
+    },
+    "start": {
+      "proposition": "Offline-first practice for people with unreliable connections.",
+      "specifics": [
+        "A day of lessons downloaded in advance, sized for a small device",
+        "Aimed at learners on prepaid data rather than home broadband"
+      ],
+      "limitation": "Content licensing, not engineering, is what usually stops this being built."
+    },
+    "study": {
+      "proposition": "Does an outage break a learning habit, or only pause it?",
+      "specifics": [
+        "Track return rates after a failed session versus a completed one",
+        "Separate the streak's effect from the interruption's"
+      ],
+      "limitation": "The platforms hold the retention data and have no reason to publish it."
+    },
+    "write": {
+      "proposition": "Gamified learning that punishes you for its own outage.",
+      "specifics": [
+        "Follow someone who lost a long streak to a loading screen",
+        "Use the reviews where the lesson hangs rather than the learner quitting"
+      ],
+      "limitation": "Streak mechanics are written about a great deal; the turn is the outage, not the psychology."
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "slug": "expedia--the-app-errors-out-and-the-support-chat-is-unusable",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People cannot reach help when a booking has already gone wrong",
+  "whoItAffects": "Android users in the United States, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A support path that does not run inside the failing app.",
+      "specifics": [
+        "Send a link that opens support in the browser, outside the broken session",
+        "Carry the booking reference in the link so nothing is retyped",
+        "Start with the freeze reviewers hit when opening chat"
+      ],
+      "limitation": "Support is built into the app precisely to keep the person inside it."
+    },
+    "start": {
+      "proposition": "A booking assistant that holds your references outside any one app.",
+      "specifics": [
+        "Stores the reference, the dates and the promised outcome",
+        "Works from email rather than needing an integration"
+      ],
+      "limitation": "Parsing confirmation email reliably is the hard part, and it breaks whenever a template changes."
+    },
+    "study": {
+      "proposition": "Does automated support resolve problems or defer them?",
+      "specifics": [
+        "Classify reported outcomes by whether a person was ever reached",
+        "Compare deferral rates across problem types"
+      ],
+      "limitation": "Resolution is only visible to the platform, so this rests on what people report."
+    },
+    "write": {
+      "proposition": "The chat window that freezes the phone you needed it on.",
+      "specifics": [
+        "Open with someone stuck at an airport with a failing app",
+        "Use the reviews describing the error loop"
+      ],
+      "limitation": "Service failure is an old subject; the angle is support breaking in the same app as the problem."
+    }
+  }
+}

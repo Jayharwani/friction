@@ -1,0 +1,42 @@
+{
+  "slug": "venmo--payments-and-transfers-fail-leaving-money-unreachable",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People cannot reach their own money when a transfer fails",
+  "whoItAffects": "Android and iPhone users in the United States, across two app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "An error that names which step failed and what happens next.",
+      "specifics": [
+        "Distinguish the network, the bank and the account state in the message",
+        "Say whether the money moved, is held, or never left",
+        "Start with the repeat-payee failure reviewers describe"
+      ],
+      "limitation": "Payment failures often originate at the bank, and the app is contractually limited in what it may disclose."
+    },
+    "start": {
+      "proposition": "A status layer for transfers that are neither sent nor returned.",
+      "specifics": [
+        "Shows where a transfer actually sits between institutions",
+        "Aimed at people paid irregularly, who notice immediately"
+      ],
+      "limitation": "The institutions holding that state do not expose it, which is the reason the gap exists."
+    },
+    "study": {
+      "proposition": "What do people do in the hour after a payment fails?",
+      "specifics": [
+        "Track reported next actions: retry, switch app, contact the bank",
+        "Separate failures where money moved from failures where it did not"
+      ],
+      "limitation": "Financial behaviour is sensitive and people under-report the amounts involved."
+    },
+    "write": {
+      "proposition": "The error message that means nothing and holds your money.",
+      "specifics": [
+        "Follow one failed transfer through every party that touched it",
+        "Quote the reviews where the same payee worked last week"
+      ],
+      "limitation": "Outage coverage exists; the specific story is the message rather than the outage."
+    }
+  }
+}

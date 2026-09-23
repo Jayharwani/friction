@@ -1,0 +1,42 @@
+{
+  "slug": "spotify--playback-pauses-restarts-or-cuts-out-on-its-own",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People lose their place when playback restarts itself",
+  "whoItAffects": "iPhone and Android listeners in Australia and the United States, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "Persist the playback position through the app being killed.",
+      "specifics": [
+        "Write position and queue on every pause, not on close",
+        "Restore both on relaunch rather than starting the list again",
+        "Start with the restart-to-the-beginning path reviewers describe"
+      ],
+      "limitation": "The operating system decides when to reclaim an audio session, and an app cannot always be told first."
+    },
+    "start": {
+      "proposition": "A player that keeps your position across whatever you listen on.",
+      "specifics": [
+        "Holds position and queue independently of any one service",
+        "For people who move between a phone, a car and a desk"
+      ],
+      "limitation": "Playback position sits inside each service and is not generally exposed to anyone else."
+    },
+    "study": {
+      "proposition": "How often does playback state survive a backgrounded app?",
+      "specifics": [
+        "Instrument relaunches across devices and memory conditions",
+        "Compare loss against how long the app was in the background"
+      ],
+      "limitation": "Reproducing memory pressure reliably needs devices in a lab, not a script."
+    },
+    "write": {
+      "proposition": "The app that forgets where you were.",
+      "specifics": [
+        "Trace one playlist through a day of interruptions",
+        "Quote the reviews about music restarting from the beginning"
+      ],
+      "limitation": "Streaming complaint is constant; the specific thing is losing position, not losing audio."
+    }
+  }
+}

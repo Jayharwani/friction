@@ -1,0 +1,42 @@
+{
+  "slug": "strava--free-trials-convert-to-a-paid-year-immediately-and-refunds-are-refused",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People are charged for a year the moment they try it",
+  "whoItAffects": "iPhone and Android users in the UK and United States, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "State the charge date and the amount on the screen that starts the trial.",
+      "specifics": [
+        "Show the same two facts again in the confirmation, not only in email",
+        "Make cancelling reachable from the screen that sold the trial",
+        "Start with the immediate-charge path reviewers describe"
+      ],
+      "limitation": "Clear renewal terms reduce accidental renewals, which is revenue the current design depends on."
+    },
+    "start": {
+      "proposition": "A watcher for trials a person has started and forgotten.",
+      "specifics": [
+        "Reads confirmations and warns before each renewal date",
+        "For people who try several services at once"
+      ],
+      "limitation": "The app stores already send renewal notices, and a second one is easy to ignore."
+    },
+    "study": {
+      "proposition": "Does trial framing change whether people cancel in time?",
+      "specifics": [
+        "Compare cancellation rates against how the renewal date was presented",
+        "Separate the reminder's effect from the wording's"
+      ],
+      "limitation": "Trial and cancellation data sits with the seller and the app store, not with researchers."
+    },
+    "write": {
+      "proposition": "The free trial that was never free.",
+      "specifics": [
+        "Follow someone from the tap to the charge to the refused refund",
+        "Quote the reviews describing the charge landing immediately"
+      ],
+      "limitation": "Subscription-trap reporting is a crowded field; the turn is the trial that converts at once."
+    }
+  }
+}

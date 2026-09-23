@@ -1,0 +1,42 @@
+{
+  "slug": "airbnb--hosts-cannot-reach-the-calendar-or-messages-after-the-redesign",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "Hosts cannot reach the calendar their income depends on",
+  "whoItAffects": "iPhone and Android hosts in the United States, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A host mode that opens on the calendar rather than the guest view.",
+      "specifics": [
+        "Remember which side of the product the person actually works in",
+        "Let a popup be dismissed permanently, not once per session",
+        "Start with the stuck-on-dashboard path hosts describe"
+      ],
+      "limitation": "One app serving both guests and hosts means every change is a trade between them."
+    },
+    "start": {
+      "proposition": "Tooling for hosts whose working day runs inside someone else's app.",
+      "specifics": [
+        "Calendar and messaging in one place across listings",
+        "Priced per listing rather than per booking"
+      ],
+      "limitation": "Access depends on an interface the platform controls and has withdrawn from similar tools before."
+    },
+    "study": {
+      "proposition": "What does a consumer redesign cost the people who work inside it?",
+      "specifics": [
+        "Compare task completion for hosts before and after a redesign",
+        "Ask which tasks moved to a laptop afterwards"
+      ],
+      "limitation": "Before-and-after access is rare, so this usually has to be reconstructed from accounts."
+    },
+    "write": {
+      "proposition": "The redesign that served guests and stranded hosts.",
+      "specifics": [
+        "Follow a host through a day of blocked popups",
+        "Quote the reviews about navigation breaking after an update"
+      ],
+      "limitation": "Redesign backlash is a familiar beat; the sharper subject is the working day inside it."
+    }
+  }
+}

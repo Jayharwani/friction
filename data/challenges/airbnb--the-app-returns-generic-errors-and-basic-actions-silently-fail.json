@@ -1,0 +1,42 @@
+{
+  "slug": "airbnb--the-app-returns-generic-errors-and-basic-actions-silently-fail",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People are stopped by errors that explain nothing at all",
+  "whoItAffects": "Android and iPhone users in the United States and Canada, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "An error that names the step, the cause and the retry.",
+      "specifics": [
+        "Give each failure path its own message rather than one shared string",
+        "Say whether retrying will help, and after how long",
+        "Start with the sign-in failure that survives a reinstall"
+      ],
+      "limitation": "Specific errors leak how a system works, which is why teams default to one vague string."
+    },
+    "start": {
+      "proposition": "Error-message review as a service for product teams.",
+      "specifics": [
+        "Audits the failure paths a team never sees itself",
+        "Delivered as a rewritten set rather than a report"
+      ],
+      "limitation": "It is the kind of work teams believe they can do themselves, and usually postpone."
+    },
+    "study": {
+      "proposition": "What does a generic error cost in abandoned actions?",
+      "specifics": [
+        "Compare completion after a specific message versus a shared one",
+        "Measure retries before abandonment"
+      ],
+      "limitation": "This needs production traffic, so it can only run inside a company that already has the problem."
+    },
+    "write": {
+      "proposition": "The error message as a design decision, not an accident.",
+      "specifics": [
+        "Collect the same vague string across several products",
+        "Use the reviews where reinstalling changed nothing"
+      ],
+      "limitation": "Error writing has a small literature already; the angle is what the vagueness protects."
+    }
+  }
+}

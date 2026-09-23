@@ -1,0 +1,42 @@
+{
+  "slug": "teams--the-mobile-app-stutters-and-crashes-in-chats-and-calls",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People cannot keep up with a conversation that stutters",
+  "whoItAffects": "iPhone and Android users in the UK, US and Canada, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A message list that renders only what is on screen.",
+      "specifics": [
+        "Recycle rows as they scroll instead of holding every post in memory",
+        "Keep search off the render thread so typing stays responsive",
+        "Start with the scroll-up path reviewers describe freezing"
+      ],
+      "limitation": "A chat client carries years of features on one thread, and a rewrite touches all of them."
+    },
+    "start": {
+      "proposition": "A lighter client for people who only need to read and reply.",
+      "specifics": [
+        "Read, reply, and nothing else, on older hardware",
+        "Sold to the operations teams whose staff carry the oldest phones"
+      ],
+      "limitation": "Work chat is bought centrally, and a second client is a security review nobody wants."
+    },
+    "study": {
+      "proposition": "Does message latency change what people write?",
+      "specifics": [
+        "Compare reply length and speed on fast versus stuttering clients",
+        "Ask whether people move a conversation elsewhere when it lags"
+      ],
+      "limitation": "Chat contents are private, so this needs a consenting workplace rather than a dataset."
+    },
+    "write": {
+      "proposition": "The app everyone must use and nobody can scroll.",
+      "specifics": [
+        "Sit with someone working a shift through a stuttering client",
+        "Use the reviews describing a freeze on scrolling back"
+      ],
+      "limitation": "Enterprise-software complaint is a worn genre; the angle is people with no choice of client."
+    }
+  }
+}

@@ -85,7 +85,12 @@ company size or a use case that no reviewer stated.
 **`lenses` — four objects, maximum 60 words each.** Each answers "what could I do
 with this" for a different reader:
 
-- **build** — what product or feature would fix this, for a designer, PM or engineer
+- **build** — what product or feature would fix this, for a designer, PM or engineer.
+  **This is the easiest one to get wrong.** Restating the complaint as a feature
+  is not a proposition: "an app that does not crash" tells a reader nothing they
+  did not have. Name the *mechanism* — what it stores, when it runs, what it does
+  at the moment the failure happens. If the sentence would still be true of any
+  app with this bug, it is too vague.
 - **start** — whether there is a company here, and what it would be, for a founder
 - **study** — what research question this opens, for a student or researcher
 - **write** — what the story or post is, for a creator

@@ -1,0 +1,42 @@
+{
+  "slug": "spotify--the-free-tier-will-not-let-you-choose-which-song-plays",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People cannot play the song they just chose",
+  "whoItAffects": "Android and iPhone listeners in the United States and Australia, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "Make the restriction legible before the tap, not after it.",
+      "specifics": [
+        "Show which controls are unavailable on the track itself",
+        "Explain the rule once, in place, rather than at the moment of refusal",
+        "Start with the tapped-song-plays-something-else path"
+      ],
+      "limitation": "Making a restriction obvious reduces the frustration that drives upgrades, so the incentive runs the other way."
+    },
+    "start": {
+      "proposition": "Not a company. This is a disclosure problem, not a missing product.",
+      "specifics": [
+        "A comparison stating what each free tier actually permits",
+        "Published rather than sold"
+      ],
+      "limitation": "Terms change often, and keeping such a comparison honest is ongoing work nobody funds."
+    },
+    "study": {
+      "proposition": "Do people understand what a free music tier permits before installing?",
+      "specifics": [
+        "Ask new users to predict which actions will be blocked",
+        "Compare prediction against the actual restriction set"
+      ],
+      "limitation": "Recruiting people who have genuinely never used the service is harder than it sounds."
+    },
+    "write": {
+      "proposition": "The free tier that hides its own rules until you tap.",
+      "specifics": [
+        "Walk through a first session, noting each refusal as it happens",
+        "Quote the reviews about the queue you cannot leave"
+      ],
+      "limitation": "Freemium criticism is well covered; the fresh part is the refusal arriving after the choice."
+    }
+  }
+}

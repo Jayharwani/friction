@@ -1,0 +1,42 @@
+{
+  "slug": "duolingo--ads-and-ai-prompts-interrupt-lessons-and-cannot-be-dismissed",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People are interrupted mid-lesson by prompts they cannot close",
+  "whoItAffects": "iPhone and Android learners in the UK and United States, across three app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "Every interruption carries a close control, and it is tested.",
+      "specifics": [
+        "Treat an undismissable prompt as a release-blocking failure",
+        "Give the close a hit area that survives a slow advertisement load",
+        "Start with the ads reviewers say cannot be closed after watching"
+      ],
+      "limitation": "The prompts that convert best are the hardest to dismiss, so the pressure runs against this."
+    },
+    "start": {
+      "proposition": "Not a company. This is a policy question, not a product gap.",
+      "specifics": [
+        "A published test for whether an interruption can be dismissed",
+        "Applied across apps rather than sold to one"
+      ],
+      "limitation": "Nobody funds a standard that only costs its adopters revenue."
+    },
+    "study": {
+      "proposition": "Does an undismissable prompt change lesson completion?",
+      "specifics": [
+        "Compare completion when a prompt can be closed and when it cannot",
+        "Separate the interruption's cost from the advertisement's"
+      ],
+      "limitation": "Running this requires the app to deliberately ship the worse variant."
+    },
+    "write": {
+      "proposition": "Learning interrupted by the thing that sells you learning.",
+      "specifics": [
+        "Sit through a session and count what is asked of the learner",
+        "Use the reviews about prompts that will not close"
+      ],
+      "limitation": "Advertising criticism is everywhere; the narrow story is interruption inside a learning task."
+    }
+  }
+}

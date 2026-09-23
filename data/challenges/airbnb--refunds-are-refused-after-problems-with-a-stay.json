@@ -1,0 +1,42 @@
+{
+  "slug": "airbnb--refunds-are-refused-after-problems-with-a-stay",
+  "writtenBy": "claude-opus-5",
+  "writtenAt": "2026-09-23",
+  "humanTitle": "People are refused money back after a stay goes wrong",
+  "whoItAffects": "iPhone travellers in the United States and Canada, across four app versions.",
+  "lenses": {
+    "build": {
+      "proposition": "A record of what both sides agreed, that neither can quietly edit.",
+      "specifics": [
+        "Capture an agreed amount and date as a signed item in the thread",
+        "Show the agreement's state when either party opens the dispute",
+        "Start with the agreed-then-reversed path reviewers describe"
+      ],
+      "limitation": "The platform mediates the dispute and also writes the software, so it has no reason to bind itself."
+    },
+    "start": {
+      "proposition": "Evidence handling for people disputing an accommodation charge.",
+      "specifics": [
+        "Collects photographs, timestamps and messages into one submitted file",
+        "Charged per dispute rather than per subscription"
+      ],
+      "limitation": "The people who need it most have already lost money and are unwilling to spend more."
+    },
+    "study": {
+      "proposition": "What happens after a host agrees to a refund and then disputes it?",
+      "specifics": [
+        "Collect reported agreement-to-outcome timelines",
+        "Test whether a written agreement changes the eventual result"
+      ],
+      "limitation": "Outcomes are settled privately, so the sample is only people who chose to post about it."
+    },
+    "write": {
+      "proposition": "The refund agreed in writing, then reversed.",
+      "specifics": [
+        "Follow one traveller from the agreement to the reversal",
+        "Quote the reviews where a representative calculated the amount"
+      ],
+      "limitation": "Platform-dispute stories are familiar; the specific turn is the written agreement being undone."
+    }
+  }
+}
