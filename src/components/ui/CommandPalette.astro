@@ -192,14 +192,26 @@ const index = [...problems, ...apps, ...pages];
 
   @media (prefers-reduced-motion: no-preference) {
     .palette[open] {
-      animation: palette-in var(--dur-short) var(--ease-out);
+      /*
+       * Two animations, not one. The scale is a size change and takes a
+       * spring; the fade is a fade and must not overshoot, or the dialog
+       * flashes past full opacity on the way in.
+       */
+      animation:
+        palette-scale var(--dur-spatial-fast) var(--spatial-fast),
+        palette-fade var(--dur-effects-fast) var(--effects-fast);
     }
   }
 
-  @keyframes palette-in {
+  @keyframes palette-scale {
+    from {
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes palette-fade {
     from {
       opacity: 0;
-      transform: scale(0.96);
     }
   }
 </style>

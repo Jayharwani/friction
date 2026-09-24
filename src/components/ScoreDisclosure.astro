@@ -135,6 +135,7 @@ const verdictNote: Record<string, string> = {
   }
 
   summary {
+    min-height: var(--tap);
     /* Replaced by a custom marker so the control reads as a button-like row. */
     list-style: none;
     cursor: pointer;
@@ -197,8 +198,8 @@ const verdictNote: Record<string, string> = {
         block-size: 0;
         overflow: hidden;
         transition:
-          block-size var(--dur-short) var(--ease-out),
-          content-visibility var(--dur-short) allow-discrete;
+          block-size var(--dur-spatial-default) var(--spatial-default),
+          content-visibility var(--dur-spatial-default) allow-discrete;
       }
 
       .disclosure[open]::details-content {
@@ -207,7 +208,7 @@ const verdictNote: Record<string, string> = {
 
       /* Bars grow from zero as the panel opens, 30ms apart. */
       .disclosure[open] .fill {
-        animation: grow var(--dur-short) var(--ease-out) backwards;
+        animation: grow var(--dur-spatial-default) var(--spatial-default) backwards;
         animation-delay: calc(var(--row) * 30ms);
         transform-origin: left center;
       }

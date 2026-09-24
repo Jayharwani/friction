@@ -77,15 +77,20 @@
 
   button {
     appearance: none;
+    display: inline-flex;
+    align-items: center;
+    /* The floor, at every pointer. A 30px control is hard to hit with a
+       mouse as well, and hardest for the people least likely to say so. */
+    min-height: var(--tap);
     background: none;
     border: 0;
     border-right: var(--rule-hair) solid var(--color-rule);
-    color: var(--color-muted);
+    color: var(--m-on-surface-variant);
     font: inherit;
-    font-size: var(--text-xs);
-    padding: var(--space-2xs) var(--space-xs);
+    font-size: var(--label-md);
+    padding-inline: var(--space-sm);
     cursor: pointer;
-    line-height: 1.4;
+    line-height: var(--line-label);
   }
 
   button:last-child {

@@ -30,9 +30,17 @@ interface Props {
   appsInCategory: number;
   /** Data attributes for the client-side filters. */
   filterable?: boolean;
+  /**
+   * The card's title is a real heading, so its level depends on what sits
+   * above it. A grid directly under the page's h1 gets h2; a grid under a
+   * section heading gets h3. Defaulting to h3 everywhere put an h3 under an
+   * h1 on two pages.
+   */
+  level?: 2 | 3;
 }
 
-const { problem, appsInCategory, filterable = false } = Astro.props;
+const { problem, appsInCategory, filterable = false, level = 2 } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
 
 const product = getProduct(problem.productSlug);
 const challenge = getChallenge(problem.slug);
@@ -64,9 +72,9 @@ const quote = [...problem.evidence].sort((a, b) => a.quote.length - b.quote.leng
       <span>{product?.name ?? problem.productSlug}</span>
     </p>
 
-    <h3>
+    <Heading class="title">
       <a href={url(`/challenges/${problem.slug}`)}>{title}</a>
-    </h3>
+    </Heading>
 
     {quote && <p class="quote" data-when="all">{quote}</p>}
 
@@ -144,27 +152,27 @@ const quote = [...problem.evidence].sort((a, b) => a.quote.length - b.quote.leng
     color: var(--color-muted);
   }
 
-  h3 {
-    font-size: var(--text-md);
+  .title {
+    font-size: var(--title-lg);
     font-weight: 500;
     line-height: 1.25;
     letter-spacing: -0.012em;
     text-wrap: pretty;
   }
 
-  h3 a {
+  .title a {
     text-decoration: none;
     color: inherit;
   }
 
   /* The whole card is the target; the heading link carries it. */
-  h3 a::after {
+  .title a::after {
     content: '';
     position: absolute;
     inset: 0;
   }
 
-  h3 a:focus-visible {
+  .title a:focus-visible {
     outline: none;
   }
 

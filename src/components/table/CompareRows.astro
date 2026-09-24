@@ -281,7 +281,7 @@ const { mode = 'matrix', columns, rows = [], caption } = Astro.props;
 
   @media (prefers-reduced-motion: no-preference) {
     :global([data-chart][data-revealed]) .mark {
-      animation: mark-in var(--dur-short) var(--ease-out) backwards;
+      animation: mark-in var(--dur-spatial-fast) var(--spatial-fast) backwards;
       animation-delay: calc(var(--row-i, 0) * 40ms + var(--col-i, 0) * 60ms);
     }
   }

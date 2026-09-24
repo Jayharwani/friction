@@ -50,22 +50,22 @@
 
 @media (prefers-reduced-motion: no-preference) {
   [data-chart][data-revealed] .ch-rise {
-    animation: ch-rise var(--dur-short) var(--ease-out) backwards;
+    animation: ch-rise var(--dur-spatial-default) var(--spatial-default) backwards;
     animation-delay: calc(var(--ch-i, 0) * var(--ch-step, 14ms));
   }
 
   [data-chart][data-revealed] .ch-wipe {
-    animation: ch-wipe var(--dur-long) var(--ease-out) backwards;
+    animation: ch-wipe var(--dur-spatial-slow) var(--spatial-slow) backwards;
     animation-delay: calc(var(--ch-i, 0) * var(--ch-step, 40ms));
   }
 
   [data-chart][data-revealed] .ch-pop {
-    animation: ch-pop var(--dur-short) var(--ease-out) backwards;
+    animation: ch-pop var(--dur-spatial-fast) var(--spatial-fast) backwards;
     animation-delay: calc(var(--ch-i, 0) * var(--ch-step, 30ms));
   }
 
   [data-chart][data-revealed] .ch-fade {
-    animation: ch-fade var(--dur-short) var(--ease-out) backwards;
+    animation: ch-fade var(--dur-effects-default) var(--effects-default) backwards;
     animation-delay: calc(var(--ch-i, 0) * var(--ch-step, 30ms));
   }
 }

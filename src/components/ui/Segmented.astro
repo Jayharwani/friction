@@ -80,6 +80,18 @@ const selected = value ?? segments[0]?.value;
     background: var(--m-primary-container);
   }
 
+  /* The input fills its own label, so the hit area is the segment rather
+     than a 13px box in the corner of it. */
+  .opt input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
   .opt {
     position: relative;
     z-index: 1;

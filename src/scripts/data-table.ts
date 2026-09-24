@@ -41,8 +41,9 @@ function sortTable(table: HTMLElement, key: string, numeric: boolean, desc: bool
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const css = getComputedStyle(document.documentElement);
-  const duration = parseFloat(css.getPropertyValue('--dur-long')) || 420;
-  const easing = css.getPropertyValue('--ease-out').trim() || 'ease-out';
+  /* FLIP is a position change, so it takes a spatial curve and overshoots. */
+  const duration = parseFloat(css.getPropertyValue('--dur-spatial-default')) || 500;
+  const easing = css.getPropertyValue('--spatial-default').trim() || 'ease-out';
 
   /* FIRST: where every row is before anything moves. */
   const first = new Map<HTMLElement, number>();

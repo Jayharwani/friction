@@ -174,7 +174,7 @@ const alt = `${rows.map((r) => `${r.count} of ${total} reviews from ${r.name}`).
   @media (prefers-reduced-motion: no-preference) {
     .fill {
       transform-origin: bottom;
-      animation: rise var(--dur-long) var(--ease-out) backwards;
+      animation: rise var(--dur-spatial-default) var(--spatial-default) backwards;
       animation-delay: calc(var(--ch-i, 0) * 60ms);
     }
   }

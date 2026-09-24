@@ -181,9 +181,14 @@
    * arrived and reflowed whole pages. 45rem is 68 Geist characters, fixed.
    */
   --measure: 45rem;
-  /* Touch-target floor. Applied at (pointer: coarse) only: 44px controls on
-     a mouse-driven desktop make a toolbar look like a mobile app. */
-  --tap: 44px;
+  /*
+   * Material's floor, and it is a floor at every pointer rather than at a
+   * coarse one. 44px at (pointer: coarse) was WCAG's minimum applied only
+   * where a finger was assumed; a 30px control is hard to hit with a mouse
+   * too, and the people it is hardest for are not the ones who announce
+   * themselves through a media query.
+   */
+  --tap: 48px;
 
   /* Layering, named. Six ad-hoc integers between 1 and 10 was not a scale —
      it was six people guessing, and nothing said which could cover which. */
@@ -291,17 +296,6 @@
   --dur-effects-fast: 150ms;
   --dur-effects-default: 200ms;
   --dur-effects-slow: 300ms;
-
-  /* Migration layer. The old three easings were one family doing both
-     jobs; each maps to the effects curve nearest it, because that is the
-     safe half of the split — an effects curve on a transform is merely
-     unspringy, where a spatial curve on a fade flickers. */
-  --ease-out: var(--effects-default);
-  --ease-in: var(--effects-fast);
-  --ease-in-out: var(--effects-slow);
-  --dur-micro: var(--dur-effects-fast);
-  --dur-short: var(--dur-effects-default);
-  --dur-long: var(--dur-spatial-default);
 }
 
 /* ===================================================================
@@ -563,60 +557,60 @@ body::after {
 /* ===================================================================
    Motion inventory
 
-   Fourteen moments move on this site, and nothing else does. Adding a
-   fifteenth is a decision, not a detail. Counted against the source, not
-   remembered: every entry below is one guarded block you can go and read,
-   and `prefers-reduced-motion` was verified on every page after v2 rather
-   than assumed.
+   Sixteen moments move on this site, and nothing else does. Adding a
+   seventeenth is a decision, not a detail.
 
-     1  The field settles on load, column by column, once.
-        src/scripts/field.ts
-     2  The field drifts, and leans toward the pointer. Both are capped
-        at a few degrees and both stop when it scrolls out of view.
-        src/scripts/field.ts
-     3  The wall of voices drifts six degrees over ninety-six seconds.
-        One transform on one element, and the only thing moving in the
-        first screen.
-        src/components/VoiceWall.astro
-     4  The header takes a backdrop past 64px of scroll.
-        src/layouts/Layout.astro
-     5  A challenge title carries between a list and its own page.
-        Astro view transitions, src/layouts/Layout.astro
-     6  A disclosure opens, its height interpolating from zero. The score
-        panel's bars grow with it; the full-methodology panel does not,
-        because it holds prose and prose should not arrive in pieces.
-        src/components/ScoreDisclosure.astro, src/pages/how-it-works.astro
-     7  A chart's marks rise, wipe, pop or fade as it first comes into
-        view, staggered by index.
-        src/styles/charts.css
-     8  A category glyph writes itself on when its card first enters
-        view, path by path. stroke-dasharray, one shot.
-        src/components/CategoryGlyph.astro
-     9  The version band's segments wipe in, 30ms apart.
-        src/components/charts/VersionTimeline.astro
-    10  The signal tiles' rings fill from zero, 40ms apart.
-        src/components/charts/SignalGrid.astro
-    11  The platform marks rise as the pair enters view.
-        src/components/charts/PlatformMarks.astro
-    12  A table's rows, a bento's arcs, a bar cell's fill, a heat cell, a
-        run card's ring and a compare mark each arrive once, as their own
-        block enters view.
-        src/components/table/
-    13  A card lifts 2px under the pointer.
-        src/components/ChallengeCard.astro, src/components/LensCard.astro
-    14  Filtered cards travel to their new positions rather than
-        appearing in them. FLIP, Web Animations API.
-        src/scripts/challenge-filters.ts, src/scripts/apps-controls.ts
+   Two families, never crossed. Spatial curves are springs — they overshoot
+   — and they are for anything that moves or changes size. Effects curves do
+   not overshoot, and they are for anything that fades or changes colour. A
+   spatial curve on an opacity fade takes the value past 1 and brings it
+   back, which is the flicker that makes motion read as amateur.
 
-   The command palette's own entry is part of moment 6's vocabulary: it
-   is the same short fade, and it is listed here so the count is honest.
-   src/components/CommandPalette.astro
+   Counted against the source rather than remembered: 45 declarations, all
+   of them inside `prefers-reduced-motion: no-preference`, none of them on
+   the wrong family. `prefers-reduced-motion` was verified with CDP media
+   emulation, not with Chrome's flag, which does not set it.
 
-   Everything is transform or opacity, except the disclosures' height,
-   which no other property can express. Three easings, three durations,
-   all named below. Every one of them is declared inside
-   `prefers-reduced-motion: no-preference`, so under a reduced-motion
-   preference these do not exist rather than being overridden.
+     1  Page entry stagger — headline, line, button, hero card
+        spatial-default, 60ms apart, capped at 500ms
+     2  The hero card rotates through three challenges every eight seconds,
+        and stops for a pointer, for focus and for a hidden tab
+        effects-slow · src/components/ui/HeroCard.astro
+     3  Cards arrive in a grid, 40ms apart, once
+        spatial-default · src/styles/charts.css
+     4  A card lifts 2px under the pointer
+        spatial-fast · ChallengeCard, LensCard
+     5  A card's surface steps up under the pointer
+        effects-fast · ChallengeCard, LensCard
+     6  A filled button presses to 0.97
+        spatial-fast · src/components/ui/Button.astro
+     7  The segmented group's fill slides between segments
+        spatial-default · src/components/ui/Segmented.astro
+     8  A filter chip's check slides out from nothing
+        spatial-fast on the width, effects-fast on the opacity
+        src/components/ui/Chip.astro
+     9  A disclosure opens, its height interpolating from zero
+        spatial-default · Disclosure, ScoreDisclosure, how-it-works
+    10  Quotes enter a challenge page, 60ms apart
+        spatial-default · src/styles/charts.css
+    11  The reach bar fills from its own left edge with scaleX
+        spatial-slow · src/components/ui/PatternCard.astro
+    12  An illustration draws itself on, path by path, once
+        spatial-slow · CategoryGlyph, SignalGrid, SpecBento
+    13  Filtered cards travel to their new positions. FLIP
+        spatial-default · challenge-filters, apps-controls, data-table
+    14  The command palette opens: the scale springs, the fade does not
+        spatial-fast and effects-fast, run separately · CommandPalette
+    15  The app bar takes a surface and a hairline past 64px of scroll
+        effects-default · src/components/ui/TopBar.astro
+    16  A challenge title carries between a list and its own page
+        Astro view transitions · src/layouts/Layout.astro
+
+   Everything is transform or opacity, except the disclosures' height and
+   the marks' stroke-dashoffset, which no other property can express. Every
+   one is declared inside `prefers-reduced-motion: no-preference`, so under
+   a reduced-motion preference these do not exist rather than being
+   overridden.
    =================================================================== */
 
 /* ===================================================================

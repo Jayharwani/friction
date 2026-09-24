@@ -88,14 +88,11 @@ const { nav, here } = Astro.props;
     color: var(--color-muted);
     background: none;
     border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--r-pill);
+    border-radius: var(--shape-full);
     /* Matches the theme control beside it: same padding, same line-height. */
     padding: var(--space-2xs) var(--space-xs);
     line-height: 1.4;
-    /* One explicit height shared with the theme control beside it. The two
-       are bordered differently — one per button, one on the wrapper — so
-       matching their padding was never going to match their boxes. */
-    height: 1.875rem;
+    padding-inline: var(--space-sm);
     cursor: pointer;
   }
 
@@ -209,13 +206,13 @@ const { nav, here } = Astro.props;
     }
   }
 
-  @media (pointer: coarse) {
-    nav a,
-    .find {
-      min-height: var(--tap);
-      display: inline-flex;
-      align-items: center;
-    }
+  /* Every standalone control clears the floor, on every pointer. */
+  .wordmark,
+  nav a,
+  .find {
+    min-height: var(--tap);
+    display: inline-flex;
+    align-items: center;
   }
 
   @media (prefers-reduced-motion: no-preference) {

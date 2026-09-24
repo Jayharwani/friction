@@ -265,7 +265,7 @@ const legend = Array.from({ length: STEPS - 1 }, (_, k) => {
   @media (prefers-reduced-motion: no-preference) {
     a.dot,
     span.dot {
-      transition: scale var(--dur-micro) var(--ease-out);
+      transition: scale var(--dur-spatial-fast) var(--spatial-fast);
     }
 
     .cell:hover .dot {
@@ -274,7 +274,7 @@ const legend = Array.from({ length: STEPS - 1 }, (_, k) => {
 
     /* Columns wipe in left to right, once. */
     :global([data-chart][data-revealed]) .dot {
-      animation: cell-in var(--dur-short) var(--ease-out) backwards;
+      animation: cell-in var(--dur-spatial-default) var(--spatial-default) backwards;
       animation-delay: calc(var(--col-i, 0) * 30ms);
     }
   }

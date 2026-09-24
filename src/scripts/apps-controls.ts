@@ -38,8 +38,9 @@ export function initAppsControls(): void {
   /* Read from the tokens rather than restated here, so the reorder cannot
      drift away from the rest of the motion system. */
   const css = getComputedStyle(document.documentElement);
-  const duration = parseFloat(css.getPropertyValue('--dur-long')) || 420;
-  const easing = css.getPropertyValue('--ease-out').trim() || 'ease-out';
+  /* FLIP is a position change, so it takes a spatial curve and overshoots. */
+  const duration = parseFloat(css.getPropertyValue('--dur-spatial-default')) || 500;
+  const easing = css.getPropertyValue('--spatial-default').trim() || 'ease-out';
 
   function currentSort(): Sort {
     for (const input of sortInputs) if (input.checked) return input.value as Sort;

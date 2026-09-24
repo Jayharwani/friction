@@ -146,8 +146,10 @@ const {
   thead button {
     display: inline-flex;
     align-items: center;
+    justify-content: inherit;
     gap: var(--space-3xs);
     min-height: var(--tap);
+    min-width: var(--tap);
     padding: 0;
     font: inherit;
     color: inherit;
@@ -231,12 +233,12 @@ const {
 
   @media (prefers-reduced-motion: no-preference) {
     tbody :global(tr) {
-      transition: background-color var(--dur-micro) var(--ease-out);
+      transition: background-color var(--dur-effects-fast) var(--effects-fast);
     }
 
     /* Rows arrive once, staggered by their own index. */
     :global([data-table][data-entered] tbody tr) {
-      animation: row-in var(--dur-short) var(--ease-out) backwards;
+      animation: row-in var(--dur-spatial-default) var(--spatial-default) backwards;
       animation-delay: calc(var(--row-i, 0) * 18ms);
     }
 

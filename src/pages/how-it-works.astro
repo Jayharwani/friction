@@ -995,8 +995,8 @@ const componentMeaning: Record<string, string> = {
   @media (prefers-reduced-motion: no-preference) {
     .sum-title::before {
       transition:
-        rotate var(--dur-micro) var(--ease-out),
-        translate var(--dur-micro) var(--ease-out);
+        rotate var(--dur-spatial-fast) var(--spatial-fast),
+        translate var(--dur-spatial-fast) var(--spatial-fast);
     }
   }
 
@@ -1022,8 +1022,8 @@ const componentMeaning: Record<string, string> = {
         block-size: 0;
         overflow: hidden;
         transition:
-          block-size var(--dur-short) var(--ease-out),
-          content-visibility var(--dur-short) allow-discrete;
+          block-size var(--dur-spatial-default) var(--spatial-default),
+          content-visibility var(--dur-spatial-default) allow-discrete;
       }
 
       .method[open]::details-content {

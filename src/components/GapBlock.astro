@@ -216,14 +216,17 @@ const MARKS = {
     cursor: help;
   }
 
+  /* The one written sentence on the site, set larger than anything around
+     it. It was on-paper when this panel was a full-strength category fill;
+     against the brightest surface that measured 1.21:1. */
   .line {
     margin-top: var(--space-sm);
-    font-size: var(--text-lg);
+    font-size: var(--title-lg);
     font-weight: 500;
-    line-height: 1.32;
+    line-height: var(--line-title);
     letter-spacing: -0.012em;
     text-wrap: pretty;
-    color: var(--color-paper);
+    color: var(--m-on-surface);
   }
 
   .src {

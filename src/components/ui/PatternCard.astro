@@ -58,7 +58,7 @@ const iconSize = compact ? 34 : 56;
         <CategoryGlyph family={family} size={compact ? 16 : 20} />
         <span>{FAMILY_LABEL[family]}</span>
       </p>
-      <h3>{pattern.category}</h3>
+      <h2 class="cat">{pattern.category}</h2>
       <p class="count num">
         <span class="figure">{pattern.apps.length}</span>
         <span class="of">of {trackedApps} apps affected</span>
@@ -165,7 +165,7 @@ const iconSize = compact ? 34 : 56;
     color: var(--cat);
   }
 
-  h3 {
+  .cat {
     margin-top: var(--space-3xs);
     font-size: var(--text-lg);
     font-weight: 600;
@@ -173,7 +173,7 @@ const iconSize = compact ? 34 : 56;
     text-wrap: balance;
   }
 
-  [data-compact] h3 {
+  [data-compact] .cat {
     font-size: var(--text-md);
   }
 

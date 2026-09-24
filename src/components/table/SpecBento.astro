@@ -170,8 +170,8 @@ const total = cards.reduce((n, c) => n + c.pct, 0);
   @media (prefers-reduced-motion: no-preference) {
     .tile {
       transition:
-        translate var(--dur-micro) var(--ease-out),
-        border-color var(--dur-micro) var(--ease-out);
+        translate var(--dur-spatial-fast) var(--spatial-fast),
+        border-color var(--dur-effects-fast) var(--effects-fast);
     }
 
     .tile:hover {
@@ -182,7 +182,7 @@ const total = cards.reduce((n, c) => n + c.pct, 0);
     /* The arc completes on hover: the card shows its whole value when you
        reach for it, and sits at its share when you do not. */
     .fill {
-      transition: stroke-dashoffset var(--dur-short) var(--ease-out);
+      transition: stroke-dashoffset var(--dur-spatial-default) var(--spatial-default);
     }
 
     .tile:hover .fill {
@@ -190,7 +190,7 @@ const total = cards.reduce((n, c) => n + c.pct, 0);
     }
 
     :global([data-chart][data-revealed]) .fill {
-      animation: arc-in var(--dur-long) var(--ease-out) backwards;
+      animation: arc-in var(--dur-spatial-slow) var(--spatial-slow) backwards;
       animation-delay: calc(var(--ch-i, 0) * 40ms);
     }
   }
