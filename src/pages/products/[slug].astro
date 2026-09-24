@@ -9,7 +9,8 @@
  * how it was counted.
  */
 import Layout from '../../layouts/Layout.astro';
-import ProblemRow from '../../components/ProblemRow.astro';
+import ChallengeCard from '../../components/ui/ChallengeCard.astro';
+import { getProblems } from '../../lib/data';
 import { url } from '../../lib/url';
 import {
   getProductsWithProblems,
@@ -43,6 +44,11 @@ const categories = [...new Set(problems.map((p) => p.category))].sort(
     problems.filter((p) => p.category === b).length -
     problems.filter((p) => p.category === a).length,
 );
+/** Apps sharing a category — what a challenge card needs for its lenses. */
+const everything = getProblems();
+const appsIn = (category: string) =>
+  new Set(everything.filter((x) => x.category === category).map((x) => x.productSlug)).size;
+
 const ordered = categories.flatMap((label) =>
   problems.filter((p) => p.category === label).sort((a, b) => b.score - a.score),
 );
@@ -82,7 +88,13 @@ const ordered = categories.flatMap((label) =>
 
     <section class="problems">
       <h2>What has been found</h2>
-      {ordered.map((problem) => <ProblemRow problem={problem} />)}
+      <div class="cards">
+        {
+          ordered.map((problem) => (
+            <ChallengeCard problem={problem} appsInCategory={appsIn(problem.category)} level={3} />
+          ))
+        }
+      </div>
     </section>
 
     <p class="disclaimer measure">
@@ -127,6 +139,15 @@ const ordered = categories.flatMap((label) =>
 
   .problems {
     margin-top: var(--space-2xl);
+  }
+
+  /* Cards, not text rows with hairlines between them. The scene carries
+     the category, so the metadata line goes with the rule. */
+  .cards {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
   }
 
   .problems h2 {

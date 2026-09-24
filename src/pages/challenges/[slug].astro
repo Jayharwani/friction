@@ -19,7 +19,7 @@ import Layout from '../../layouts/Layout.astro';
 import CategoryScene from '../../components/ui/art/CategoryScene.astro';
 import LensCard from '../../components/ui/LensCard.astro';
 import EvidenceItem from '../../components/ui/QuoteBlock.astro';
-import EmptyMark from '../../components/ui/art/EmptyMark.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
 import RelatedStrip from '../../components/RelatedStrip.astro';
 import Button from '../../components/ui/Button.astro';
 import AppIcon from '../../components/ui/AppIdentity.astro';
@@ -106,10 +106,7 @@ const quotes = [...problem.evidence]
               ))}
             </ul>
           ) : (
-            <p class="none">
-              <EmptyMark kind="quiet" size={26} />
-              <span>Nobody described a way around this.</span>
-            </p>
+            <EmptyState kind="quiet" line="Nobody described a way around this." />
           )
         }
       </section>
@@ -144,13 +141,10 @@ const quotes = [...problem.evidence]
           </section>
         ) : (
           <section class="lenses">
-            <p class="none">
-              <EmptyMark kind="single" size={26} />
-              <span>
-                This one has not been written up yet. Lenses are written for challenges reported
-                repeatedly or more.
-              </span>
-            </p>
+            <EmptyState
+              kind="single"
+              line="This one has not been written up yet. Lenses are written for challenges reported repeatedly or more."
+            />
           </section>
         )
       }

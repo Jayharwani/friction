@@ -6,13 +6,14 @@
  * first, because that is the strongest relation, then same category across
  * apps, which is how a reader finds that three apps all break the same way.
  *
- * No sparkline and no verdict here. This strip is a way out of the page, and
- * a chart in it would be the machinery leaking back onto a surface page. The
- * reach words carry what the sparkline carried.
+ * Cards rather than text rows. Three titles with a metadata line under each
+ * and a hairline between them is the pattern this project keeps drifting back
+ * to, and the one the rest of the site has already left.
  */
 import type { Problem } from '../../scripts/validate';
 import { url } from '../lib/url';
-import { getChallenge, getProblems, getProduct, surfaceLabel } from '../lib/data';
+import { getChallenge, getProblems, getProduct } from '../lib/data';
+import ChallengeCard from './ui/ChallengeCard.astro';
 
 interface Props {
   problem: Problem;
@@ -21,7 +22,8 @@ interface Props {
 
 const { problem, limit = 3 } = Astro.props;
 
-const others = getProblems().filter((p) => p.slug !== problem.slug);
+const all = getProblems();
+const others = all.filter((p) => p.slug !== problem.slug);
 
 const sameApp = others
   .filter((p) => p.productSlug === problem.productSlug)
@@ -35,24 +37,22 @@ const sameCategory = others
  * Previous and next within the app, in score order — the order the app's own
  * page lists them in, so the two agree.
  */
-const siblings = getProblems()
+const siblings = all
   .filter((p) => p.productSlug === problem.productSlug)
   .sort((a, b) => b.score - a.score);
 const here = siblings.findIndex((p) => p.slug === problem.slug);
 const previous = here > 0 ? siblings[here - 1] : undefined;
 const next = here >= 0 && here < siblings.length - 1 ? siblings[here + 1] : undefined;
+const appName = getProduct(problem.productSlug)?.name ?? problem.productSlug;
 
 /** The human title where one has been written, the extracted one otherwise. */
 const named = (p: Problem) => getChallenge(p.slug)?.humanTitle ?? p.title;
-const appName = getProduct(problem.productSlug)?.name ?? problem.productSlug;
 
-const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
-  problem: p,
-  app: getProduct(p.productSlug)?.name ?? p.productSlug,
-  humanTitle: named(p),
-  label: surfaceLabel(p),
-  relation: p.productSlug === problem.productSlug ? 'same app' : 'same category',
-}));
+/** Apps sharing a category — what a challenge card needs for its lenses. */
+const appsIn = (category: string) =>
+  new Set(all.filter((p) => p.category === category).map((p) => p.productSlug)).size;
+
+const related = [...sameApp, ...sameCategory].slice(0, limit);
 ---
 
 {
@@ -80,22 +80,11 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
   related.length > 0 && (
     <section class="related" aria-labelledby="related-heading">
       <h2 id="related-heading">Related challenges</h2>
-      <ul>
-        {related.map(({ problem: p, app, humanTitle, label, relation }) => (
-          <li>
-            <div class="body">
-              <h3 class="written-text">
-                <a href={url(`/challenges/${p.slug}`)}>{humanTitle}</a>
-              </h3>
-              <p class="meta num">
-                {app}, {relation}, {p.evidence.length}{' '}
-                {p.evidence.length === 1 ? 'review' : 'reviews'}
-              </p>
-            </div>
-            <p class="reach meta">{label}</p>
-          </li>
+      <div class="cards">
+        {related.map((p) => (
+          <ChallengeCard problem={p} appsInCategory={appsIn(p.category)} level={3} />
         ))}
-      </ul>
+      </div>
     </section>
   )
 }
@@ -122,7 +111,7 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
     text-decoration: none;
     padding: var(--space-sm);
     margin: calc(var(--space-sm) * -1);
-    border-radius: var(--r-cell);
+    border-radius: var(--shape-sm);
   }
 
   .seq a:hover,
@@ -135,95 +124,31 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
   }
 
   .dir {
-    font-size: var(--text-xs);
-    color: var(--color-muted);
+    font-size: var(--label-md);
+    color: var(--m-on-surface-variant);
   }
 
   .t {
-    font-size: var(--text-sm);
+    font-size: var(--body-md);
     font-weight: 500;
-    line-height: 1.3;
+    line-height: var(--line-body);
   }
 
-  /* A secondary card: its own tone, one step down from the page's own
-     cards, and no line around it. */
   .related {
     margin-top: var(--space-2xl);
-    padding: var(--space-lg);
-    border-radius: var(--shape-lg);
-    background: var(--m-surface-container-low);
   }
 
   h2 {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--color-muted);
+    font-size: var(--title-md);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+    color: var(--m-on-surface-variant);
   }
 
-  ul {
-    list-style: none;
-    margin: var(--space-sm) 0 0;
-    padding: 0;
-  }
-
-  li {
-    position: relative;
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-lg);
-    padding: var(--space-sm);
-    border-radius: var(--shape-sm);
-  }
-
-  li:has(a:hover),
-  li:has(a:focus-visible) {
-    background: var(--m-surface-container-high);
-  }
-
-  .body {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  h3 {
-    font-size: var(--text-sm);
-    font-weight: 500;
-    line-height: 1.3;
-  }
-
-  h3 a {
-    text-decoration: none;
-  }
-
-  h3 a::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-  }
-
-  .meta {
-    margin-top: var(--space-3xs);
-    font-size: var(--text-xs);
-    color: var(--color-muted);
-  }
-
-  .reach {
-    flex: none;
-    font-size: var(--text-xs);
-    color: var(--color-muted);
-    min-width: 7em;
-    text-align: right;
-  }
-
-  @media (max-width: 40rem) {
-    li {
-      flex-wrap: wrap;
-      gap: var(--space-xs) var(--space-md);
-    }
-
-    .reach {
-      text-align: left;
-      min-width: 0;
-    }
+  .cards {
+    display: grid;
+    gap: var(--space-md);
+    margin-top: var(--space-md);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   }
 </style>

@@ -18,7 +18,7 @@ import PageTexture from '../../components/PageTexture.astro';
 import BrandMark from '../../components/BrandMark.astro';
 import ChallengeCard from '../../components/ui/ChallengeCard.astro';
 import LensMark from '../../components/ui/art/LensMark.astro';
-import EmptyMark from '../../components/ui/art/EmptyMark.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
 import { getChallenge, getProblems, getProduct } from '../../lib/data';
 import { FAMILIES, FAMILY_LABEL, familyOf } from '../../lib/categories';
 import { LENSES, LENS_FIT_NOTE, LENS_HUE, LENS_LABEL, LENS_QUESTION, lensFit } from '../../lib/lenses';
@@ -137,10 +137,9 @@ const families = FAMILIES.map((family) => ({
       }
     </section>
 
-    <p class="empty bleed" data-challenges-empty hidden>
-      <EmptyMark kind="filter" size={26} />
-      <span>Nothing matches those filters. Clear the lens to see more.</span>
-    </p>
+    <div class="bleed" data-challenges-empty hidden>
+      <EmptyState kind="filter" line="Nothing matches those filters. Clear the lens to see more." />
+    </div>
   </div>
 </Layout>
 

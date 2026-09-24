@@ -106,10 +106,8 @@ const iconSize = compact ? 34 : 56;
           {pattern.examples.map((e) => (
             <li>
               <a href={url(`/challenges/${e.slug}`)}>
+                <AppIcon slug={e.productSlug} name={getProduct(e.productSlug)?.name ?? e.productSlug} size={24} />
                 <span class="e-title">{getChallenge(e.slug)?.humanTitle ?? e.title}</span>
-                <span class="e-meta num">
-                  {getProduct(e.productSlug)?.name ?? e.productSlug}
-                </span>
               </a>
             </li>
           ))}
@@ -324,29 +322,30 @@ const iconSize = compact ? 34 : 56;
 
   /* ---- examples ---- */
 
+  /* Small cards on the tone below this one, not rows with rules between. */
   .examples {
+    display: grid;
+    gap: var(--space-xs);
     list-style: none;
     margin: var(--space-lg) 0 0;
     padding: 0;
-  }
-
-  .examples li + li {
-    border-top: var(--rule-hair) solid var(--cat-edge);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   }
 
   .examples a {
-    display: grid;
-    gap: 2px;
-    padding: var(--space-xs) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    min-height: var(--tap);
+    height: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--shape-md);
+    background: var(--m-surface-container-low);
     text-decoration: none;
   }
 
-  /* Scoped styles outrank the global floor, so each list restates it. */
-  @media (pointer: coarse) {
-    .examples a {
-      align-content: center;
-      min-height: var(--tap);
-    }
+  .examples a:hover {
+    background: var(--m-surface-container-high);
   }
 
   .examples a:hover .e-title,
