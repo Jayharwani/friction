@@ -192,7 +192,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
     position: absolute;
     left: -9999px;
     top: 0;
-    background: var(--color-paper);
+    background: var(--m-surface-container-lowest);
     color: var(--color-ink);
     padding: var(--space-sm) var(--space-md);
     z-index: var(--z-nav);
@@ -218,7 +218,7 @@ const here = Astro.url.pathname.replace(/\/$/, '');
   @media (prefers-reduced-motion: no-preference) {
     .site-header {
       transition:
-        background-color var(--dur-short) var(--ease-out),
+        background-color var(--dur-effects-default) var(--effects-default),
         border-color var(--dur-short) var(--ease-out);
     }
   }
@@ -231,8 +231,8 @@ const here = Astro.url.pathname.replace(/\/$/, '');
    * opacity the difference is invisible and the scroll is not.
    */
   .site-header[data-scrolled] {
-    background: color-mix(in oklch, var(--color-paper) 94%, transparent);
-    border-bottom-color: var(--color-rule);
+    background: color-mix(in oklab, var(--m-surface-container-low) 94%, transparent);
+    border-bottom-color: var(--m-outline-variant);
   }
 
   .header-inner {

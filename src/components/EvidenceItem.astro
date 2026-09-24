@@ -73,25 +73,29 @@ const signals = signalLabels.filter(([key]) => evidence.signals[key]).map(([, la
 </article>
 
 <style>
+  /* No rule above it. The quote's own container is what separates one
+     voice from the next; a line as well is saying it twice. */
   .evidence {
-    border-top: var(--rule-hair) solid var(--color-rule);
-    padding-block: var(--space-lg);
+    padding-block: var(--space-md);
   }
 
   /*
-   * People's words get the serif, a surface one step off the page, and an
-   * accent rule held at 30% so it marks the quote without shouting. Raised by
-   * surface alone — there are no shadows anywhere in this design.
+   * The most valuable content on the site, and the only thing on it set in
+   * Newsreader. It gets the tertiary container — the role that means "this
+   * is what is wrong" — and an asymmetric corner, so a quote is never
+   * mistaken for another card. Raised by surface alone; there are no
+   * shadows anywhere in this design.
    */
   blockquote {
     margin: 0;
     font-family: var(--font-quote);
-    font-size: var(--text-lg);
-    line-height: 1.5;
-    background: var(--color-paper-2);
-    border-left: 2px solid color-mix(in oklch, var(--color-accent) 30%, transparent);
-    border-radius: 0 6px 6px 0;
-    padding: var(--space-md) var(--space-lg);
+    font-size: var(--body-lg);
+    line-height: var(--line-body);
+    color: var(--m-on-tertiary-container);
+    background: var(--m-tertiary-container);
+    border-left: 3px solid var(--m-tertiary);
+    border-radius: var(--shape-xl) var(--shape-lg-inc) var(--shape-lg-inc) var(--shape-lg-inc);
+    padding: var(--space-lg) var(--space-xl);
   }
 
   .meta {
@@ -112,10 +116,17 @@ const signals = signalLabels.filter(([key]) => evidence.signals[key]).map(([, la
     color: var(--color-muted);
   }
 
-  /* Signals are set in type, with a hairline, never as coloured pills. */
+  /*
+   * Assist chips: a container tone and a full radius, not a dotted
+   * underline. The underline read as a broken link, which is the worst
+   * thing a non-interactive label can look like.
+   */
   .signals li {
-    border-bottom: var(--rule-hair) solid var(--color-rule);
-    padding-bottom: var(--space-2xs);
+    padding: var(--space-3xs) var(--space-xs);
+    border-radius: var(--shape-full);
+    background: var(--m-surface-container-high);
+    color: var(--m-on-surface-variant);
+    font-size: var(--label-md);
   }
 
   .capture {

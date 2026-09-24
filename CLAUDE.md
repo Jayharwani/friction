@@ -44,28 +44,46 @@ Each is commented at its call site. Do not "fix" these back.
 
 ## Design constraints
 
-- **Two hues, not one.** The ground is cool — a blue-grey around 250 — and the
-  signal is warm, around 48. That is the point: the accent is heat, and heat
-  only reads as heat against something cold. Every neutral is tinted toward the
-  cool anchor; no zero-chroma greys. `--color-accent` is the only warm colour
-  outside the category scale, spent on the heat ramp (`--heat-0..4`) and almost
-  nothing else. Treat 5% of a viewport as its ceiling. Platform badges and
-  verdicts are set in type, never carried by colour alone.
+- **Two source hues, and no picked colour values.** `scripts/palette.ts`
+  generates five tonal palettes and derives twenty-six Material roles from
+  them into `src/styles/tokens.css`; `npm run palette` rewrites it and
+  `npm run palette -- --check` fails if it has drifted. Primary is hue 172,
+  a deep teal — what you can do: every action, link and focus ring. Tertiary
+  is hue 20, a soft clay — what is wrong: quote containers and the complaint
+  side of a comparison, nothing else. Neutrals carry a trace of 172, so no
+  zero-chroma greys.
+- **Grouping is surface tone, not hairlines.** The five-step
+  `surface-container` ramp is how related content is grouped: a group sits on
+  its own tone rather than inside a drawn box. A hairline is the exception
+  now, not the method.
+- The eight category hues stay a separate data palette in `categories.css`.
+  They live inside illustrations and category marks and never become a colour
+  role or touch a control. Platform badges and verdicts are set in type, never
+  carried by colour alone.
 - **Dark is the default.** The site is a dark instrument you read figures off;
   the light theme is the one you reach for in daylight. "Auto" is a third
   choice, not the fallback — nothing stored means dark.
-- Geist for everything, Newsreader for reviewers' quotes **and the second line
-  of the homepage display**, Geist Mono for the scoring equation. Tabular
-  figures on every number.
-- **One italic, on purpose.** The homepage display is a roman sans line at
-  weight 300 with a Newsreader italic line beneath it on a lit panel. That
-  pairing is the site's signature and the only italic display anywhere;
-  every other heading stays roman.
+- Geist for everything, Geist Mono for the scoring equation. Tabular figures
+  on every number.
+- **Newsreader appears inside reviewers' quotes and nowhere else.** It is the
+  one genuinely different voice on the site, and spending it on display type
+  spends the only distinction the typography has. All headings are roman.
+- **Material's fifteen type styles**, in px off a 17px root, with an
+  emphasized partner for each: same size, one weight step up, tighter
+  tracking. Emphasis goes on the primary button, the written badge, a
+  selected chip, a reach label and the active nav item, and nowhere else.
+- **Ten corner radii, and one rule about them.** Exactly one element per page
+  carries `--shape-xxl` (48px), and it is always the thing the page wants
+  looked at first.
 - Measures are in `rem` or `em`, never `ch`. Geist's digits are wide relative
   to its average advance, so a `ch` measure reflowed every page the moment the
   web font arrived. `"Geist Fallback"` carries a measured `size-adjust` for
   the same reason. Together they are what holds CLS at zero.
-- The motion inventory is listed at the top of `global.css`. Adding to it is a
+- **Two motion families, never crossed.** Spatial curves are springs and they
+  overshoot: use them for anything that moves or resizes. Effects curves do
+  not overshoot: use them for anything that fades or changes colour. A
+  spatial curve on an opacity fade is what makes motion read as amateur.
+  The inventory is listed at the top of `global.css`; adding to it is a
   decision, not a detail.
 - Explanations are graphics first. Anything the site explains in a paragraph
   that could be shown as a working graphic is the graphic, with the prose
@@ -115,6 +133,9 @@ npm test                                      # scoring, screening, merge tests
 npm run fetch -- --only=notion --pages=2 --dry   # fast local fetch, writes nothing
 npm run validate                              # the gate
 npm run score -- --dry                        # score without writing
+npm run palette                               # regenerate the colour roles
+npm run lenses                                # the written lenses, against the gate
+npm run words                                 # every page against its prose budget
 ```
 
 `npm run fetch` needs `AUTHOR_SALT` in `.env`. It refuses to run without one

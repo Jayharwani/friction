@@ -22,6 +22,7 @@
      on a raised surface. The named tell is a 4-6px solid stripe on a card;
      this is a blockquote and there are no cards anywhere in the project. */
 @import "tailwindcss";
+@import "./tokens.css";
 @import "./charts.css";
 @import "./categories.css";
 
@@ -44,92 +45,57 @@
    ------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------
-   Monochrome, with one saturated pop.
+   Colour — two source hues, every value generated.
 
-   Every neutral sits on hue 250 at very low chroma, and the UI accent
-   sits on the same hue at high chroma. The pop is saturation, not hue:
-   nothing on the interface competes with it, and the eight category
-   hues are free to be the only other colour on the page.
+   Nothing here picks a colour. scripts/palette.ts builds five tonal
+   palettes from two source hues and derives twenty-six Material roles
+   from them, into tokens.css; this block only gives those roles the
+   names the rest of the codebase already uses.
 
-   The warm cream-and-ochre palette this replaced is a named
-   generated-design tell, and it was the honest answer to why the site
-   looked like every other AI-built page.
+     primary   hue 172, a deep teal — what you can do. Every action,
+               every link, every focus ring.
+     tertiary  hue  20, a soft clay — what is wrong. Quote containers,
+               and the complaint side of a comparison. Nothing else.
 
-   Two token families, never crossed: --color-accent is UI — links,
-   focus, buttons, active state. --cat-* is data. A category hue on a
-   focus ring, or the accent on a category, breaks both systems.
+   The warm cream-and-ochre palette two versions of this site ran on is
+   the most recognisable generated-page signature there is, and the cool
+   blue-grey that replaced it had one accent doing every job at once.
+   Two hues with two jobs is the thing that makes the page read.
 
-   Dark is the default. The site is a dark instrument you read figures
-   off, and the light theme is the one you reach for in daylight.
+   The five-step surface-container ramp is the important part. A group of
+   related content sits on its own surface tone; it does not get a line
+   drawn around it. That is what replaces the hairlines.
+
+   The eight category hues stay in categories.css as a separate data
+   palette. They appear inside illustrations and category marks, and
+   never as a colour role or on a control.
+
+   The --color-* names below are a migration layer. Components move onto
+   the roles directly as they are rebuilt, and this block shrinks to
+   nothing.
    ------------------------------------------------------------------- */
 :root {
-  --color-paper:   oklch(22% 0.015 250);
-  --color-paper-2: oklch(26% 0.018 250);
-  --color-paper-3: oklch(31% 0.020 252);
-  --color-rule:    oklch(36% 0.020 252);
-  /* Measures about 4.3:1 against paper: below AA for body text at any size.
-     For disabled controls and non-text marks only — use --color-muted for
-     anything a reader has to read. */
-  --color-neutral: oklch(58% 0.025 255);
-  --color-muted:   oklch(74% 0.030 255);
-  --color-ink:     oklch(95% 0.008 250);
-  --color-accent:  oklch(70% 0.17 250);
-  --color-focus:   oklch(72% 0.19 250);
-
-  color-scheme: dark;
+  --color-paper: var(--m-surface);
+  --color-paper-2: var(--m-surface-container);
+  --color-paper-3: var(--m-surface-container-high);
+  --color-rule: var(--m-outline-variant);
+  --color-neutral: var(--m-outline);
+  --color-muted: var(--m-on-surface-variant);
+  --color-ink: var(--m-on-surface);
+  --color-accent: var(--m-primary);
+  --color-focus: var(--m-primary);
 }
 
-/* Written twice on purpose: CSS cannot share one declaration block
-   between a media query and an attribute selector, and the duplication
-   is plainer than the indirection that avoids it. */
-@media (prefers-color-scheme: light) {
-  :root[data-theme="system"] {
-    --color-paper:   oklch(98% 0.004 250);
-    --color-paper-2: oklch(95% 0.006 250);
-    --color-paper-3: oklch(92% 0.008 252);
-    --color-rule:    oklch(87% 0.010 252);
-    --color-neutral: oklch(56% 0.020 255);
-    --color-muted:   oklch(44% 0.025 255);
-    --color-ink:     oklch(24% 0.020 255);
-    --color-accent:  oklch(55% 0.19 250);
-    --color-focus:   oklch(52% 0.20 250);
-
-    color-scheme: light;
-  }
-}
-
-:root[data-theme="light"] {
-  --color-paper:   oklch(98% 0.004 250);
-  --color-paper-2: oklch(95% 0.006 250);
-  --color-paper-3: oklch(92% 0.008 252);
-  --color-rule:    oklch(87% 0.010 252);
-  --color-neutral: oklch(56% 0.020 255);
-  --color-muted:   oklch(44% 0.025 255);
-  --color-ink:     oklch(24% 0.020 255);
-  --color-accent:  oklch(55% 0.19 250);
-  --color-focus:   oklch(52% 0.20 250);
-
-  color-scheme: light;
-}
-
-/* The one ramp in the product: page surface to accent, interpolated in
-   OKLCH. The field's shader reads these same five stops, so the 3D
-   surface and the 2D fallback are the same scale. */
+/* The one ramp in the product: a container surface to primary, mixed in
+   oklab. oklch interpolates hue on a polar arc and the arc between these
+   two runs through somewhere neither of them is. The field's shader reads
+   these same five stops, so the 3D surface and the 2D fallback match. */
 :root {
-  /*
-   * Mixed in oklab, not oklch.
-   *
-   * oklch interpolates hue on a polar arc, and the arc from a cool navy
-   * ground to a warm accent runs straight through purple — every mid-stop
-   * of this ramp came out mauve the moment the ground turned cool. oklab is
-   * rectangular: it crosses the middle of the space instead of going around
-   * it, so the ramp desaturates through a neutral and arrives warm.
-   */
-  --heat-0: var(--color-paper-2);
-  --heat-1: color-mix(in oklab, var(--color-accent) 22%, var(--color-paper-2));
-  --heat-2: color-mix(in oklab, var(--color-accent) 45%, var(--color-paper-2));
-  --heat-3: color-mix(in oklab, var(--color-accent) 70%, var(--color-paper-2));
-  --heat-4: var(--color-accent);
+  --heat-0: var(--m-surface-container);
+  --heat-1: color-mix(in oklab, var(--m-primary) 22%, var(--m-surface-container));
+  --heat-2: color-mix(in oklab, var(--m-primary) 45%, var(--m-surface-container));
+  --heat-3: color-mix(in oklab, var(--m-primary) 70%, var(--m-surface-container));
+  --heat-4: var(--m-primary);
 }
 
 /* -------------------------------------------------------------------
@@ -159,15 +125,54 @@
   /* Reviewers' words. Roman, never italic — italic display type is a tell. */
   --font-quote: "Newsreader", ui-serif, Georgia, "Times New Roman", serif;
 
-  /* 1.25 ratio off a 17px base, fluid where size carries meaning. */
-  --text-xs: 0.72rem;
-  --text-sm: 0.82rem;
-  --text-md: 1rem;
-  --text-lg: clamp(1.15rem, 1.05rem + 0.4vw, 1.25rem);
-  --text-xl: clamp(1.35rem, 1.2rem + 0.75vw, 1.5625rem);
-  --text-2xl: clamp(1.6rem, 1.35rem + 1.25vw, 1.953rem);
-  --text-3xl: clamp(2rem, 1.5rem + 2.4vw, 2.75rem);
-  --text-display: clamp(2.4rem, 1.4rem + 4.4vw, 4.25rem);
+  /* -----------------------------------------------------------------
+     Type — Material's fifteen styles, in px.
+
+     px, not rem, because these are a scale rather than a ratio: the root
+     is 17px and a 16px body style is 16px, not 0.94 of something. The
+     display and headline steps stay fluid, because those are the only
+     sizes where the viewport should have a say.
+
+     Every style has an emphasized partner: same size, one weight step up,
+     slightly tighter tracking. It goes on the primary button, the written
+     badge, a selected chip, a reach label and the active nav item —
+     nowhere else, or it stops meaning anything.
+     ----------------------------------------------------------------- */
+  --display-lg: clamp(2.6rem, 1.6rem + 3.6vw, 3.35rem);
+  --display-md: clamp(2.2rem, 1.5rem + 2.6vw, 2.65rem);
+  --display-sm: clamp(1.9rem, 1.4rem + 1.9vw, 2.12rem);
+  --headline-lg: clamp(1.7rem, 1.35rem + 1.3vw, 1.88rem);
+  --headline-md: clamp(1.5rem, 1.25rem + 1vw, 1.65rem);
+  --headline-sm: clamp(1.3rem, 1.15rem + 0.6vw, 1.41rem);
+  --title-lg: 1.294rem;
+  --title-md: 0.941rem;
+  --title-sm: 0.824rem;
+  --body-lg: 0.941rem;
+  --body-md: 0.824rem;
+  --body-sm: 0.706rem;
+  --label-lg: 0.824rem;
+  --label-md: 0.706rem;
+  --label-sm: 0.647rem;
+
+  --line-display: 1.12;
+  --line-headline: 1.25;
+  --line-title: 1.3;
+  --line-body: 1.5;
+  --line-label: 1.4;
+
+  --weight-body: 350;
+  --weight-emphasis: 600;
+  --track-emphasis: -0.01em;
+
+  /* Migration layer, deleted as components move onto the scale. */
+  --text-xs: var(--label-md);
+  --text-sm: var(--body-md);
+  --text-md: var(--body-lg);
+  --text-lg: var(--headline-sm);
+  --text-xl: var(--headline-md);
+  --text-2xl: var(--headline-lg);
+  --text-3xl: var(--display-sm);
+  --text-display: var(--display-lg);
 
   /*
    * Measures are in rem, not ch. Geist's digits are wide relative to its
@@ -191,21 +196,33 @@
   --z-pop: 20; /* a glossary term's definition, over everything on the page */
 
   /* -----------------------------------------------------------------
-     Shape. One scale, four values, and nothing else anywhere.
+     Shape — the full corner scale, and one rule about it.
 
-       --r-card   panels, cards, bands, the search box
-       --r-cell   cells, chips, small fills, tiles inside a card
-       --r-pill   anything that reads as a pill, and only if interactive
-       --r-icon   app artwork, which is proportional rather than fixed
+     Ten steps rather than four. Four made every surface the same shape,
+     which is the thing that makes a set of components look assembled
+     rather than designed; ten means a chip, a card, a quote and a hero
+     can each be a different object.
 
-     Twelve different radii were in use before this: 1, 2, 3, 4, 6, 8, 10,
-     12, 14, 26%, 50% and 999px. Mixed radii is the thing that makes a set
-     of components look like it was assembled rather than designed.
+     The rule: exactly one element per page carries --shape-xxl. It is
+     always the thing the page wants looked at first, and it is the only
+     place shape is allowed to shout.
      ----------------------------------------------------------------- */
-  --r-card: 12px;
-  --r-cell: 6px;
-  --r-pill: 999px;
-  --r-icon: 26%;
+  --shape-none: 0px;
+  --shape-xs: 4px;
+  --shape-sm: 8px;
+  --shape-md: 12px;
+  --shape-lg: 16px;
+  --shape-lg-inc: 20px;
+  --shape-xl: 28px;
+  --shape-xl-inc: 32px;
+  --shape-xxl: 48px;
+  --shape-full: 999px;
+
+  /* Migration layer, deleted as components move onto the scale. */
+  --r-card: var(--shape-lg);
+  --r-cell: var(--shape-sm);
+  --r-pill: var(--shape-full);
+  --r-icon: var(--shape-md);
 
   --nav-h: 4.25rem;
   --page-gutter: clamp(1rem, 4vw, 3rem);
@@ -229,34 +246,62 @@
    ------------------------------------------------------------------- */
 
 :root {
-  /* 2px. Optical nudges below the 4pt step — a meta line, a nav
-     underline gap — still come off the scale. */
-  --space-3xs: 0.125rem;
-  --space-2xs: 0.25rem;
-  --space-xs: 0.5rem;
-  --space-sm: 0.75rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
-  --space-3xl: 4.5rem;
-  --space-4xl: 6rem;
+  /* 4, 8, 12, 16, 24, 32, 48, 64, 96, in px. Only these values, and
+     they are px rather than rem because a spacing scale is a set of
+     steps, not a ratio off the reading size. 2px survives for optical
+     nudges below the first step — a meta line, a nav underline gap. */
+  --space-3xs: 2px;
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
 
   --section-gap: var(--space-3xl);
 }
 
 /* -------------------------------------------------------------------
-   Motion — three named easings. The browser default never appears.
+   Motion — Material's two families, and the rule that keeps them apart.
+
+   Spatial curves are springs: they overshoot, and they are for anything
+   that moves or changes size. Effects curves do not overshoot, and they
+   are for anything that fades or changes colour.
+
+   Crossing them is what makes motion read as amateur — a spatial curve on
+   an opacity fade produces the flicker of a value going past 1 and coming
+   back. Never put a spatial curve on opacity or colour.
    ------------------------------------------------------------------- */
 
 :root {
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --spatial-fast: cubic-bezier(0.42, 1.67, 0.21, 0.9);
+  --spatial-default: cubic-bezier(0.38, 1.21, 0.22, 1);
+  --spatial-slow: cubic-bezier(0.39, 1.29, 0.35, 0.98);
 
-  --dur-micro: 120ms;
-  --dur-short: 220ms;
-  --dur-long: 420ms;
+  --effects-fast: cubic-bezier(0.31, 0.94, 0.34, 1);
+  --effects-default: cubic-bezier(0.34, 0.8, 0.34, 1);
+  --effects-slow: cubic-bezier(0.34, 0.88, 0.34, 1);
+
+  --dur-spatial-fast: 350ms;
+  --dur-spatial-default: 500ms;
+  --dur-spatial-slow: 650ms;
+  --dur-effects-fast: 150ms;
+  --dur-effects-default: 200ms;
+  --dur-effects-slow: 300ms;
+
+  /* Migration layer. The old three easings were one family doing both
+     jobs; each maps to the effects curve nearest it, because that is the
+     safe half of the split — an effects curve on a transform is merely
+     unspringy, where a spatial curve on a fade flickers. */
+  --ease-out: var(--effects-default);
+  --ease-in: var(--effects-fast);
+  --ease-in-out: var(--effects-slow);
+  --dur-micro: var(--dur-effects-fast);
+  --dur-short: var(--dur-effects-default);
+  --dur-long: var(--dur-spatial-default);
 }
 
 /* ===================================================================

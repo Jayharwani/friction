@@ -148,10 +148,8 @@ const componentMeaning: Record<string, string> = {
     <BrandMark variant="device" />
 
     <div class="hero-in">
-      <h1>
-        <span class="h-roman">How it works</span>
-        <span class="h-serif">reviews in, challenges out</span>
-      </h1>
+      <h1>How it works</h1>
+      <p class="hero-line">Reviews in, challenges out.</p>
 
       <dl class="proof num">
         <div><dt>Reviews read</dt><dd>{run ? run.funnel.fetched.total.toLocaleString('en-GB') : '—'}</dd></div>
@@ -1061,9 +1059,10 @@ const componentMeaning: Record<string, string> = {
     padding-block: var(--space-4xl);
   }
 
+  /* A band is grouped by its tone. The rules that used to run above and
+     below it were the old way of saying the same thing. */
   .band-quiet {
-    background: var(--color-paper-2);
-    border-block: var(--rule-hair) solid var(--color-rule);
+    background: var(--m-surface-container-low);
   }
 
   .hero-in,
@@ -1095,30 +1094,20 @@ const componentMeaning: Record<string, string> = {
     text-wrap: balance;
   }
 
-  .h-roman {
-    font-size: clamp(2rem, 1rem + 3.6vw, 3.4rem);
+  .page-hero h1 {
+    font-size: var(--display-md);
     font-weight: 300;
-    line-height: 1.02;
+    line-height: var(--line-display);
     letter-spacing: -0.03em;
   }
 
-  /*
-   * Set in the interface face, not Newsreader. The serif is reserved for
-   * reviewers' own words, which are genuinely a different voice; borrowing
-   * it for display type spends that distinction on decoration.
-   */
-  .h-serif {
+  /* One line under the title, in the interface face. Newsreader is
+     reviewers' own words and nothing else; spending it on display type
+     spends the one distinction the site has. */
+  .hero-line {
+    font-size: var(--headline-sm);
     font-weight: 300;
-    font-size: clamp(1.5rem, 0.8rem + 2.6vw, 2.5rem);
-    line-height: 1.1;
-    letter-spacing: -0.012em;
-    padding: 0.08em 0.5em 0.18em;
-    border-radius: var(--r-card);
-    background: linear-gradient(
-      180deg,
-      color-mix(in oklch, var(--color-paper-3) 90%, transparent),
-      color-mix(in oklch, var(--color-paper-2) 40%, transparent)
-    );
+    color: var(--m-on-surface-variant);
   }
 
   .proof {
@@ -1186,9 +1175,15 @@ const componentMeaning: Record<string, string> = {
    * the four sections above already answer the question a reader arrived
    * with, and this is for the reader who wants to check the arithmetic.
    */
+  /*
+   * The page's one hero container. Four sections answer the question a
+   * reader arrived with; this is the door for the one who wants to check
+   * the arithmetic, and it is the only 48px corner on the page.
+   */
   .method {
-    border-top: var(--rule-hair) solid var(--color-rule);
-    border-bottom: var(--rule-hair) solid var(--color-rule);
+    padding: var(--space-xs) var(--space-lg);
+    border-radius: var(--shape-xxl);
+    background: var(--m-surface-container-highest);
   }
 
   .method summary {
@@ -1306,8 +1301,9 @@ const componentMeaning: Record<string, string> = {
     color: var(--color-muted);
   }
 
+  /* Not Newsreader: that face is reviewers' words only. */
   .quoted {
-    font-family: var(--font-quote);
+    color: var(--m-on-surface);
   }
 
   /* ---- the scan record ---- */

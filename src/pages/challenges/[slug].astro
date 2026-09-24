@@ -123,7 +123,8 @@ const quotes = [...problem.evidence]
               or counted.
             </p>
 
-            <div class="lens-grid">
+            <div class="hero-box">
+              <div class="lens-grid">
               {LENSES.map((lens) => (
                 <div style={`--lens:${LENS_HUE[lens]}`}>
                   <LensCard
@@ -136,6 +137,7 @@ const quotes = [...problem.evidence]
                   />
                 </div>
               ))}
+              </div>
             </div>
           </section>
         ) : (
@@ -310,9 +312,21 @@ const quotes = [...problem.evidence]
     color: var(--color-muted);
   }
 
+  /*
+   * The page's one hero container, and the only 48px corner on it. Four
+   * lens cards inside a brighter surface: the payoff of the whole site,
+   * and shape, tone and space all pointing at it.
+   */
+  .hero-box {
+    padding: var(--space-lg);
+    border-radius: var(--shape-xxl);
+    background: var(--m-surface-container-highest);
+  }
+
   .lens-grid {
     display: grid;
     gap: var(--space-md);
+    align-items: stretch;
   }
 
   /* The hue wrapper stretches to the row; the card has to stretch with it,

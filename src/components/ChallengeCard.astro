@@ -100,9 +100,11 @@ const quote = [...problem.evidence].sort((a, b) => a.quote.length - b.quote.leng
     display: grid;
     grid-template-rows: auto 1fr;
     overflow: hidden;
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--r-card);
-    background: var(--color-paper-2);
+    border-radius: var(--shape-lg);
+    /* The default card's tone. No border: the step up from the page is
+       what says "this is a group", and a line around it as well is the
+       old way of saying it twice. */
+    background: var(--m-surface-container);
   }
 
   /*
@@ -114,8 +116,7 @@ const quote = [...problem.evidence].sort((a, b) => a.quote.length - b.quote.leng
     display: grid;
     place-items: center;
     padding: var(--space-2xs) var(--space-sm);
-    background: var(--cat-tint);
-    border-bottom: var(--rule-hair) solid var(--cat-edge);
+    background: color-mix(in oklab, var(--cat) 10%, var(--m-surface-container));
   }
 
   /*
@@ -213,15 +214,16 @@ const quote = [...problem.evidence].sort((a, b) => a.quote.length - b.quote.leng
   }
 
   @media (prefers-reduced-motion: no-preference) {
+    /* Spatial on the lift, effects on the tone. Never the other way. */
     .card {
       transition:
-        translate var(--dur-micro) var(--ease-out),
-        border-color var(--dur-micro) var(--ease-out);
+        translate var(--dur-spatial-fast) var(--spatial-fast),
+        background-color var(--dur-effects-fast) var(--effects-fast);
     }
 
     .card:hover {
       translate: 0 -2px;
-      border-color: var(--cat-edge);
+      background: var(--m-surface-container-high);
     }
   }
 </style>

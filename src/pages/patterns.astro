@@ -53,8 +53,8 @@ const written = getPatternLenses();
     {
       patterns.length > 0 ? (
         <div class="stack bleed">
-          {patterns.map((pattern) => (
-            <section class="block" aria-label={pattern.category}>
+          {patterns.map((pattern, i) => (
+            <section class="block" aria-label={pattern.category} data-first={i === 0 ? '' : undefined}>
               <PatternCard pattern={pattern} trackedApps={tracked} />
 
               {written[pattern.category] && (
@@ -176,6 +176,16 @@ const written = getPatternLenses();
   .block {
     display: grid;
     gap: var(--space-lg);
+  }
+
+  /*
+   * The page's one hero container, and its only 48px corner: the pattern
+   * that reaches the most apps. Breaking from the shape the other cards
+   * share is what makes it read as the one to look at.
+   */
+  .block[data-first] :global(.pattern) {
+    border-radius: var(--shape-xxl);
+    background: var(--m-surface-container-highest);
   }
 
   .lens-grid {

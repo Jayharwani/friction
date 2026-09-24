@@ -74,7 +74,8 @@ const families = FAMILIES.map((family) => ({
   </div>
 
   <div class="shell" data-challenges>
-    <div class="lenses bleed" role="group" aria-label="Read through a lens">
+    <div class="bar bleed">
+    <div class="lenses" role="group" aria-label="Read through a lens">
       <button type="button" class="lens is-all" data-lens-chip="all" aria-pressed="true">
         <span class="l-title">Everything</span>
         <span class="l-note">All {problems.length} challenges, in their own words</span>
@@ -99,11 +100,9 @@ const families = FAMILIES.map((family) => ({
       }
     </div>
 
-    <div class="bleed">
-      <p class="why" data-lens-why aria-live="polite">Every challenge, most-reported first.</p>
-    </div>
+    <p class="why" data-lens-why aria-live="polite">Every challenge, most-reported first.</p>
 
-    <div class="controls bleed" role="group" aria-label="Narrow the set">
+    <div class="controls" role="group" aria-label="Narrow the set">
       <p class="field">
         <label for="f-app">App</label>
         <select id="f-app" data-filter="app">
@@ -127,6 +126,7 @@ const families = FAMILIES.map((family) => ({
       </p>
 
       <p class="count num" data-challenges-count aria-live="polite">{problems.length} challenges</p>
+    </div>
     </div>
 
     <section class="grid bleed" data-challenges-grid aria-label="Challenges">
@@ -192,10 +192,20 @@ const families = FAMILIES.map((family) => ({
    * only one a first-time reader has to understand, so it is sized like a
    * choice rather than tucked in beside two selects.
    */
+  /*
+   * The page's one hero container, and its only 48px corner. This is what
+   * /challenges is for: everything else on the page is a result.
+   */
+  .bar {
+    margin-top: var(--space-xl);
+    padding: var(--space-lg);
+    border-radius: var(--shape-xxl);
+    background: var(--m-surface-container-high);
+  }
+
   .lenses {
     display: grid;
     gap: var(--space-xs);
-    padding-top: var(--space-xl);
     /* 10rem, not 11: at 390px eleven put the five buttons in five rows and
        pushed the first card most of a screen down. Ten fits two across. */
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
@@ -275,6 +285,7 @@ const families = FAMILIES.map((family) => ({
 
   .why {
     padding-top: var(--space-md);
+    margin: 0;
     font-size: var(--text-sm);
     color: var(--color-muted);
     max-width: 46em;
@@ -287,7 +298,7 @@ const families = FAMILIES.map((family) => ({
     flex-wrap: wrap;
     align-items: end;
     gap: var(--space-md) var(--space-lg);
-    padding-block: var(--space-lg);
+    padding-top: var(--space-lg);
   }
 
   .field {
@@ -323,6 +334,7 @@ const families = FAMILIES.map((family) => ({
   }
 
   .grid {
+    margin-top: var(--space-xl);
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
     gap: var(--space-md);

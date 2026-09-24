@@ -66,10 +66,9 @@ const FOR: Record<Lens, string> = {
     display: grid;
     align-content: start;
     gap: var(--space-sm);
-    padding: var(--space-lg);
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--r-card);
-    background: var(--color-paper-2);
+    padding: var(--space-xl);
+    border-radius: var(--shape-xl);
+    background: var(--m-surface-container-high);
   }
 
   header {
@@ -141,10 +140,16 @@ const FOR: Record<Lens, string> = {
    * The honest half. On its own, above a rule, at full size — not a
    * footnote and not smaller than the proposition it qualifies.
    */
+  /*
+   * The honest half, on the brightest surface in the card. Brightest means
+   * most important, and on a card whose job is to propose something, the
+   * reason it might not work is the most important thing on it.
+   */
   .limit {
-    margin-top: var(--space-2xs);
-    padding-top: var(--space-sm);
-    border-top: var(--rule-hair) solid var(--color-rule);
+    margin-top: var(--space-xs);
+    padding: var(--space-md);
+    border-radius: var(--shape-lg);
+    background: var(--m-surface-container-highest);
     font-size: var(--text-sm);
     line-height: 1.45;
     color: var(--color-muted);
@@ -153,22 +158,23 @@ const FOR: Record<Lens, string> = {
 
   .l-label {
     display: block;
-    margin-bottom: var(--space-3xs);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    color: var(--lens);
+    margin-bottom: var(--space-2xs);
+    font-size: var(--label-lg);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+    color: var(--m-tertiary);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .lens {
       transition:
-        translate var(--dur-micro) var(--ease-out),
-        border-color var(--dur-micro) var(--ease-out);
+        translate var(--dur-spatial-fast) var(--spatial-fast),
+        background-color var(--dur-effects-fast) var(--effects-fast);
     }
 
     .lens:hover {
       translate: 0 -2px;
-      border-color: color-mix(in oklab, var(--lens) 45%, var(--color-rule));
+      background: var(--m-surface-container-highest);
     }
   }
 </style>

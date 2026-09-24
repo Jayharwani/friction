@@ -129,10 +129,11 @@ const iconSize = compact ? 34 : 56;
    */
   .pattern {
     contain: layout style paint;
-    padding: var(--space-lg);
-    border: var(--rule-hair) solid var(--cat-edge);
-    border-radius: var(--r-card);
-    background: var(--cat-tint);
+    padding: var(--space-xl);
+    border-radius: var(--shape-xl);
+    /* The category's colour lives in its illustration, not in a wash behind
+       the whole card. The tone is what groups it. */
+    background: var(--m-surface-container);
   }
 
   /* ---- 1. the claim ---- */
