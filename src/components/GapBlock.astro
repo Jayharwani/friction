@@ -159,19 +159,21 @@ const MARKS = {
   .frags {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3xs);
+    gap: var(--space-2xs);
     list-style: none;
     margin: var(--space-sm) 0 0;
     padding: 0;
   }
 
+  /* Assist chips: extracted strings, not controls, and they must not look
+     like controls. Same shape and tone as the ones under a quote. */
   .frags li {
-    padding: var(--space-3xs) var(--space-2xs);
-    font-size: var(--text-xs);
-    line-height: 1.35;
-    border-radius: var(--r-cell);
-    background: var(--cat-tint, var(--color-paper-2));
-    border: var(--rule-hair) solid var(--cat-edge, var(--color-rule));
+    padding: var(--space-3xs) var(--space-xs);
+    font-size: var(--label-md);
+    line-height: var(--line-label);
+    border-radius: var(--shape-full);
+    background: var(--m-surface-container-high);
+    color: var(--m-on-surface-variant);
   }
 
   .none {
@@ -187,31 +189,29 @@ const MARKS = {
   /* ---- the written panel ---- */
 
   /*
-   * Full-strength family colour. This is the one place on the site where a
-   * category colour becomes a background band rather than a tint, and it is
-   * reserved for the one sentence that was written rather than measured.
+   * The brightest of the three panels, because the brightest surface is how
+   * this system says "most important" — and on a block about what is
+   * measured and what is written, the written one is the thing to read.
+   *
+   * It used to be a full-strength category fill. One saturated panel per
+   * pattern was more colour than the rest of the page put together.
    */
   .written {
-    background: var(--cat-solid, var(--color-ink));
-    color: var(--color-paper);
+    background: var(--m-surface-container-highest);
   }
 
-  /* Full paper, not a faded one: at 12px the faded version measured 3.5:1. */
   .written .h,
-  .written .src {
-    color: var(--color-paper);
-  }
-
+  .written .src,
   .written .pm {
-    color: var(--color-paper);
+    color: var(--m-on-surface);
   }
 
   .mark {
     font-weight: 500;
     font-size: var(--text-xs);
-    color: var(--color-paper);
+    color: var(--m-on-surface-variant);
     padding: 1px var(--space-2xs);
-    border: var(--rule-hair) solid color-mix(in oklch, var(--color-paper) 55%, transparent);
+    border: 1px solid var(--m-outline-variant);
     border-radius: var(--r-pill);
     cursor: help;
   }

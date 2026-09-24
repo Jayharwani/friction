@@ -1,21 +1,25 @@
 ---
 /**
- * Home.
+ * Home — three screens, hard stop.
  *
- *   1  the promise, and the way in
- *   2  three challenges
+ *   1  the promise, one button, and one real challenge at full size
+ *   2  how it gets there, in three panels
+ *   3  three challenges, and the same button again
  *
- * Cut back to this in v4 step 2. The wall of voices is gone, and so are the
- * whole-challenge section and the lens explainer that followed it: 774 words
- * of page for a reader who only needed to know what the site is and where to
- * start. Step 7 rebuilds it around a hero card and three short panels.
+ * Screen one is the argument. Rather than describing the product it is the
+ * product, larger than anything else on the site, in the page's only 48px
+ * container on its brightest surface. Everything else on that screen exists
+ * to point at it and at the button beside it.
  *
  * Prose budget: 110 words, counted by `npm run words`.
  */
 import Layout from '../layouts/Layout.astro';
+import Button from '../components/ui/Button.astro';
+import HeroCard from '../components/ui/HeroCard.astro';
 import ChallengeCard from '../components/ui/ChallengeCard.astro';
-import { url } from '../lib/url';
-import { getProblems } from '../lib/data';
+import LensMark from '../components/ui/art/LensMark.astro';
+import { getChallenge, getProblems } from '../lib/data';
+import { LENSES, LENS_HUE, LENS_LABEL } from '../lib/lenses';
 
 const all = getProblems();
 
@@ -23,32 +27,76 @@ const all = getProblems();
 const appsIn = (category: string) =>
   new Set(all.filter((p) => p.category === category).map((p) => p.productSlug)).size;
 
-const featured = [...all].sort((a, b) => b.score - a.score).slice(0, 3);
+/*
+ * The most widely reported challenges that have been written up. Not a
+ * curated favourite — the top of the same order /challenges opens in, so the
+ * homepage cannot quietly show its best work.
+ */
+const ranked = [...all].sort((a, b) => b.score - a.score).filter((p) => getChallenge(p.slug));
+const hero = ranked.slice(0, 3);
+const featured = ranked.slice(3, 6);
+
+/** Ten words each. Three panels, and the whole pipeline is in them. */
+const STEPS = [
+  { head: 'Reviews come in', line: 'Ten thousand a week, from both app stores.' },
+  { head: 'Repeats get grouped', line: 'The same struggle, told by several different people.' },
+  { head: 'Four ways to act', line: 'Build it, start it, study it, write it.' },
+] as const;
 ---
 
 <Layout title="Friction">
   {/* ---------- 1. the promise ---------- */}
   <section class="hero">
     <div class="shell">
-      <div class="bleed">
+      <div class="bleed hero-in">
         <div class="say">
           <h1>Find what to build from what people complain about.</h1>
           <p class="sub">
-            Every week it reads app store reviews and turns the repeated complaints into things
-            you could make.
+            Friction reads app store reviews every week and turns the repeated complaints into
+            things you could make.
           </p>
-          <a class="go" href={url('/challenges')}>See the {all.length} challenges</a>
+          <Button variant="filled" href="/challenges">See the {all.length} challenges</Button>
         </div>
+
+        <HeroCard problems={hero} appsInCategory={appsIn} />
       </div>
     </div>
-
   </section>
 
-  {/* ---------- 2. three of them ---------- */}
+  {/* ---------- 2. how it gets there ---------- */}
+  <section class="shell how" aria-labelledby="how-heading">
+    <div class="bleed">
+      <h2 id="how-heading" class="sr-only">How it works</h2>
+      <ol class="steps">
+        {
+          STEPS.map((step, i) => (
+            <li>
+              <span class="n num" aria-hidden="true">
+                {i + 1}
+              </span>
+              <h3>{step.head}</h3>
+              <p>{step.line}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {/* ---------- 3. three more, and the way in ---------- */}
   <section class="shell section" aria-labelledby="more-heading">
     <header class="head bleed">
       <h2 id="more-heading">Three of them</h2>
-      <a class="more" href={url('/challenges')}>All {all.length} challenges</a>
+      <ul class="lenses" aria-label="The four lenses">
+        {
+          LENSES.map((lens) => (
+            <li style={`--lens:${LENS_HUE[lens]}`}>
+              <LensMark lens={lens} size={20} />
+              <span>{LENS_LABEL[lens]}</span>
+            </li>
+          ))
+        }
+      </ul>
     </header>
 
     <div class="cards bleed">
@@ -58,6 +106,10 @@ const featured = [...all].sort((a, b) => b.score - a.score).slice(0, 3);
         ))
       }
     </div>
+
+    <p class="onward bleed">
+      <Button variant="filled" href="/challenges">See the {all.length} challenges</Button>
+    </p>
   </section>
 </Layout>
 
@@ -65,80 +117,88 @@ const featured = [...all].sort((a, b) => b.score - a.score).slice(0, 3);
   /* ---- 1. the promise ---- */
 
   .hero {
-    position: relative;
-    isolation: isolate;
+    padding-block: var(--space-3xl) var(--space-2xl);
+  }
+
+  .hero-in {
     display: grid;
+    gap: var(--space-2xl);
     align-items: center;
-    min-height: min(82svh, 44rem);
-    overflow: hidden;
-    border-bottom: var(--rule-hair) solid var(--color-rule);
   }
 
-  .hero > .shell {
-    position: relative;
-    z-index: var(--z-raise);
+  @media (min-width: 62rem) {
+    .hero-in {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 27rem);
+      gap: var(--space-3xl);
+    }
   }
 
-  /*
-   * Left, not centred. The wall runs the full width behind it and the scrim
-   * is a one-sided wash, so the headline sits on calm paper while the far
-   * half of the wall stays readable as a wall.
-   */
   .say {
-    padding-block: var(--space-3xl);
     max-width: 30rem;
   }
 
-  @media (max-width: 52rem) {
-    .say {
-      max-width: 34rem;
-    }
-
-    /* Shorter: the phone arc is smaller, and 82svh left a screen of nothing
-       under the button. */
-    .hero {
-      min-height: min(70svh, 34rem);
-    }
-  }
-
   h1 {
-    font-size: clamp(2rem, 1.1rem + 3.4vw, 3.4rem);
+    font-size: var(--display-md);
     font-weight: 300;
-    line-height: 1.02;
+    line-height: var(--line-display);
     letter-spacing: -0.035em;
     text-wrap: balance;
   }
 
   .sub {
-    margin-top: var(--space-md);
-    font-size: var(--text-md);
-    color: var(--color-muted);
+    margin-block: var(--space-md) var(--space-lg);
+    font-size: var(--body-lg);
+    line-height: var(--line-body);
+    color: var(--m-on-surface-variant);
     text-wrap: pretty;
   }
 
-  .go {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--tap);
-    margin-top: var(--space-lg);
-    padding: var(--space-2xs) var(--space-lg);
-    border-radius: var(--r-pill);
-    background: var(--color-accent);
-    color: var(--color-paper);
-    font-weight: 500;
-    text-decoration: none;
+  /* ---- 2. how it gets there ---- */
+
+  .how {
+    padding-block: var(--space-2xl);
   }
 
-  .go:hover {
-    background: color-mix(in oklab, var(--color-accent) 86%, var(--color-ink));
+  .steps {
+    display: grid;
+    gap: var(--space-xl);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   }
 
-  .go:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 3px;
+  .steps li {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2xs);
+    padding: var(--space-lg);
+    border-radius: var(--shape-lg);
+    background: var(--m-surface-container);
   }
 
-  /* ---- 2. three of them ---- */
+  .n {
+    font-size: var(--title-lg);
+    font-weight: var(--weight-emphasis);
+    line-height: 1;
+    color: var(--m-primary);
+  }
+
+  .steps h3 {
+    margin-top: var(--space-2xs);
+    font-size: var(--title-md);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+  }
+
+  .steps p {
+    font-size: var(--body-md);
+    line-height: var(--line-body);
+    color: var(--m-on-surface-variant);
+    text-wrap: pretty;
+  }
+
+  /* ---- 3. three more ---- */
 
   .section {
     padding-block: var(--space-2xl) var(--space-4xl);
@@ -147,24 +207,46 @@ const featured = [...all].sort((a, b) => b.score - a.score).slice(0, 3);
   .head {
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     gap: var(--space-sm) var(--space-lg);
     margin-bottom: var(--space-lg);
   }
 
   .head h2 {
-    font-size: var(--text-lg);
-    font-weight: 600;
+    font-size: var(--headline-sm);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
   }
 
-  .more {
-    font-size: var(--text-sm);
+  /*
+   * The four lenses named once, as marks beside the heading, so the idea is
+   * on the page without a whole screen spent explaining it.
+   */
+  .lenses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm) var(--space-md);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .lenses li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    font-size: var(--label-lg);
+    color: var(--m-on-surface-variant);
   }
 
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
     gap: var(--space-md);
+  }
+
+  .onward {
+    margin-top: var(--space-2xl);
   }
 </style>

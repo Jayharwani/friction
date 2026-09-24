@@ -1,0 +1,112 @@
+---
+/**
+ * The homepage's hero: one real challenge card, larger than any other card
+ * on the site, rotating through three of them.
+ *
+ * It is the product doing its job rather than a description of it, which is
+ * the only argument a homepage can make in five seconds. Everything else on
+ * that screen — size, tone, shape, space — points at this.
+ *
+ * All three are rendered at build time and two are hidden. The rotation is a
+ * class swap and an opacity crossfade, so nothing is fetched, nothing
+ * reflows, and with no JavaScript the first one simply stays.
+ */
+import type { Problem } from '../../../scripts/validate';
+import ChallengeCard from './ChallengeCard.astro';
+
+interface Props {
+  problems: Problem[];
+  appsInCategory: (category: string) => number;
+}
+
+const { problems, appsInCategory } = Astro.props;
+---
+
+<div class="hero-card" data-rotator>
+  {
+    problems.map((problem, i) => (
+      <div class="slot" data-slot data-on={i === 0 ? '' : undefined} aria-hidden={i === 0 ? undefined : 'true'}>
+        <ChallengeCard problem={problem} appsInCategory={appsInCategory(problem.category)} />
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  /*
+   * The page's one 48px corner and its brightest surface. A card inside a
+   * container that is itself a card is normally a mistake; here it is the
+   * point, because the inner one is the thing being shown off.
+   */
+  .hero-card {
+    position: relative;
+    display: grid;
+    padding: var(--space-sm);
+    border-radius: var(--shape-xxl);
+    background: var(--m-surface-container-highest);
+  }
+
+  /* Stacked, so the three occupy one box and the tallest sets its height. */
+  .slot {
+    grid-area: 1 / 1;
+    display: grid;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .slot[data-on] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /*
+   * The card is not scaled — the type inside it grows, so nothing is
+   * blurred and nothing clips. Roughly 1.4× on the title, which is what a
+   * reader measures "bigger" by.
+   */
+  .hero-card :global(.card) {
+    padding-bottom: var(--space-xs);
+  }
+
+  .hero-card :global(.body) {
+    padding: var(--space-lg);
+    gap: var(--space-sm);
+  }
+
+  .hero-card :global(h3) {
+    font-size: var(--headline-md);
+    font-weight: 300;
+    line-height: var(--line-headline);
+    letter-spacing: -0.02em;
+  }
+
+  .hero-card :global(.quote) {
+    font-size: var(--title-md);
+  }
+
+  .hero-card :global(.app),
+  .hero-card :global(.reach) {
+    font-size: var(--label-lg);
+  }
+
+  .hero-card :global(.scene-band) {
+    padding-block: var(--space-md);
+  }
+
+  .hero-card :global(.scene) {
+    max-width: 20rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* A crossfade is a fade, so it takes an effects curve. */
+    .slot {
+      transition: opacity var(--dur-effects-slow) var(--effects-slow);
+    }
+  }
+</style>
+
+<script>
+  import { initRotator } from '../../scripts/rotator';
+
+  document.addEventListener('astro:page-load', initRotator);
+</script>

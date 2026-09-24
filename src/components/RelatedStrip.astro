@@ -107,8 +107,6 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
     display: grid;
     gap: var(--space-md);
     margin-top: var(--space-2xl);
-    padding-top: var(--space-lg);
-    border-top: var(--rule-hair) solid var(--color-rule);
   }
 
   @media (min-width: 40rem) {
@@ -129,7 +127,7 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
 
   .seq a:hover,
   .seq a:focus-visible {
-    background: color-mix(in oklch, var(--color-ink) 5%, transparent);
+    background: var(--m-surface-container-low);
   }
 
   .seq .next {
@@ -147,10 +145,13 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
     line-height: 1.3;
   }
 
+  /* A secondary card: its own tone, one step down from the page's own
+     cards, and no line around it. */
   .related {
     margin-top: var(--space-2xl);
-    padding-top: var(--space-lg);
-    border-top: var(--rule-hair) solid var(--color-rule);
+    padding: var(--space-lg);
+    border-radius: var(--shape-lg);
+    background: var(--m-surface-container-low);
   }
 
   h2 {
@@ -170,13 +171,13 @@ const related = [...sameApp, ...sameCategory].slice(0, limit).map((p) => ({
     display: flex;
     align-items: baseline;
     gap: var(--space-lg);
-    padding: var(--space-sm) var(--space-sm) var(--space-sm) 0;
-    border-top: var(--rule-hair) solid var(--color-rule);
+    padding: var(--space-sm);
+    border-radius: var(--shape-sm);
   }
 
   li:has(a:hover),
   li:has(a:focus-visible) {
-    background: color-mix(in oklch, var(--color-ink) 5%, transparent);
+    background: var(--m-surface-container-high);
   }
 
   .body {

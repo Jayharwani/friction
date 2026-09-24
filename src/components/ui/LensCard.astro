@@ -41,7 +41,7 @@ const FOR: Record<Lens, string> = {
 
 <article class="lens written-text" data-lens={lens}>
   <header>
-    <LensMark lens={lens} size={30} />
+    <LensMark lens={lens} size={40} />
     <div>
       <h3>{TITLE[lens]}</h3>
       <p class="who">{FOR[lens]}</p>
@@ -79,9 +79,10 @@ const FOR: Record<Lens, string> = {
   }
 
   h3 {
-    font-size: var(--text-md);
-    font-weight: 600;
-    line-height: 1.1;
+    font-size: var(--title-md);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+    line-height: var(--line-title);
   }
 
   .who {
@@ -104,9 +105,9 @@ const FOR: Record<Lens, string> = {
   }
 
   .prop {
-    font-size: var(--text-md);
+    font-size: var(--title-md);
     font-weight: 500;
-    line-height: 1.35;
+    line-height: var(--line-title);
     text-wrap: pretty;
   }
 
@@ -122,8 +123,8 @@ const FOR: Record<Lens, string> = {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: var(--space-xs);
-    font-size: var(--text-sm);
-    line-height: 1.4;
+    font-size: var(--body-md);
+    line-height: var(--line-body);
     color: var(--color-muted);
   }
 

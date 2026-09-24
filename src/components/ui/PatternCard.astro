@@ -35,6 +35,7 @@ interface Props {
 const { pattern, trackedApps, compact = false } = Astro.props;
 
 const family = familyOf(pattern.category);
+const reachPct = Math.round(pattern.reach * 100);
 
 const apps = pattern.apps.map((slug) => ({
   slug,
@@ -81,6 +82,10 @@ const iconSize = compact ? 34 : 56;
       {overflow > 0 && <li class="more num" aria-hidden="true">+{overflow}</li>}
     </ul>
   </div>
+
+  <p class="bar" role="img" aria-label={`${reachPct}% of tracked apps`}>
+    <span class="fill" style={`--w:${reachPct}%`}></span>
+  </p>
 
   <dl class="figs num">
     <div>
@@ -185,9 +190,9 @@ const iconSize = compact ? 34 : 56;
   }
 
   .figure {
-    font-size: clamp(3rem, 1.4rem + 5vw, 4.5rem);
-    font-weight: 600;
-    line-height: 0.85;
+    font-size: var(--display-sm);
+    font-weight: var(--weight-emphasis);
+    line-height: 0.9;
     letter-spacing: -0.04em;
     color: var(--cat);
   }
@@ -225,7 +230,7 @@ const iconSize = compact ? 34 : 56;
     margin-left: -0.3em;
     font-size: var(--icon-size);
     line-height: 0;
-    border: 3px solid var(--cat-tint);
+    border: 3px solid var(--m-surface-container);
     border-radius: var(--r-icon);
   }
 
@@ -254,10 +259,45 @@ const iconSize = compact ? 34 : 56;
     font-size: var(--text-sm);
     font-weight: 600;
     line-height: 1;
-    border: 3px solid var(--cat-tint);
+    border: 3px solid var(--m-surface-container);
     border-radius: var(--r-icon);
     background: color-mix(in oklch, var(--cat) 24%, var(--color-paper));
     color: var(--color-ink);
+  }
+
+  /*
+   * Twelve pixels, filled, and it grows from its own left edge on a spatial
+   * curve — a width transition is a layout pass per frame, a scaleX is one
+   * composited property. The figure above already says the number, so the
+   * bar carries proportion and nothing else.
+   */
+  .bar {
+    height: 12px;
+    margin: var(--space-lg) 0 0;
+    border-radius: var(--shape-full);
+    background: var(--m-surface-container-highest);
+    overflow: hidden;
+  }
+
+  .fill {
+    display: block;
+    height: 100%;
+    width: var(--w);
+    border-radius: var(--shape-full);
+    background: var(--m-primary);
+    transform-origin: left;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-revealed] .fill {
+      animation: bar-grow var(--dur-spatial-slow) var(--spatial-slow) backwards;
+    }
+  }
+
+  @keyframes bar-grow {
+    from {
+      scale: 0 1;
+    }
   }
 
   .figs {
