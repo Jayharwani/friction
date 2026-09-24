@@ -15,14 +15,14 @@
  * lens on the index swaps which one shows, so a founder reads the grid as
  * companies and a writer reads the same grid as stories, with no refetch.
  */
-import type { Problem } from '../../scripts/validate';
-import { url } from '../lib/url';
-import { getChallenge, getProduct, surfaceLabel } from '../lib/data';
-import { familyOf } from '../lib/categories';
-import { LENSES, LENS_LABEL, LENS_HUE, lensFit } from '../lib/lenses';
+import type { Problem } from '../../../scripts/validate';
+import { url } from '../../lib/url';
+import { getChallenge, getProduct, surfaceLabel } from '../../lib/data';
+import { familyOf } from '../../lib/categories';
+import { LENSES, LENS_LABEL, LENS_HUE, lensFit } from '../../lib/lenses';
 import CategoryScene from './art/CategoryScene.astro';
 import LensMark from './art/LensMark.astro';
-import AppIcon from './AppIcon.astro';
+import AppIcon from './AppIdentity.astro';
 
 interface Props {
   problem: Problem;

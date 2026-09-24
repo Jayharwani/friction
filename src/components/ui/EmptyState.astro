@@ -1,0 +1,46 @@
+---
+/**
+ * A drawn mark, one line, and — where there is something to do — one tonal
+ * button. Six of these replace six grey sentences.
+ *
+ * On surface-container-low rather than the page, because an empty state is
+ * still a group: it occupies the place its content would have, and a tone is
+ * what says so.
+ */
+import EmptyMark from './art/EmptyMark.astro';
+
+interface Props {
+  kind: 'none' | 'filter' | 'single' | 'quiet' | 'platform' | 'search';
+  line: string;
+  class?: string;
+}
+
+const { kind, line, class: klass } = Astro.props;
+---
+
+<div class:list={['empty', klass]}>
+  <EmptyMark kind={kind} size={96} />
+  <p>{line}</p>
+  <slot />
+</div>
+
+<style>
+  .empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-md);
+    padding-block: var(--space-3xl);
+    border-radius: var(--shape-xl);
+    background: var(--m-surface-container-low);
+    text-align: center;
+  }
+
+  p {
+    margin: 0;
+    max-width: 28rem;
+    font-size: var(--body-lg);
+    line-height: var(--line-body);
+    color: var(--m-on-surface-variant);
+    text-wrap: pretty;
+  }
+</style>

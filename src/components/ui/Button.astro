@@ -1,0 +1,192 @@
+---
+/**
+ * Three variants, and a rule about the first one.
+ *
+ *   filled  the primary action. One per screen, and never in a crowded row.
+ *   tonal   the second action on a screen that needs two.
+ *   text    everything else.
+ *
+ * The `:active` scale is the part that matters. A button that does not move
+ * under the finger reads as a picture of a button; 3% on a spring curve is
+ * the whole difference, and it is the one place a spatial curve belongs on
+ * something this small.
+ *
+ * The `is-*` classes exist so the preview page can show all eight states at
+ * once. They mirror the real pseudo-classes and do nothing in production.
+ */
+import { url } from '../../lib/url';
+
+interface Props {
+  variant?: 'filled' | 'tonal' | 'text';
+  href?: string;
+  /** Pass an absolute or external URL through untouched. */
+  external?: boolean;
+  type?: 'button' | 'submit';
+  disabled?: boolean;
+  /** 'loading' | 'error' | 'success' — shown in place of the label's tail. */
+  state?: 'idle' | 'loading' | 'error' | 'success';
+  class?: string;
+  id?: string;
+}
+
+const {
+  variant = 'filled',
+  href,
+  external = false,
+  type = 'button',
+  disabled = false,
+  state = 'idle',
+  class: klass,
+  id,
+} = Astro.props;
+
+const Tag = href ? 'a' : 'button';
+const to = href && !external ? url(href) : href;
+---
+
+<Tag
+  class:list={['btn', `v-${variant}`, klass]}
+  id={id}
+  href={to}
+  type={href ? undefined : type}
+  data-state={state === 'idle' ? undefined : state}
+  aria-disabled={disabled && href ? 'true' : undefined}
+  aria-busy={state === 'loading' ? 'true' : undefined}
+  disabled={!href && disabled ? true : undefined}
+>
+  {state === 'loading' && <span class="spin" aria-hidden="true"></span>}
+  <span class="label"><slot /></span>
+</Tag>
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    /* 48px, everywhere, on every pointer. Material's floor is a floor. */
+    min-height: 48px;
+    padding-inline: var(--space-lg);
+    border: 0;
+    border-radius: var(--shape-full);
+    font: inherit;
+    font-size: var(--label-lg);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+    line-height: var(--line-label);
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .btn:focus-visible,
+  .btn.is-focus {
+    outline: 3px solid var(--m-primary);
+    outline-offset: 2px;
+  }
+
+  /* ---- filled ---- */
+
+  .v-filled {
+    background: var(--m-primary);
+    color: var(--m-on-primary);
+  }
+
+  .v-filled:hover,
+  .v-filled.is-hover {
+    background: color-mix(in oklab, var(--m-primary) 88%, var(--m-on-primary));
+  }
+
+  /* ---- tonal ---- */
+
+  .v-tonal {
+    background: var(--m-secondary-container);
+    color: var(--m-on-secondary-container);
+  }
+
+  .v-tonal:hover,
+  .v-tonal.is-hover {
+    background: color-mix(in oklab, var(--m-secondary-container) 88%, var(--m-on-secondary-container));
+  }
+
+  /* ---- text ---- */
+
+  .v-text {
+    padding-inline: var(--space-sm);
+    background: none;
+    color: var(--m-primary);
+  }
+
+  .v-text:hover .label,
+  .v-text.is-hover .label {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  /* ---- the states that are not variants ---- */
+
+  .btn:disabled,
+  .btn[aria-disabled='true'],
+  .btn.is-disabled {
+    background: color-mix(in oklab, var(--m-on-surface) 12%, transparent);
+    box-shadow: none;
+    color: color-mix(in oklab, var(--m-on-surface) 38%, transparent);
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* A text button has no fill in any state; it would stop being one. */
+  .btn:not(.v-text)[data-state='error'] {
+    background: var(--m-tertiary-container);
+    color: var(--m-on-tertiary-container);
+  }
+
+  .btn:not(.v-text)[data-state='success'] {
+    background: var(--m-primary-container);
+    color: var(--m-on-primary-container);
+  }
+
+  .v-text[data-state='error'] {
+    color: var(--m-tertiary);
+  }
+
+  .v-text:disabled,
+  .v-text[aria-disabled='true'],
+  .v-text.is-disabled {
+    background: none;
+  }
+
+  .spin {
+    width: 1em;
+    height: 1em;
+    flex: none;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn {
+      transition:
+        background-color var(--dur-effects-fast) var(--effects-fast),
+        color var(--dur-effects-fast) var(--effects-fast),
+        scale var(--dur-spatial-fast) var(--spatial-fast);
+    }
+
+    /* The physical half. Spatial, because it is a size change. */
+    .btn:active,
+    .btn.is-active {
+      scale: 0.97;
+    }
+
+    .spin {
+      animation: btn-spin 900ms linear infinite;
+    }
+  }
+
+  @keyframes btn-spin {
+    to {
+      rotate: 1turn;
+    }
+  }
+</style>

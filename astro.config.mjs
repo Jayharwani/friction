@@ -37,7 +37,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  // /og is the source board for the social card, not a destination, and the
-  // /problems tree is now 25 meta-refresh pages pointing at /challenges.
-  integrations: [sitemap({ filter: (page) => !/\/(og|art-sheet|problems)\//.test(page) })],
+  // /og is the source board for the social card, /ui is the component sheet,
+  // and the /problems tree is 25 meta-refresh pages pointing at /challenges.
+  integrations: [sitemap({ filter: (page) => !/\/(og|art-sheet|ui|problems)\//.test(page) })],
 });

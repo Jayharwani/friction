@@ -1,0 +1,138 @@
+---
+/**
+ * A segmented button group, with the selection sliding between segments.
+ *
+ * The slide is the whole reason to use this rather than four chips. A fill
+ * that moves from where it was to where it is going tells you the control is
+ * one choice among a set; four chips that light up independently do not, and
+ * a reader has to work that out from the behaviour instead of the shape.
+ *
+ * It is a real radio group underneath — `role="radiogroup"` with real
+ * `<input type="radio">` — so arrow keys move the selection and a screen
+ * reader announces "one of five". The fill is one absolutely positioned
+ * element whose transform the script sets; nothing else moves.
+ */
+interface Segment {
+  value: string;
+  label: string;
+  /** Set after the label, in the muted tone. */
+  count?: number;
+}
+
+interface Props {
+  name: string;
+  label: string;
+  segments: Segment[];
+  value?: string;
+  class?: string;
+}
+
+const { name, label, segments, value, class: klass } = Astro.props;
+const selected = value ?? segments[0]?.value;
+---
+
+<div class:list={['seg', klass]} role="radiogroup" aria-label={label} data-segmented>
+  <span class="fill" aria-hidden="true" data-seg-fill></span>
+
+  {
+    segments.map((s) => (
+      <label class="opt" data-seg-opt={s.value}>
+        <input
+          type="radio"
+          name={name}
+          value={s.value}
+          checked={s.value === selected}
+          class="sr-only"
+        />
+        <span class="opt-label">
+          {s.label}
+          {s.count !== undefined && <span class="opt-n num"> {s.count}</span>}
+        </span>
+      </label>
+    ))
+  }
+</div>
+
+<style>
+  .seg {
+    position: relative;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: var(--space-3xs);
+    padding: var(--space-3xs);
+    border-radius: var(--shape-full);
+    background: var(--m-surface-container-high);
+    isolation: isolate;
+  }
+
+  /* The one thing that moves. Sized and placed by the script, which reads
+     the selected segment's own box rather than assuming equal widths. */
+  .fill {
+    position: absolute;
+    z-index: 0;
+    top: var(--space-3xs);
+    bottom: var(--space-3xs);
+    left: 0;
+    width: var(--seg-w, 0);
+    translate: var(--seg-x, 0) 0;
+    border-radius: var(--shape-full);
+    background: var(--m-primary-container);
+  }
+
+  .opt {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding-inline: var(--space-sm);
+    border-radius: var(--shape-full);
+    font-size: var(--label-lg);
+    line-height: var(--line-label);
+    color: var(--m-on-surface-variant);
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .opt:hover {
+    color: var(--m-on-surface);
+  }
+
+  .opt:has(input:checked) {
+    color: var(--m-on-primary-container);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+  }
+
+  .opt:has(input:focus-visible) {
+    outline: 3px solid var(--m-primary);
+    outline-offset: 2px;
+  }
+
+  .opt-n {
+    color: inherit;
+    opacity: 0.75;
+    font-weight: 400;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Spatial, and it overshoots: the fill is changing position and size. */
+    .fill {
+      transition:
+        translate var(--dur-spatial-default) var(--spatial-default),
+        width var(--dur-spatial-default) var(--spatial-default);
+    }
+
+    .opt {
+      transition: color var(--dur-effects-fast) var(--effects-fast);
+    }
+  }
+</style>
+
+<script>
+  import { initSegmented } from '../../scripts/segmented';
+
+  document.addEventListener('astro:page-load', initSegmented);
+</script>

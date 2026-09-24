@@ -1,0 +1,141 @@
+---
+/**
+ * Three kinds of chip, one shape.
+ *
+ *   filter  a real control. Selected fills with secondary-container and
+ *           grows a check that slides in.
+ *   assist  a label on a quote's signals. Not interactive, and it must not
+ *           look interactive — the dotted underline these replaced read as
+ *           a broken link every time.
+ *   badge   the "written" mark. Tertiary container, because what it says is
+ *           "this one is different from everything else on the page".
+ */
+interface Props {
+  kind?: 'filter' | 'assist' | 'badge';
+  selected?: boolean;
+  /** Filter chips only: what the control is for. */
+  value?: string;
+  title?: string;
+  class?: string;
+}
+
+const { kind = 'assist', selected = false, value, title, class: klass } = Astro.props;
+const cls = ['chip', `k-${kind}`, klass].filter(Boolean).join(' ');
+---
+
+{
+  kind === 'filter' ? (
+    <button
+      class={cls}
+      type="button"
+      aria-pressed={selected ? "true" : "false"}
+      data-chip={value}
+      title={title}
+    >
+      <span class="tick" aria-hidden="true" />
+      <slot />
+    </button>
+  ) : (
+    <span class={cls} data-chip={value} title={title}>
+      <slot />
+    </span>
+  )
+}
+
+<style>
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    border-radius: var(--shape-full);
+    font: inherit;
+    font-size: var(--label-lg);
+    line-height: var(--line-label);
+    white-space: nowrap;
+  }
+
+  /* ---- filter: a real control, at a real target size ---- */
+
+  .k-filter {
+    min-height: 32px;
+    padding-inline: var(--space-sm);
+    border: 1px solid var(--m-outline-variant);
+    background: var(--m-surface-container-high);
+    color: var(--m-on-surface);
+    cursor: pointer;
+  }
+
+  .k-filter:hover {
+    background: var(--m-surface-container-highest);
+  }
+
+  .k-filter:focus-visible {
+    outline: 3px solid var(--m-primary);
+    outline-offset: 2px;
+  }
+
+  .k-filter[aria-pressed='true'] {
+    background: var(--m-secondary-container);
+    color: var(--m-on-secondary-container);
+    border-color: transparent;
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+  }
+
+  /* A check that is not there until it is, and then slides rather than
+     appearing — the one moment of movement a chip gets. */
+  .tick {
+    width: 0;
+    height: 12px;
+    overflow: hidden;
+    opacity: 0;
+    background: currentColor;
+    /* A tick, drawn as a mask, so it takes the chip's own colour. */
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1.5 6.5l3 3 6-6' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+
+  .k-filter[aria-pressed='true'] .tick {
+    width: 12px;
+    opacity: 1;
+    margin-right: var(--space-3xs);
+  }
+
+  /* ---- assist: a label, and it must not look like a control ---- */
+
+  .k-assist {
+    padding: var(--space-3xs) var(--space-xs);
+    background: var(--m-surface-container-high);
+    color: var(--m-on-surface-variant);
+    font-size: var(--label-md);
+  }
+
+  /* ---- badge: the written mark ---- */
+
+  .k-badge {
+    padding: var(--space-3xs) var(--space-xs);
+    background: var(--m-tertiary-container);
+    color: var(--m-on-tertiary-container);
+    font-size: var(--label-md);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+    cursor: help;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .k-filter {
+      transition:
+        background-color var(--dur-effects-fast) var(--effects-fast),
+        border-color var(--dur-effects-fast) var(--effects-fast);
+    }
+
+    /* Width is a size change, so it takes a spatial curve; opacity is a
+       fade, so it takes an effects one. Never the same curve for both. */
+    .tick {
+      transition:
+        width var(--dur-spatial-fast) var(--spatial-fast),
+        margin-right var(--dur-spatial-fast) var(--spatial-fast),
+        opacity var(--dur-effects-fast) var(--effects-fast);
+    }
+  }
+</style>

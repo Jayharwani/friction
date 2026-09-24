@@ -1,0 +1,131 @@
+---
+/**
+ * The one disclosure pattern on the site.
+ *
+ * Native <details>, so it is keyboard-operable with no JavaScript and a
+ * screen reader announces its state. The height interpolation is the one
+ * property in this codebase that is animated and is neither transform nor
+ * opacity, because nothing else can express "open".
+ */
+interface Props {
+  summary: string;
+  id?: string;
+  open?: boolean;
+  /** 'hero' gives it the page's 48px corner and the brightest surface. */
+  tone?: 'default' | 'hero';
+  class?: string;
+}
+
+const { summary, id, open = false, tone = 'default', class: klass } = Astro.props;
+---
+
+<details class:list={['dsc', `t-${tone}`, klass]} open={open}>
+  <summary>
+    <span class="sum" id={id}>{summary}</span>
+  </summary>
+  <div class="body">
+    <slot />
+  </div>
+</details>
+
+<style>
+  .dsc {
+    border-radius: var(--shape-lg);
+    background: var(--m-surface-container-low);
+  }
+
+  .t-hero {
+    border-radius: var(--shape-xxl);
+    background: var(--m-surface-container-highest);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-height: 48px;
+    padding: var(--space-sm) var(--space-lg);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:focus-visible {
+    outline: 3px solid var(--m-primary);
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+
+  .sum {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--title-md);
+    font-weight: 500;
+  }
+
+  /* The caret, drawn so it can rotate. */
+  .sum::before {
+    content: '';
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border-right: 1.5px solid var(--m-on-surface-variant);
+    border-bottom: 1.5px solid var(--m-on-surface-variant);
+    rotate: -45deg;
+    translate: 0 -1px;
+  }
+
+  .dsc[open] .sum::before {
+    rotate: 45deg;
+    translate: 0 -2px;
+    border-color: var(--m-primary);
+  }
+
+  summary:hover .sum,
+  .dsc[open] .sum {
+    color: var(--m-primary);
+  }
+
+  .body {
+    padding: 0 var(--space-lg) var(--space-lg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .sum::before {
+      transition:
+        rotate var(--dur-spatial-fast) var(--spatial-fast),
+        translate var(--dur-spatial-fast) var(--spatial-fast);
+    }
+
+    .sum {
+      transition: color var(--dur-effects-fast) var(--effects-fast);
+    }
+
+    /*
+     * Chromium-only and behind @supports; everywhere else it opens
+     * instantly, which is a fine outcome for a panel whose job is to be
+     * skippable.
+     */
+    @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
+      .dsc {
+        interpolate-size: allow-keywords;
+      }
+
+      .dsc::details-content {
+        block-size: 0;
+        overflow: hidden;
+        transition:
+          block-size var(--dur-spatial-default) var(--spatial-default),
+          content-visibility var(--dur-spatial-default) allow-discrete;
+      }
+
+      .dsc[open]::details-content {
+        block-size: auto;
+      }
+    }
+  }
+</style>

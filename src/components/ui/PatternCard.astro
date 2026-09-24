@@ -17,13 +17,13 @@
  * for the glyph, the rules and the bar, so the eye sorts patterns by family
  * before it reads a single word.
  */
-import type { Pattern } from '../lib/patterns';
-import { url } from '../lib/url';
-import { getChallenge, getProduct } from '../lib/data';
-import { familyOf, FAMILY_LABEL } from '../lib/categories';
-import GapBlock from './GapBlock.astro';
-import AppIcon from './AppIcon.astro';
-import CategoryGlyph from './CategoryGlyph.astro';
+import type { Pattern } from '../../lib/patterns';
+import { url } from '../../lib/url';
+import { getChallenge, getProduct } from '../../lib/data';
+import { familyOf, FAMILY_LABEL } from '../../lib/categories';
+import GapBlock from '../GapBlock.astro';
+import AppIcon from './AppIdentity.astro';
+import CategoryGlyph from '../CategoryGlyph.astro';
 
 interface Props {
   pattern: Pattern;

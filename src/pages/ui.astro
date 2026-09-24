@@ -1,0 +1,300 @@
+---
+/**
+ * The component sheet.
+ *
+ * Every component in the system, against real data, in every state it has —
+ * built here before it is composed into a page, so that a state nobody
+ * thought about is visible on one screen rather than discovered on a page
+ * where it happens to occur.
+ *
+ * Not in the sitemap and not linked from anywhere. It is a workbench.
+ */
+import Layout from '../layouts/Layout.astro';
+import Button from '../components/ui/Button.astro';
+import Chip from '../components/ui/Chip.astro';
+import Segmented from '../components/ui/Segmented.astro';
+import Disclosure from '../components/ui/Disclosure.astro';
+import EmptyState from '../components/ui/EmptyState.astro';
+import ChallengeCard from '../components/ui/ChallengeCard.astro';
+import LensCard from '../components/ui/LensCard.astro';
+import QuoteBlock from '../components/ui/QuoteBlock.astro';
+import AppIdentity from '../components/ui/AppIdentity.astro';
+import PatternCard from '../components/ui/PatternCard.astro';
+import CategoryScene from '../components/ui/art/CategoryScene.astro';
+import LensMark from '../components/ui/art/LensMark.astro';
+import EmptyMark from '../components/ui/art/EmptyMark.astro';
+import { getChallenge, getGaps, getProblems, getProducts } from '../lib/data';
+import { buildPatterns } from '../lib/patterns';
+import { FAMILIES } from '../lib/categories';
+import { LENSES, LENS_HUE, LENS_LABEL } from '../lib/lenses';
+
+const problems = getProblems();
+const products = getProducts();
+const one = [...problems].sort((a, b) => b.score - a.score).find((p) => getChallenge(p.slug))!;
+const challenge = getChallenge(one.slug)!;
+const pattern = buildPatterns(problems, products.length, getGaps())[0];
+
+const appsIn = (category: string) =>
+  new Set(problems.filter((p) => p.category === category).map((p) => p.productSlug)).size;
+
+const EMPTIES = ['none', 'filter', 'single', 'quiet', 'platform', 'search'] as const;
+const BUTTON_STATES = [
+  ['default', {}],
+  ['hover', { class: 'is-hover' }],
+  ['focus', { class: 'is-focus' }],
+  ['active', { class: 'is-active' }],
+  ['disabled', { disabled: true }],
+  ['loading', { state: 'loading' as const }],
+  ['error', { state: 'error' as const }],
+  ['success', { state: 'success' as const }],
+] as const;
+---
+
+<Layout title="Components" description="The component sheet. Not part of the site.">
+  <div class="shell sheet">
+    <header class="bleed head">
+      <h1>Components</h1>
+      <p>Every component, against real data, in every state it has.</p>
+    </header>
+
+    <section class="bleed">
+      <h2>1 · Top app bar</h2>
+      <p class="note">Above this page, on every page. Active item is a pill, not an underline.</p>
+    </section>
+
+    <section class="bleed">
+      <h2>2 · Buttons — eight states, three variants</h2>
+      <div class="states">
+        {
+          BUTTON_STATES.map(([name, props]) => (
+            <div class="row">
+              <span class="tag">{name}</span>
+              <Button variant="filled" {...props}>
+                See the challenges
+              </Button>
+              <Button variant="tonal" {...props}>
+                Clear the lens
+              </Button>
+              <Button variant="text" {...props}>
+                All patterns
+              </Button>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="bleed">
+      <h2>3 · Chips</h2>
+      <div class="wrapline">
+        <Chip kind="filter" selected>Pricing and billing</Chip>
+        <Chip kind="filter">Crashes and stability</Chip>
+        <Chip kind="assist">said they were leaving</Chip>
+        <Chip kind="assist">about billing</Chip>
+        <Chip kind="badge" title="Written by a model, and dated">written</Chip>
+      </div>
+    </section>
+
+    <section class="bleed">
+      <h2>4 · Segmented button group</h2>
+      <Segmented
+        name="sheet-lens"
+        label="Read through a lens"
+        segments={[
+          { value: 'all', label: 'Everything', count: problems.length },
+          ...LENSES.map((l) => ({ value: l, label: LENS_LABEL[l] })),
+        ]}
+      />
+    </section>
+
+    <section class="bleed">
+      <h2>5 · Challenge card</h2>
+      <div class="grid3">
+        {
+          problems.slice(0, 3).map((p) => (
+            <ChallengeCard problem={p} appsInCategory={appsIn(p.category)} />
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="bleed">
+      <h2>6 · Lens card</h2>
+      <div class="grid4">
+        {
+          LENSES.map((lens) => (
+            <div style={`--lens:${LENS_HUE[lens]}`}>
+              <LensCard
+                lens={lens}
+                proposition={challenge.lenses[lens].proposition}
+                specifics={challenge.lenses[lens].specifics}
+                limitation={challenge.lenses[lens].limitation}
+                writtenBy={challenge.writtenBy}
+                writtenAt={challenge.writtenAt}
+              />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="bleed">
+      <h2>7 · Quote block</h2>
+      <div class="grid2">
+        {one.evidence.slice(0, 2).map((e) => <QuoteBlock evidence={e} />)}
+      </div>
+    </section>
+
+    <section class="bleed">
+      <h2>8 · App identity — and the monogram fallback</h2>
+      <div class="wrapline">
+        {products.slice(0, 6).map((p) => <AppIdentity slug={p.slug} name={p.name} size={48} />)}
+        <AppIdentity slug="not-a-real-app" name="Missing File" size={48} />
+      </div>
+    </section>
+
+    <section class="bleed">
+      <h2>9 · Pattern card</h2>
+      {pattern && <PatternCard pattern={pattern} trackedApps={products.length} />}
+    </section>
+
+    <section class="bleed">
+      <h2>10 · Data table</h2>
+      <p class="note">On /apps, where sixteen comparable records genuinely are a table.</p>
+    </section>
+
+    <section class="bleed">
+      <h2>11 · Disclosure</h2>
+      <Disclosure summary="Full method — for anyone who wants to check the arithmetic">
+        <p>Native details. Keyboard-operable with no JavaScript.</p>
+      </Disclosure>
+    </section>
+
+    <section class="bleed">
+      <h2>12 · Empty states — six</h2>
+      <div class="grid3">
+        {
+          EMPTIES.map((kind) => (
+            <EmptyState kind={kind} line={`The ${kind} state, with one line and a way out.`}>
+              <Button variant="tonal">Clear the filters</Button>
+            </EmptyState>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="bleed">
+      <h2>13 · Command palette</h2>
+      <p class="note">Press ⌘K or Ctrl+K. Native dialog, focus trapped, result count announced.</p>
+    </section>
+
+    <section class="bleed">
+      <h2>14 · Illustration — eight scenes, four lens marks, six empty marks</h2>
+      <div class="scenes">
+        {FAMILIES.map((family) => <CategoryScene family={family} />)}
+      </div>
+      <div class="wrapline marks">
+        {LENSES.map((lens) => <LensMark lens={lens} size={48} labelled />)}
+        {EMPTIES.map((kind) => <EmptyMark kind={kind} size={48} />)}
+      </div>
+    </section>
+
+    <section class="bleed">
+      <h2>15 · Footer</h2>
+      <p class="note">Below this page, on every page.</p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .sheet {
+    padding-block: var(--space-2xl) var(--space-4xl);
+  }
+
+  .head {
+    padding-bottom: var(--space-xl);
+  }
+
+  h1 {
+    font-size: var(--display-sm);
+    font-weight: 300;
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    margin-bottom: var(--space-md);
+    font-size: var(--title-lg);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+  }
+
+  section {
+    margin-top: var(--space-3xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--m-outline-variant);
+  }
+
+  .note,
+  .head p {
+    color: var(--m-on-surface-variant);
+    font-size: var(--body-md);
+  }
+
+  .states {
+    display: grid;
+    gap: var(--space-sm);
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+  }
+
+  .tag {
+    min-width: 6rem;
+    font-size: var(--label-md);
+    color: var(--m-on-surface-variant);
+  }
+
+  .wrapline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .marks {
+    margin-top: var(--space-lg);
+    color: var(--m-on-surface-variant);
+  }
+
+  .grid2,
+  .grid3,
+  .grid4,
+  .scenes {
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .grid2 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  }
+
+  .grid3 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+
+  .grid4 {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  }
+
+  .grid4 > div {
+    display: grid;
+  }
+
+  .scenes {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  }
+</style>
