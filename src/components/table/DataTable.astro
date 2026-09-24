@@ -92,9 +92,17 @@ const {
 </div>
 
 <style>
+  /*
+   * The one table left on the site, and on /apps it is the page's hero
+   * container — the only 48px corner there. A table is what sixteen
+   * comparable records want to be, and this is the page of them.
+   */
   .wrap {
     position: relative;
     margin-top: var(--space-lg);
+    padding: var(--space-xs) var(--space-lg) var(--space-lg);
+    border-radius: var(--shape-xxl);
+    background: var(--m-surface-container-low);
   }
 
   table {

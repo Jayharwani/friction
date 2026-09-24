@@ -49,7 +49,7 @@ const COUNTRY: Record<string, string> = {
         and how badly.
       </p>
 
-      <div class="cols">
+      <div class="cols hero-box">
         <RecordCard
           source="A forum post"
           fields={[
@@ -130,6 +130,14 @@ const COUNTRY: Record<string, string> = {
 
   .lede {
     max-width: var(--measure);
+  }
+
+  /* The page's one hero container: what a store review carries that a
+     forum post does not, which is the whole argument for the site. */
+  .hero-box {
+    padding: var(--space-lg);
+    border-radius: var(--shape-xxl);
+    background: var(--m-surface-container-high);
   }
 
   .cols {
