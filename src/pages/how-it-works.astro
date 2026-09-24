@@ -1,1323 +1,290 @@
 ---
 /**
- * Methodology (spec 6.1). Plain English, not marketing copy.
+ * How it works, on the pattern Google uses for the same job.
  *
- * Every number here is read from the live data or from the scoring module
- * itself, so the page cannot drift out of step with what the site actually did.
+ * A split hero with one animated diagram that replaces the page, a row of
+ * sub-navigation tabs, and four illustrated cards. The arithmetic — the
+ * weights, the calculator, the verdict logic, the twelve-week field, the
+ * scan record and the full methodology prose — is at
+ * /how-it-works/full-method, unchanged, reached by choice.
+ *
+ * The v4 cut got this page to 349 words, which was the right length and the
+ * wrong page: at two illustrations it was seven times less visual per word
+ * than the reference. The fix was never fewer words. It was pictures.
+ *
+ * Every card is Google's anatomy: illustration at roughly 60% of the card,
+ * a small tracked label, a four-to-six-word headline, three lines of body.
  */
 import Layout from '../layouts/Layout.astro';
 import PageTexture from '../components/PageTexture.astro';
 import BrandMark from '../components/BrandMark.astro';
-import ScoreCalculator from '../components/ScoreCalculator.astro';
-import Flow from '../components/charts/Flow.astro';
-import Histogram from '../components/charts/Histogram.astro';
-import Funnel from '../components/charts/Funnel.astro';
-import SpecBento from '../components/table/SpecBento.astro';
+import PipelineDiagram from '../components/ui/PipelineDiagram.astro';
+import SubNav from '../components/ui/SubNav.astro';
+import ExplainerScene, { type Explainer } from '../components/ui/art/ExplainerScene.astro';
+import Button from '../components/ui/Button.astro';
 import CompareRows from '../components/table/CompareRows.astro';
-import RunCard from '../components/table/RunCard.astro';
-import FrictionField from '../components/FrictionField.astro';
-import ScoreDisclosure from '../components/ScoreDisclosure.astro';
-import Sparkline from '../components/charts/Sparkline.astro';
-import VersionTimeline from '../components/charts/VersionTimeline.astro';
-import PlatformMarks from '../components/charts/PlatformMarks.astro';
-import SignalGrid from '../components/charts/SignalGrid.astro';
-import CoverageGrid from '../components/charts/CoverageGrid.astro';
-import EmptyMark from '../components/ui/art/EmptyMark.astro';
-import { scoreBuckets, versionMarks, weeklySeries } from '../lib/charts';
 import { url } from '../lib/url';
-import {
-  formatDate,
-  getActiveProblems,
-  getBuildThreshold,
-  getGaps,
-  getLatestRun,
-  getPassRate,
-  getChallenge,
-  getProblems,
-  getProduct,
-  getProducts,
-  getRuns,
-} from '../lib/data';
-import {
-  COMPONENT_LABELS,
-  COMPONENT_ORDER,
-  EVIDENCE_WINDOW_DAYS,
-  MIN_BUILD_THRESHOLD,
-  STALE_AFTER_DAYS,
-  THRESHOLD_PERCENTILE,
-  WEIGHTS,
-} from '../lib/scoring';
-import {
-  APP_DENYLIST,
-  CANDIDATE_CAP,
-  MAX_AGE_DAYS,
-  MIN_TEXT_LENGTH,
-} from '../../scripts/validate';
+import { getGaps, getLatestRun } from '../lib/data';
+import { CANDIDATE_CAP } from '../../scripts/validate';
 
-const problems = getProblems();
-const active = getActiveProblems();
-const threshold = getBuildThreshold();
-const passRate = getPassRate();
 const run = getLatestRun();
-const products = getProducts();
-
-const worthBuilding = active.filter((p) => p.verdict === 'Strong signal').length;
-
-// The calculator starts from a real problem: the highest-scoring active one.
-const seedProblem = active[0];
-const seedProduct = seedProblem ? getProduct(seedProblem.productSlug) : undefined;
-
-/*
- * The worked example below is the same challenge, so a reader who has just
- * dragged the calculator sees the real thing it was modelling rather than a
- * second, unrelated one.
- */
-const seedChallenge = seedProblem ? getChallenge(seedProblem.slug) : undefined;
-const seedSeries = seedProblem ? weeklySeries(seedProblem.evidence) : null;
-const seedVersions = seedProblem ? versionMarks(seedProblem) : [];
-
-/* Newest scan first. Folded in from /archive, which no longer has a page. */
-const runs = getRuns();
-
-/*
- * The live population at each branch of decideVerdict, in the order the
- * function tests them. Recomputed here so the diagram cannot go stale.
- */
-const thin = active.filter((p) => p.inputs.uniqueReviewers < 4);
-const solved = active.filter((p) => !thin.includes(p) && p.existingSolutions.length >= 3);
-const strong = active.filter(
-  (p) => !thin.includes(p) && !solved.includes(p) && p.score >= threshold,
-);
-const recurring = active.filter(
-  (p) => !thin.includes(p) && !solved.includes(p) && p.score < threshold,
-);
-
-const buckets = scoreBuckets(active.map((p) => p.score));
-
-/* The single generated field on the site, counted rather than asserted. */
 const gapCount = Object.keys(getGaps()).length;
 
+interface Card {
+  id: string;
+  scene: Explainer;
+  label: string;
+  tab: string;
+  head: string;
+  body: string;
+}
+
 /*
- * One real review of each kind, used to show which fields each store supplies.
- * The quote is never shown here — only which slots the record carries.
+ * Four cards, thirty-five words of body each at most. The count is the point
+ * of this page: four times thirty-five is 140 words carrying four
+ * illustrations, where the version before carried 349 words and two.
  */
-const everyEvidence = problems.flatMap((p) => p.evidence);
-const appleSample = everyEvidence.find((e) => e.platform === 'ios' && e.version && e.title);
-const playSample = everyEvidence.find((e) => e.platform === 'android');
-const playWithVersion = everyEvidence.filter((e) => e.platform === 'android' && e.version).length;
-const playTotal = everyEvidence.filter((e) => e.platform === 'android').length;
-const COUNTRY: Record<string, string> = {
-  us: 'United States', gb: 'United Kingdom', ca: 'Canada',
-  au: 'Australia', nz: 'New Zealand', ie: 'Ireland', sg: 'Singapore',
-};
-const playGaps = run?.products.filter((p) => !p.playOk) ?? [];
+const CARDS: Card[] = [
+  {
+    id: 'sources',
+    scene: 'sources',
+    label: 'WHERE IT COMES FROM',
+    tab: 'Where it comes from',
+    head: 'Two public review feeds',
+    body: `Both stores publish reviews without credentials or an agreement. Friction read ${run ? run.funnel.fetched.total.toLocaleString('en-GB') : 'ten thousand'} of them in its last scan.`,
+  },
+  {
+    id: 'filter',
+    scene: 'filter',
+    label: 'WHAT GETS THROWN AWAY',
+    tab: 'What gets thrown away',
+    head: 'Ten thousand in, a hundred out',
+    body: `Screened for age, for length and by the crisis check, then for a complaint, then capped at ${CANDIDATE_CAP}. All of it code, before any model sees anything.`,
+  },
+  {
+    id: 'model',
+    scene: 'model',
+    label: 'WHAT THE MODEL DOES',
+    tab: 'What the model does',
+    head: 'It groups, and it quotes',
+    body: 'It puts reviews describing the same struggle together and copies a short quote from each. It never produces a score, a rank or a priority.',
+  },
+  {
+    id: 'written',
+    scene: 'written',
+    label: 'THE ONE WRITTEN FIELD',
+    tab: 'The written field',
+    head: 'One sentence is written',
+    body: `Every value is copied from a review or calculated in TypeScript, except the four lenses and ${gapCount} sentences. Those carry a badge and a date.`,
+  },
+];
 
-// Storefront list is read from the tracked apps so it cannot drift.
-const STOREFRONT_NAMES: Record<string, string> = {
-  us: 'the United States', gb: 'the United Kingdom', ca: 'Canada',
-  au: 'Australia', nz: 'New Zealand', ie: 'Ireland', sg: 'Singapore',
-};
-const storefronts = [...new Set(products.flatMap((p) => p.countries))];
-const storefrontList = storefronts.map((c) => STOREFRONT_NAMES[c] ?? c.toUpperCase());
-const storefrontSentence =
-  storefrontList.length > 1
-    ? `${storefrontList.slice(0, -1).join(', ')} and ${storefrontList.at(-1)}`
-    : (storefrontList[0] ?? '');
-
-const componentMeaning: Record<string, string> = {
-  distinctUsers: 'How many different people reported it, counted by a salted hash of the reviewer name.',
-  recurrence: 'How many separate weeks it appeared in, rather than all at once.',
-  recency: 'How long ago it was last reported.',
-  severity: 'The mean star rating of the reviews reporting it.',
-  churnIntent: 'How many reviewers said they were leaving, deleting or cancelling.',
-  versionPersistence: 'How many distinct app versions it survived.',
-  crossPlatform: 'Whether it was reported on both iOS and Android.',
-};
+const TABS = [
+  ...CARDS.map((c) => ({ id: c.id, label: c.tab })),
+  { id: 'method', label: 'Full method', href: url('/how-it-works/full-method') },
+];
 ---
 
 <Layout
   title="How it works"
-  description="Where Friction's data comes from, exactly how each score is computed, and what this method cannot tell you."
+  description="Where Friction's data comes from, what it throws away, what the model does and never does, and the one field that is written."
 >
-  {/*
-    The page opens the way the homepage does: a roman line, then a Newsreader
-    italic line on a lit panel. One statement, centred, with air around it.
-  */}
+  {/* ---------- the split hero ---------- */}
   <section class="page-hero full">
     <PageTexture seed="how-it-works" />
     <BrandMark variant="device" />
 
     <div class="hero-in">
-      <h1>How it works</h1>
-      <p class="hero-line">Reviews in, challenges out.</p>
-
-      <dl class="proof num">
-        <div><dt>Reviews read</dt><dd>{run ? run.funnel.fetched.total.toLocaleString('en-GB') : '—'}</dd></div>
-        <div><dt>Carried forward</dt><dd>{run ? run.funnel.capped.total : '—'}</dd></div>
-        <div><dt>Challenges tracked</dt><dd>{problems.length}</dd></div>
-        <div><dt>Written by a model</dt><dd>{gapCount}</dd></div>
-      </dl>
-    </div>
-  </section>
-
-  {/* ---------- 1. where it comes from ---------- */}
-
-  <section class="band band-quiet full" aria-labelledby="where-it-comes-from">
-    <div class="band-in">
-      <h2 id="where-it-comes-from">Where it comes from</h2>
-      <p class="lede-c">Two public feeds. No credentials, no agreement.</p>
-
-    <CompareRows
-      columns={[
-        { label: 'Apple App Store', figure: '5 of 5' },
-        { label: 'Google Play', figure: '3 of 5' },
-      ]}
-      rows={[
-        { label: 'Star rating', states: [
-          { on: true, note: appleSample ? `${appleSample.rating} of 5` : '1 of 5' },
-          { on: true, note: playSample ? `${playSample.rating} of 5` : '1 of 5' },
-        ] },
-        { label: 'App version', states: [
-          { on: true, note: appleSample?.version ?? '1.7.338' },
-          { on: false, note: `${playWithVersion} of ${playTotal} carry one` },
-        ] },
-        { label: 'Country', states: [
-          { on: true, note: appleSample ? (COUNTRY[appleSample.country] ?? appleSample.country.toUpperCase()) : 'United States' },
-          { on: false },
-        ] },
-        { label: 'Date', states: [
-          { on: true, note: appleSample ? formatDate(appleSample.reviewedAt) : '—' },
-          { on: true, note: playSample ? formatDate(playSample.reviewedAt) : '—' },
-        ] },
-        { label: 'Title', states: [{ on: true }, { on: false }] },
-      ]}
-      caption="Play is an enhancement, never a dependency."
-    />
-
-    </div>
-  </section>
-
-  {/* ---------- 2. what gets thrown away ---------- */}
-
-  <section class="band full" aria-labelledby="what-gets-thrown-away">
-    <div class="band-in">
-      <h2 id="what-gets-thrown-away">What gets thrown away</h2>
-      <p class="lede-c">Ten thousand in. A hundred and fifty out.</p>
-
-    {
-      run && (
-        <Funnel
-          compact
-          stages={[
-            { label: 'Read', value: run.funnel.fetched.total },
-            { label: 'Screened', value: run.funnel.screened.total },
-            { label: 'Complaints', value: run.funnel.filtered.total },
-            { label: 'Carried', value: run.funnel.capped.total },
-          ]}
-        />
-      )
-    }
-
-      <p class="num ch-caption">
-        Every one of those cuts is code, running before any model sees anything.
-      </p>
-    </div>
-  </section>
-
-  {/* ---------- 3. what the model does, and never does ---------- */}
-
-  <section class="band band-quiet full" aria-labelledby="what-the-model-does">
-    <div class="band-in">
-      <h2 id="what-the-model-does">What the model does, and never does</h2>
-      <p class="lede-c">It groups and it quotes. Nothing else.</p>
-
-    <CompareRows
-      mode="lists"
-      columns={[
-        {
-          label: 'The model does',
-          mark: ['M3 6.5h7', 'M3 12h7', 'M3 17.5h7', 'M14 12h7', 'M18 8.5l3 3.5-3 3.5'],
-          items: [
-            'group reviews describing the same struggle',
-            'copy a short verbatim quote from each',
-          ],
-        },
-        {
-          label: 'The model never',
-          negated: true,
-          mark: ['M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17', 'M6 6l12 12'],
-          items: ['produces a score', 'produces a rank', 'produces a priority'],
-        },
-      ]}
-    />
-
-    <p class="ch-caption">
-      Every quote is checked character by character against the review it came from.
-    </p>
-
-
-    </div>
-  </section>
-
-  {/* ---------- 4. the one written field ---------- */}
-
-  <section class="band full" aria-labelledby="the-one-written-field">
-    <div class="band-in">
-      <h2 id="the-one-written-field">The one written field</h2>
-
-    <div class="written">
-      <div class="w-col">
-        <p class="w-head">Extracted or computed</p>
-        <p class="w-body">
-          Quotes, ratings, versions, dates, counts, scores, verdicts — copied from a review or
-          calculated in TypeScript.
+      <div class="say">
+        <h1>How Friction finds what people struggle with</h1>
+        <p class="lede">
+          Ten thousand public reviews a week, filtered in code, grouped by what repeats, and
+          quoted. Every number here is calculated; almost nothing is written.
         </p>
+        <Button variant="tonal" to="/how-it-works/full-method">Check the arithmetic</Button>
       </div>
-      <div class="w-col is-written">
-        <p class="w-head"><span class="pill">written</span> What nobody offers</p>
-        <p class="w-body">
-          The four lenses, and one sentence per pattern. Each carries this badge and a date.
-        </p>
-        <p class="w-count num">
-          {gapCount}
-          <span>written {gapCount === 1 ? 'sentence' : 'sentences'}, site-wide</span>
-        </p>
-      </div>
-    </div>
 
-    <p class="ch-caption">
-      Every lens also states why it might not work. Read them on{' '}
-      <a href={url('/patterns')}>patterns</a>.
-    </p>
-
-
+      <PipelineDiagram />
     </div>
   </section>
 
-  {/* ---------- the one door ---------- */}
+  <div class="shell sticky-nav">
+    <div class="bleed">
+      <SubNav items={TABS} label="Sections of this page" />
+    </div>
+  </div>
 
-  <section class="band band-quiet full" aria-labelledby="method-heading">
-    <div class="band-in is-wide">
-      <details class="method">
-        <summary>
-          <span class="sum-title" id="method-heading">Full method — for anyone who wants to check the arithmetic</span>
-        </summary>
-
-        <div class="method-in">
-          <h3>How the score is computed</h3>
-    {
-      seedProblem && seedProduct && (
-        <ScoreCalculator
-          problem={seedProblem}
-          productName={seedProduct.name}
-          threshold={threshold}
-        />
-      )
-    }
+  {/* ---------- four cards, one per tab ---------- */}
+  <div class="shell">
+    <div class="cards bleed">
+      {
+        CARDS.map((card) => (
+          <article class="card" id={card.id}>
+            <ExplainerScene scene={card.scene} />
+            <div class="body">
+              <p class="label">{card.label}</p>
+              <h2>{card.head}</h2>
+              <p class="note">{card.body}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
 
     {/*
-      The same arithmetic the prose describes, set as an equation. The weights
-      are read from scoring.ts, so this cannot drift out of step with the code.
+      The credibility claim stays on this page rather than behind a click.
+      It is the one thing a sceptic came for.
     */}
-    <figure class="equation" aria-label="The scoring formula">
-      <pre><code>score = 100 × (
-{
-  COMPONENT_ORDER.map((key, i) => (
-    <>{'  '}{i === 0 ? ' ' : '+'} {WEIGHTS[key].toFixed(2)} × {key}{'\n'}</>
-  ))
-})</code></pre>
-    </figure>
-
-    <SpecBento
-      items={COMPONENT_ORDER.map((key) => ({
-        key,
-        label: COMPONENT_LABELS[key],
-        weight: WEIGHTS[key],
-        note: componentMeaning[key],
-      }))}
-      caption="Each component's weight, and what it counts."
-    />
-
-
-          <h3>The verdict</h3>
-    <Flow
-      steps={[
-        { test: 'Fewer than four distinct reviewers', verdict: 'Thin evidence', count: thin.length },
-        { test: 'Three or more existing products already solve it', verdict: 'Already solved', count: solved.length },
-        { test: `Scores at or above the threshold of ${threshold.toFixed(1)}`, verdict: 'Strong signal', count: strong.length },
-      ]}
-      fallthrough={{ verdict: 'Recurring', count: recurring.length }}
-    />
-    <p class="ch-caption">
-      Where the {active.length} active challenges currently sit, tested in this order.
-    </p>
-
-    <Histogram buckets={buckets} threshold={threshold} markScore={seedProblem?.score} />
-    <p class="num ch-caption">
-      Every active problem's score, in buckets of five. The threshold is the higher of{' '}
-      {MIN_BUILD_THRESHOLD} and the {THRESHOLD_PERCENTILE}th percentile, so it moves with the field.
-      It stands at {threshold.toFixed(1)}, and {worthBuilding} of {active.length} clear it — a pass
-      rate of {passRate.toFixed(0)}%. A low one is the point.
-    </p>
-
-
-          <h3>One challenge, underneath</h3>
-      {
-        seedProblem && seedProduct ? (
-          <div class="worked">
-            <p class="w-which">
-              <a href={url(`/challenges/${seedProblem.slug}`)}>
-                {seedChallenge?.humanTitle ?? seedProblem.title}
-              </a>{' '}
-              <span class="w-app">in {seedProduct.name}</span>
-            </p>
-
-            <ScoreDisclosure problem={seedProblem} />
-
-            <div class="w-grid">
-              <figure>
-                <figcaption>Evidence over twelve weeks</figcaption>
-                {seedSeries && (
-                  <Sparkline
-                    series={seedSeries}
-                    label={`${seedSeries.total} of ${seedProblem.evidence.length} reviews arrived in the last twelve weeks.`}
-                  />
-                )}
-              </figure>
-
-              <figure>
-                <figcaption>Which releases it survived</figcaption>
-                {seedVersions.length > 0 ? (
-                  <VersionTimeline marks={seedVersions} />
-                ) : (
-                  <p class="w-none">
-                    <EmptyMark kind="single" size={22} />
-                    <span>One version only.</span>
-                  </p>
-                )}
-              </figure>
-
-              <figure>
-                <figcaption>Which store it came from</figcaption>
-                <PlatformMarks evidence={seedProblem.evidence} />
-              </figure>
-
-              <figure>
-                <figcaption>What each review signalled</figcaption>
-                <SignalGrid evidence={seedProblem.evidence} />
-              </figure>
-            </div>
-
-            <p class="ch-caption">
-              Every challenge carries all of this. On the challenge itself it is one sentence —
-              {' '}<span class="quoted">{seedProblem.inputs.uniqueReviewers} people raised this</span>
-              {' '}— because a person can read that and cannot read seven bars.
-            </p>
-          </div>
-        ) : (
-          <p class="w-none">
-            <EmptyMark kind="none" size={24} />
-            <span>No active challenge to work through yet.</span>
-          </p>
-        )
-      }
-
-          <h3>Twelve weeks, every challenge at once</h3>
-          <FrictionField />
-
-          <h3 id="every-scan">Every scan so far</h3>
-      {
-        runs.length === 0 ? (
-          <p class="w-none">
-            <EmptyMark kind="none" size={24} />
-            <span>No scan has completed yet.</span>
-          </p>
-        ) : (
-          <ol class="scans">
-            {runs.map((run, i) => {
-              const prev = runs[i + 1];
-              return (
-                <li>
-                  <RunCard
-                    date={run.date}
-                    stages={[
-                      { label: 'Read', value: run.funnel.fetched.total },
-                      { label: 'Screened', value: run.funnel.screened.total },
-                      { label: 'Complaints', value: run.funnel.filtered.total },
-                      { label: 'Carried', value: run.funnel.capped.total },
-                    ]}
-                    problems={run.problemsTotal ?? 0}
-                    fresh={run.problemsNew ?? 0}
-                    coverage={{
-                      ok: run.products.filter((x) => x.playOk).length,
-                      of: run.products.length,
-                    }}
-                    delta={
-                      prev
-                        ? {
-                            problems: (run.problemsTotal ?? 0) - (prev.problemsTotal ?? 0),
-                            fetched: run.funnel.fetched.total - prev.funnel.fetched.total,
-                          }
-                        : undefined
-                    }
-                    connected={i < runs.length - 1}
-                  />
-                  <CoverageGrid run={run} names={(slug) => getProduct(slug)?.name ?? slug} />
-                </li>
-              );
-            })}
-          </ol>
-        )
-      }
-
-        <h3>Where the data comes from</h3>
-
-
-        <p>
-          Two sources, both public, neither requiring credentials or an agreement.
-        </p>
-
-        <h4>Apple App Store</h4>
-        <p>
-          Apple publishes a customer reviews feed for each app in each storefront. Friction reads up to
-          ten pages per app per storefront, at one request per second, from {storefrontSentence}. Each
-          review carries a star rating, an app version, a country and a date. This is the backbone of
-          the project.
-        </p>
-
-        <h4>Google Play</h4>
-        <p>
-          Google publishes no API for reading reviews of apps you do not own. Friction reads publicly
-          visible review pages using the <code>google-play-scraper</code> package, at one request per
-          second, taking the most recent English reviews from the United States storefront. Play
-          reviews carry no title, and often no app version.
-        </p>
-        <p>
-          Play is an enhancement, not a dependency. If it fails for an app, the run continues with
-          Apple data alone and the gap is recorded.
+    <section class="claim bleed" aria-labelledby="claim-heading">
+      <h2 id="claim-heading" class="sr-only">What the model does, and never does</h2>
+      <CompareRows
+        mode="lists"
+        columns={[
           {
-            playGaps.length === 0
-              ? ' In the most recent scan every tracked app returned Play data.'
-              : ` In the most recent scan ${playGaps.length} of ${products.length} apps returned no Play data: ${playGaps.map((p) => p.slug).join(', ')}.`
-          }
-        </p>
-        <h3>How reviews become challenges</h3>
-
-
-        <p>
-          Most of the filtering is deterministic and happens before any model sees anything. A review is
-          rejected outright if it has already been processed, if it is older than {MAX_AGE_DAYS} days, if
-          the title and body together run under {MIN_TEXT_LENGTH} characters, or if it matches the
-          crisis language screen below.
-          What survives is kept only when it is rated three stars or lower and contains at least one of
-          a fixed list of complaint markers. The survivors are ranked by marker count, then star rating,
-          then recency, and capped at {CANDIDATE_CAP} per run.
-        </p>
-
-        <p>
-          Those go to a language model with one job: group reviews that describe the same
-          underlying problem, and copy a short verbatim quote from each. The model is explicitly
-          forbidden from producing a score, a rank or a priority of any kind. Its output is then parsed
-          against a strict schema and every quote is checked, character by character, against the review
-          it claims to come from. If any check fails the run stops and nothing is published, leaving the
-          previous week's data in place.
-        </p>
-        <h3>How the score is computed</h3>
-
-
-        <p>
-          Seven components, each normalised to a value between 0 and 1 over evidence from the last{' '}
-          {EVIDENCE_WINDOW_DAYS} days, multiplied by the weights below, and scaled to 0–100.
-        </p>
-
-        <p>
-          Open "How this score is calculated" on any problem page to see these seven values for that
-          problem, with the raw counts behind each one and the arithmetic that produces the total.
-        </p>
-        <h3>The verdict, and why most challenges fail</h3>
-
-
-        <p>
-          The verdict is decided in a fixed order. Fewer than four distinct reviewers is
-          <strong>Thin evidence</strong>, whatever the score. Three or more existing products that already
-          solve it is <strong>Already solved</strong>. Otherwise a score at or above the build threshold
-          is <strong>Strong signal</strong>, and anything else is <strong>Recurring</strong>.
-        </p>
-
-        <p class="num">
-          The threshold is the higher of {MIN_BUILD_THRESHOLD} and the {THRESHOLD_PERCENTILE}th
-          percentile of all active problem scores, computed by linear interpolation between the closest
-          ranks. It currently stands at <strong>{threshold.toFixed(1)}</strong>.
+            label: 'The model does',
+            mark: ['M3 6.5h7', 'M3 12h7', 'M3 17.5h7', 'M14 12h7', 'M18 8.5l3 3.5-3 3.5'],
+            items: [
+              'group reviews describing the same struggle',
+              'copy a short verbatim quote from each',
+            ],
+          },
           {
-            active.length > 0 && (
-              <>
-                {' '}Of {active.length} active {active.length === 1 ? 'challenge' : 'challenges'},{' '}
-                {worthBuilding} {worthBuilding === 1 ? 'carries' : 'carry'} the "Strong signal"
-                verdict, a pass rate of {passRate.toFixed(0)}%.
-              </>
-            )
-          }
-        </p>
+            label: 'The model never',
+            negated: true,
+            mark: ['M12 3.5a8.5 8.5 0 1 1 0 17 8.5 8.5 0 0 1 0-17', 'M6 6l12 12'],
+            items: ['produces a score', 'produces a rank', 'produces a priority'],
+          },
+        ]}
+      />
+      <p class="ch-caption">
+        Every quote is checked character by character against the review it came from.
+      </p>
+    </section>
 
-        <p>
-          That low pass rate is deliberate. A site where everything looks promising is worth nothing to
-          anyone deciding what to work on, so the bar moves with the field and never drops below{' '}
-          {MIN_BUILD_THRESHOLD}. A problem with no new evidence for {STALE_AFTER_DAYS} days is marked
-          stale; it stays readable but is left out of the homepage and out of the threshold calculation.
-        </p>
-        <h3>What this method cannot tell you</h3>
-
-
-        <h4>Reviews have no permanent link</h4>
-        <p>
-          Neither store gives an individual review a stable public URL. This is the single biggest
-          limitation of the whole project and it cannot be engineered away. Evidence therefore links to
-          the app's review listing, not to the review itself, and every quote is labelled with the date
-          the scan captured it. You cannot click through and re-read the original. What you can do is
-          read the commit history in the repository, where every scan's output is recorded with a
-          timestamp.
-        </p>
-
-        <h4>Coverage is narrow</h4>
-        <p>
-          English-language reviews, {storefronts.length} Apple storefronts, one Play storefront, mobile apps only, and
-          only the {products.length} apps currently tracked. A quiet app produces a small sample, and a
-          small sample produces an unreliable score. Treat a scored problem as a starting point for your
-          own research, not as a conclusion.
-        </p>
-        <h3>Privacy</h3>
-
-
-        <ul>
-          <li>
-            <strong>No reviewer name is ever stored.</strong> Names are hashed with a secret salt the
-            moment they are read, truncated to sixteen characters, and discarded. The hash exists only
-            to count distinct people and is never displayed.
-          </li>
-          <li>
-            <strong>Quotes are capped at 25 words</strong> and must be verbatim. A quote that is not a
-            character-for-character substring of the review it cites fails validation and stops the run.
-          </li>
-          <li>
-            <strong>Raw review text is deleted after 30 days.</strong> Full review bodies exist only in
-            the intermediate files for a single scan; the published records keep the capped quote and
-            nothing more.
-          </li>
-        </ul>
-        <h3>What is never tracked</h3>
-
-
-        <p>
-          Apps whose subject matter is personal distress or health are never tracked. The check runs
-          before any request is made, against the app name, the developer name and the store category,
-          and the tracked list is not exempt from it. An app matching any of these terms is excluded:
-        </p>
-
-        <ul class="chips struck" aria-label="Excluded app subjects">
-          {APP_DENYLIST.map((term) => <li>{term}</li>)}
-        </ul>
-
-        <p>
-          Separately, any individual review whose text matches crisis language is dropped before it
-          enters the pipeline. Such a review is never stored, never quoted and never counted towards any
-          score. The list of terms lives in the source rather than on this page.
-        </p>
-
-        <p>
-          Both screens match inflected forms as well as the exact words. They are deliberately broad.
-          Excluding something that belonged is a cost worth paying here.
-        </p>
-        <h3>Non-commercial</h3>
-
-
-        <p>
-          Friction has no ads, no payments, no signup, no paywall and no affiliate links, and it is not
-          affiliated with any of the apps it tracks. It reads publicly visible reviews and publishes the
-          analysis with the method attached. If you think something here is wrong, the data and the code
-          are both <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">in the
-          repository</a> and you can check it yourself.
-        </p>
-
-        {
-          problems.length === 0 && (
-            <p class="empty-note">
-              No challenges have been recorded yet, so the threshold and pass rate above are computed from
-              an empty set.
-            </p>
-          )
-        }
-
-        </div>
-      </details>
-    </div>
-  </section>
+    <p class="onward bleed">
+      <Button variant="filled" to="/how-it-works/full-method">See the full method</Button>
+    </p>
+  </div>
 </Layout>
 
 <style>
+  /* ---- the split hero ---- */
 
-  /* ---- the model's job, as two columns ---- */
-
-  .does {
-    display: grid;
-    gap: var(--space-md);
-    margin: var(--space-lg) 0;
-  }
-
-  @media (min-width: 34rem) {
-    .does {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  .d-panel {
-    padding: var(--space-md);
-    border-radius: var(--r-card);
-    border: var(--rule-hair) solid var(--color-rule);
-    background: var(--color-paper-2);
-  }
-
-  /* The forbidden side is the one that matters, so it carries the accent. */
-  .is-never {
-    background: color-mix(in oklch, var(--color-accent) 8%, var(--color-paper));
-    border-color: color-mix(in oklch, var(--color-accent) 30%, var(--color-rule));
-  }
-
-  .d-head {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    margin: 0 0 var(--space-xs);
-    font-size: var(--text-sm);
-    font-weight: 600;
-  }
-
-  .d-head svg {
-    flex: none;
-    color: var(--color-neutral);
-  }
-
-  .is-never .d-head svg {
-    color: var(--color-accent);
-  }
-
-  .plain {
-    list-style: none;
-    margin: var(--space-sm) 0 0;
-    padding: 0;
-    font-size: var(--text-sm);
-  }
-
-  .plain li {
-    padding-block: var(--space-2xs);
-    border-top: var(--rule-hair) solid var(--color-rule);
-  }
-
-  .plain.struck li {
-    color: var(--color-muted);
-    text-decoration: line-through;
-    text-decoration-color: color-mix(in oklch, var(--color-muted) 55%, transparent);
-  }
-
-
-  /* ---- the two sources ---- */
-
-  .sources {
-    display: grid;
-    gap: var(--space-lg);
-    margin: var(--space-lg) 0;
-  }
-
-  @media (min-width: 34rem) {
-    .sources {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  /* ---- chips ---- */
-
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2xs);
-    list-style: none;
-    margin: var(--space-xs) 0 0;
-    padding: 0;
-    font-size: var(--text-xs);
-  }
-
-  .chips li {
-    padding: var(--space-3xs) var(--space-xs);
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--r-pill);
-    color: var(--color-muted);
-  }
-
-  .chips .faint {
-    opacity: 0.6;
-  }
-
-  /* Excluded subjects: struck through, so the list reads as a list of
-     things that are not here. */
-  .struck li {
-    text-decoration: line-through;
-    text-decoration-color: color-mix(in oklch, var(--color-muted) 60%, transparent);
-  }
-
-
-
-
-  /*
-   * Fixed rather than sticky: the shell is a single grid column list, so a
-   * sticky item would only span its own row. Anchored off the measure, which
-   * keeps it the same distance from the text at every width.
-   */
-  @media (min-width: 1100px) {
-    .toc {
-      display: block;
-      position: fixed;
-      top: calc(var(--nav-h) + var(--space-xl));
-      right: calc(50% + var(--measure) / 2 + var(--space-xl));
-      width: 11rem;
-      max-height: calc(100vh - var(--nav-h) - var(--space-2xl));
-      overflow-y: auto;
-    }
-  }
-
-  /*
-   * The small type lives on the children, not on .toc. `ch` resolves against
-   * the element's own font, so setting --text-xs on the container made
-   * `var(--measure)` compute narrower there than in the shell and the
-   * contents overlapped the text it was meant to sit beside.
-   */
-
-
-
-
-  .toc a[aria-current='true'] {
-    color: var(--color-ink);
-    border-left-color: var(--color-accent);
-  }
-
-  /* ---- the scoring formula ---- */
-
-  .equation {
-    margin: var(--space-lg) 0;
-    background: var(--color-paper-2);
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--r-cell);
-    padding: var(--space-md) var(--space-lg);
-    overflow-x: auto;
-  }
-
-  .equation pre {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    line-height: 1.7;
-    color: var(--color-muted);
-    font-variant-numeric: tabular-nums;
-  }
-
-
-
-  /* The heading sits above its own texture. */
-  .band > .shell {
-    position: relative;
-    z-index: var(--z-raise);
-  }
-
-
-
-
-
-  /*
-   * Section heads are the only prose left above the disclosure. They sit
-   * clear of the graphic above and tight to the one below, so a heading
-   * reads as a label on the next visual rather than as a paragraph opener.
-   */
-
-
-
-  p {
-    margin-top: var(--space-md);
-  }
-
-  .lede {
-    margin-top: var(--space-md);
-    font-size: var(--text-lg);
-    line-height: 1.5;
-  }
-
-  ul {
-    margin-top: var(--space-md);
-    padding-left: var(--space-md);
-    display: grid;
-    gap: var(--space-xs);
-  }
-
-  code {
-    font-size: 0.92em;
-    background: var(--color-paper-2);
-    padding: 0.05em 0.3em;
-  }
-
-  .weights {
-    margin-top: var(--space-md);
-    border-collapse: collapse;
-    width: 100%;
-    font-size: var(--text-sm);
-    text-align: left;
-  }
-
-  .weights th,
-  .weights td {
-    border-top: var(--rule-hair) solid var(--color-rule);
-    padding: var(--space-xs) var(--space-sm) var(--space-xs) 0;
-    vertical-align: top;
-    font-weight: 400;
-  }
-
-  .weights thead th {
-    border-top: 0;
-    border-bottom: var(--rule-hair) solid var(--color-ink);
-    font-weight: 600;
-    padding-bottom: var(--space-xs);
-  }
-
-  .weights tbody th {
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  .weights .w {
-    text-align: right;
-    padding-right: var(--space-md);
-    white-space: nowrap;
-  }
-
-  /* ---- the one written field ---- */
-
-  /*
-   * Two columns, deliberately unequal in treatment. The written one is
-   * tinted and labelled; the extracted one is plain. The asymmetry is the
-   * point — one of these needs a caveat and the other does not.
-   */
-  .written {
-    display: grid;
-    gap: var(--space-md);
-    margin-top: var(--space-md);
-  }
-
-  @media (min-width: 34rem) {
-    .written {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  .w-col {
-    padding: var(--space-md);
-    border: var(--rule-hair) solid var(--color-rule);
-    border-radius: var(--r-card);
-  }
-
-  /*
-   * Solid, not a tint. This is the same treatment the gap block gives the
-   * written line everywhere else on the site, and the point of the section
-   * is that this one field is different from all the others.
-   */
-  .is-written {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
-    color: var(--color-paper);
-  }
-
-  .is-written .w-body {
-    color: var(--color-paper);
-  }
-
-  .w-count {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-xs);
-    margin-top: var(--space-md);
-    padding-top: var(--space-sm);
-    border-top: var(--rule-hair) solid color-mix(in oklch, var(--color-paper) 40%, transparent);
-    font-size: clamp(2rem, 1.2rem + 2.4vw, 2.8rem);
-    font-weight: 600;
-    line-height: 0.9;
-    letter-spacing: -0.035em;
-  }
-
-  .w-count span {
-    font-size: var(--text-xs);
-    font-weight: 400;
-    letter-spacing: 0;
-  }
-
-  .w-head {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    font-size: var(--text-sm);
-    font-weight: 600;
-  }
-
-  .pill {
-    font-size: var(--text-xs);
-    font-weight: 500;
-    line-height: 1;
-    padding: 0.25em 0.5em;
-    border-radius: var(--r-pill);
-    border: var(--rule-hair) solid color-mix(in oklch, var(--color-paper) 55%, transparent);
-    color: var(--color-paper);
-  }
-
-  .w-body {
-    margin-top: var(--space-xs);
-    font-size: var(--text-sm);
-    color: var(--color-muted);
-    text-wrap: pretty;
-  }
-
-
-  /*
-   * Every word of the reference prose is in here, unedited. It is closed by
-   * default because the graphics above already answer the question; this is
-   * for the reader who wants to check the work, and that reader will open it.
-   */
-
-
-
-
-  /* The caret, drawn rather than typed, so it rotates. */
-
-
-  @media (prefers-reduced-motion: no-preference) {
-    .sum-title::before {
-      transition:
-        rotate var(--dur-spatial-fast) var(--spatial-fast),
-        translate var(--dur-spatial-fast) var(--spatial-fast);
-    }
-  }
-
-
-  .method summary:focus-visible .sum-title {
-    color: var(--color-accent);
-  }
-
-
-  /*
-   * The same open as the score disclosure, so the site has one way of
-   * opening a panel rather than two. Chromium-only and behind @supports;
-   * everywhere else it opens instantly, which is a fine outcome for a
-   * panel whose whole job is to be skippable.
-   */
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
-      .method {
-        interpolate-size: allow-keywords;
-      }
-
-      .method::details-content {
-        block-size: 0;
-        overflow: hidden;
-        transition:
-          block-size var(--dur-spatial-default) var(--spatial-default),
-          content-visibility var(--dur-spatial-default) allow-discrete;
-      }
-
-      .method[open]::details-content {
-        block-size: auto;
-      }
-    }
-  }
-
-
-
-
-
-
-  .empty-note {
-    margin-top: var(--space-xl);
-    color: var(--color-muted);
-    font-size: var(--text-sm);
-  }
-
-  /* ===================================================================
-     Bands
-
-     The page is a stack of full-bleed sections that alternate surface,
-     not one column of text down a measure. Each band holds one idea,
-     centres its heading, and gives the graphic underneath real air.
-     =================================================================== */
-
-  .page-hero,
-  .band {
+  .page-hero {
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    padding-block: var(--space-4xl);
+    padding-block: var(--space-3xl);
   }
 
-  /* A band is grouped by its tone. The rules that used to run above and
-     below it were the old way of saying the same thing. */
-  .band-quiet {
-    background: var(--m-surface-container-low);
-  }
-
-  .hero-in,
-  .band-in {
+  .hero-in {
     position: relative;
     z-index: var(--z-raise);
-    width: min(64rem, 100% - (var(--page-gutter) * 2));
+    display: grid;
+    gap: var(--space-2xl);
+    align-items: center;
+    width: min(76rem, 100% - (var(--page-gutter) * 2));
     margin-inline: auto;
   }
 
-  /* The field is a surface, not a column of text. It gets the extra width. */
-  .band-in.is-wide {
-    width: min(76rem, 100% - (var(--page-gutter) * 2));
-  }
-
-  /* ---- the page hero ---- */
-
-  .page-hero {
-    padding-block: var(--space-4xl) var(--space-3xl);
-    text-align: center;
+  @media (min-width: 62rem) {
+    .hero-in {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+      gap: var(--space-3xl);
+    }
   }
 
   h1 {
-    display: grid;
-    gap: var(--space-2xs);
-    justify-items: center;
-    margin: 0 auto;
-    max-width: 46rem;
-    text-wrap: balance;
-  }
-
-  .page-hero h1 {
-    font-size: var(--display-md);
+    font-size: var(--display-sm);
     font-weight: 300;
     line-height: var(--line-display);
     letter-spacing: -0.03em;
-  }
-
-  /* One line under the title, in the interface face. Newsreader is
-     reviewers' own words and nothing else; spending it on display type
-     spends the one distinction the site has. */
-  .hero-line {
-    font-size: var(--headline-sm);
-    font-weight: 300;
-    color: var(--m-on-surface-variant);
-  }
-
-  .proof {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-xl) var(--space-2xl);
-    margin-top: var(--space-2xl);
-  }
-
-  .proof dt {
-    font-size: var(--text-xs);
-    color: var(--color-muted);
-  }
-
-  .proof dd {
-    margin: var(--space-3xs) 0 0;
-    font-size: var(--text-xl);
-    font-weight: 600;
-    line-height: 1;
-  }
-
-  /* ---- band headings ---- */
-
-  .eyebrow {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    color: var(--color-accent);
-    text-align: center;
-  }
-
-  h2 {
-    margin: var(--space-2xs) 0 0;
-    font-size: clamp(1.6rem, 1rem + 1.9vw, 2.4rem);
-    font-weight: 300;
-    line-height: 1.06;
-    letter-spacing: -0.028em;
-    text-align: center;
     text-wrap: balance;
+    max-width: 16em;
   }
 
-  .lede-c {
-    margin: var(--space-sm) auto var(--space-2xl);
+  .lede {
+    margin-block: var(--space-md) var(--space-lg);
     max-width: 34em;
-    font-size: var(--text-md);
-    color: var(--color-muted);
-    text-align: center;
+    font-size: var(--body-lg);
+    line-height: var(--line-body);
+    color: var(--m-on-surface-variant);
     text-wrap: pretty;
   }
 
-  .band-in > :global(.ch-caption) {
-    max-width: 44em;
-    margin-inline: auto;
-    text-align: center;
+  /* ---- the tabs ---- */
+
+  .sticky-nav {
+    position: sticky;
+    top: var(--nav-h);
+    z-index: var(--z-raise);
+    background: var(--m-surface);
+    padding-block: var(--space-2xs);
   }
 
-  /* ---- the FAQ ---- */
+  /* ---- the cards ---- */
 
-  /* ---- the one door ---- */
-
-  /*
-   * Everything an auditor could want is behind this: the calculator, the
-   * verdict logic, the worked example, the twelve-week field, the scan
-   * record and the full reference prose, all unedited. It is closed because
-   * the four sections above already answer the question a reader arrived
-   * with, and this is for the reader who wants to check the arithmetic.
-   */
-  /*
-   * The page's one hero container. Four sections answer the question a
-   * reader arrived with; this is the door for the one who wants to check
-   * the arithmetic, and it is the only 48px corner on the page.
-   */
-  .method {
-    padding: var(--space-xs) var(--space-lg);
-    border-radius: var(--shape-xxl);
-    background: var(--m-surface-container-highest);
+  /* Two by two, the way the reference does it: each card needs the width
+     for its illustration to be read, not to be fitted in. */
+  .cards {
+    display: grid;
+    gap: var(--space-lg);
+    padding-top: var(--space-2xl);
+    max-width: 62rem;
   }
 
-  .method summary {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    padding-block: var(--space-lg);
-    min-height: var(--tap);
-    cursor: pointer;
-    list-style: none;
+  @media (min-width: 52rem) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
-  .method summary::-webkit-details-marker {
-    display: none;
+  .card {
+    display: grid;
+    align-content: start;
+    overflow: hidden;
+    border-radius: var(--shape-lg);
+    background: var(--m-surface-container);
+    /* The tabs scroll it into view; leave room for them above it. */
+    scroll-margin-top: calc(var(--nav-h) + 4rem);
   }
 
-  .sum-title {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    font-size: var(--text-md);
+  .body {
+    padding: var(--space-lg);
+  }
+
+  .label {
+    font-size: var(--label-sm);
+    letter-spacing: 0.08em;
+    color: var(--m-on-surface-variant);
+  }
+
+  .card h2 {
+    margin-top: var(--space-2xs);
+    font-size: var(--title-lg);
     font-weight: 500;
+    text-wrap: balance;
   }
 
-  /* The caret, drawn rather than typed, so it rotates. */
-  .sum-title::before {
-    content: '';
-    flex: none;
-    width: 9px;
-    height: 9px;
-    border-right: 1.5px solid var(--color-neutral);
-    border-bottom: 1.5px solid var(--color-neutral);
-    rotate: -45deg;
-    translate: 0 -1px;
+  .note {
+    margin-top: var(--space-xs);
+    font-size: var(--body-md);
+    line-height: var(--line-body);
+    color: var(--m-on-surface-variant);
+    text-wrap: pretty;
   }
 
-  .method[open] .sum-title::before {
-    rotate: 45deg;
-    translate: 0 -2px;
-    border-color: var(--color-accent);
+  /* ---- the claim ---- */
+
+  .claim {
+    max-width: 62rem;
+    margin-top: var(--space-2xl);
+    padding: var(--space-lg);
+    border-radius: var(--shape-lg);
+    background: var(--m-surface-container);
   }
 
-  .method summary:hover .sum-title,
-  .method[open] .sum-title {
-    color: var(--color-accent);
-  }
-
-  .method-in {
-    padding-block: var(--space-xl) var(--space-3xl);
-    display: grid;
-    gap: var(--space-xl);
-  }
-
-  .method-in h3 {
-    margin-top: var(--space-xl);
-    padding-top: var(--space-md);
-    border-top: var(--rule-hair) solid var(--color-rule);
-    font-size: var(--text-lg);
-    font-weight: 600;
-  }
-
-  .method-in h3:first-child {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0;
-  }
-
-  .method-in :global(p) {
-    max-width: var(--measure);
-  }
-
-  .method-in :global(h4) {
-    margin-top: var(--space-lg);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--color-muted);
-  }
-
-  /* ---- the worked example ---- */
-
-  .worked {
-    display: grid;
-    gap: var(--space-lg);
-  }
-
-  .w-which {
-    font-size: var(--text-md);
-  }
-
-  .w-app {
-    color: var(--color-muted);
-  }
-
-  .w-grid {
-    display: grid;
-    gap: var(--space-lg);
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  }
-
-  .w-grid figcaption {
-    margin-bottom: var(--space-xs);
-    font-size: var(--text-xs);
-    color: var(--color-muted);
-  }
-
-  .w-grid figure {
-    margin: 0;
-  }
-
-  .w-none {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    font-size: var(--text-sm);
-    color: var(--color-muted);
-  }
-
-  /* Not Newsreader: that face is reviewers' words only. */
-  .quoted {
-    color: var(--m-on-surface);
-  }
-
-  /* ---- the scan record ---- */
-
-  .scans {
-    display: grid;
-    gap: var(--space-xl);
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .scans li {
-    display: grid;
-    gap: var(--space-md);
+  .onward {
+    padding-block: var(--space-2xl) var(--space-4xl);
   }
 </style>

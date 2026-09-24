@@ -34,8 +34,12 @@ const BUDGET: Record<string, number> = {
      Back to 200 in v4, and now it means something different: the page is
      four sections and one closed disclosure, and a collapsed <details> is
      already exempt, so this budget is exactly the "outside the disclosure"
-     figure the spec asks for. */
-  'how-it-works/index.html': 200,
+     figure the spec asks for.
+
+     140 in v5: four cards of thirty-five words each. The arithmetic moved
+     to its own route, which is allowed to be as dense as it needs to be
+     because it is reached by choice. */
+  'how-it-works/index.html': 140,
 };
 
 /**

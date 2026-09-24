@@ -196,17 +196,25 @@ const BUTTON_STATES = [
         480 × 300, flat, mostly neutral, literal. The card it sits in is the card it will ship in.
       </p>
       <div class="grid2">
-        <article class="ex-card">
-          <ExplainerScene scene="sources" />
-          <div class="ex-body">
-            <p class="ex-label">WHERE IT COMES FROM</p>
-            <h3>Two public review feeds</h3>
-            <p class="ex-note">
-              Both app stores publish reviews without credentials or an agreement. Friction reads
-              ten thousand of them a week and keeps what repeats.
-            </p>
-          </div>
-        </article>
+        {
+          (['sources', 'filter', 'model', 'written'] as const).map((sc, i) => (
+            <article class="ex-card">
+              <ExplainerScene scene={sc} />
+              <div class="ex-body">
+                <p class="ex-label">{['WHERE IT COMES FROM', 'WHAT GETS THROWN AWAY', 'WHAT THE MODEL DOES', 'THE WRITTEN FIELD'][i]}</p>
+                <h3>{['Two public review feeds', 'Ten thousand in, a hundred out', 'It groups and it quotes', 'One sentence is written'][i]}</h3>
+                <p class="ex-note">
+                  {[
+                    'Both app stores publish reviews without credentials or an agreement. Friction reads ten thousand of them a week.',
+                    'Screened for age, length and the crisis check, then for a complaint. Everything else is discarded before a model sees it.',
+                    'The model groups reviews describing the same struggle and copies a quote from each. It never produces a score.',
+                    'Every value is copied from a review or calculated in code, except the lenses and one sentence per pattern.',
+                  ][i]}
+                </p>
+              </div>
+            </article>
+          ))
+        }
       </div>
     </section>
 

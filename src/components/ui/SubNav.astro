@@ -1,0 +1,113 @@
+---
+/**
+ * A second navigation row, under the main one, for the sections of one page.
+ *
+ * The active tab is tracked by an IntersectionObserver on the sections
+ * themselves rather than by a scroll listener, and the indicator slides from
+ * where it was to where it is going — which is what tells a reader the tabs
+ * are one set rather than five separate links.
+ *
+ * Every tab is a real anchor to a real heading, so it works with no
+ * JavaScript, and the browser's own scroll handles the movement.
+ */
+interface Props {
+  items: Array<{ id: string; label: string; href?: string }>;
+  label: string;
+}
+
+const { items, label } = Astro.props;
+---
+
+<nav class="sub" aria-label={label} data-subnav>
+  <ul>
+    {
+      items.map((item) => (
+        <li>
+          <a href={item.href ?? `#${item.id}`} data-tab={item.id}>
+            {item.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+  <span class="ind" aria-hidden="true" data-tab-indicator></span>
+</nav>
+
+<style>
+  .sub {
+    position: relative;
+    border-bottom: 1px solid var(--m-outline-variant);
+  }
+
+  ul {
+    display: flex;
+    gap: var(--space-xs);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* Under 720px it becomes a row you push sideways, which is what a phone
+       wants; the scrollbar is hidden because the overflow is obvious. */
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  ul::-webkit-scrollbar {
+    display: none;
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap);
+    padding-inline: var(--space-sm);
+    white-space: nowrap;
+    font-size: var(--label-lg);
+    color: var(--m-on-surface-variant);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--m-on-surface);
+  }
+
+  a[aria-current='true'] {
+    color: var(--m-primary);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+  }
+
+  a:focus-visible {
+    outline: 3px solid var(--m-primary);
+    outline-offset: -3px;
+    border-radius: var(--shape-xs);
+  }
+
+  /* The one thing that moves: a 2px rule under the active tab. */
+  .ind {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    height: 2px;
+    width: var(--ind-w, 0);
+    translate: var(--ind-x, 0) 0;
+    background: var(--m-primary);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ind {
+      transition:
+        translate var(--dur-spatial-default) var(--spatial-default),
+        width var(--dur-spatial-default) var(--spatial-default);
+    }
+
+    a {
+      transition: color var(--dur-effects-fast) var(--effects-fast);
+    }
+  }
+</style>
+
+<script>
+  import { initSubNav } from '../../scripts/subnav';
+
+  document.addEventListener('astro:page-load', initSubNav);
+</script>

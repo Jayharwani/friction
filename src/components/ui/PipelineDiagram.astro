@@ -1,0 +1,130 @@
+---
+/**
+ * The whole pipeline in one picture, looping.
+ *
+ * Four stages over six seconds: reviews arriving, most of them discarded,
+ * what survives gathering into one challenge, and four lenses fanning out of
+ * it. It replaces the page rather than decorating it — a reader who watches
+ * one loop has the argument without reading a word.
+ *
+ * Every stage is drawn at build time and always present. The animation only
+ * changes opacity and position, so under a reduced-motion preference the
+ * whole thing renders as one static frame with all four stages visible,
+ * which is a legible diagram in its own right rather than a broken one.
+ *
+ * It pauses on hover, and it pauses when the tab is hidden, because a loop
+ * running behind another window is a battery cost with no reader.
+ */
+---
+
+<div class="pipe" data-pipeline>
+  <svg viewBox="0 0 420 380" role="img" aria-label="Reviews arrive from both app stores, most are discarded, what repeats becomes one challenge, and four lenses come off it.">
+    {/* ---- stage 1: the reviews arriving ---- */}
+    <g data-stage="1">
+      <rect x="40" y="18" width="70" height="26" rx="5" fill="var(--pt2)" />
+      <rect x="126" y="12" width="70" height="26" rx="5" fill="var(--pt2)" />
+      <rect x="212" y="18" width="70" height="26" rx="5" fill="var(--pt2)" />
+      <rect x="298" y="12" width="70" height="26" rx="5" fill="var(--pt2)" />
+      <rect x="82" y="52" width="70" height="26" rx="5" fill="var(--pt3)" />
+      <rect x="168" y="56" width="70" height="26" rx="5" fill="var(--pt3)" />
+      <rect x="254" y="52" width="70" height="26" rx="5" fill="var(--pt3)" />
+    </g>
+
+    {/* ---- stage 2: the funnel, and what falls out of it ---- */}
+    <g data-stage="2">
+      <path d="M96 106h228l-78 66v40h-72v-40z" fill="var(--pt4)" />
+      <rect x="96" y="102" width="228" height="7" rx="3.5" fill="var(--pink)" />
+      <rect x="28" y="168" width="44" height="20" rx="4" fill="var(--pt1)" transform="rotate(-20 50 178)" />
+      <rect x="348" y="164" width="44" height="20" rx="4" fill="var(--pt1)" transform="rotate(22 370 174)" />
+      <rect x="44" y="208" width="38" height="18" rx="4" fill="var(--pt1)" transform="rotate(14 63 217)" />
+      <rect x="338" y="206" width="38" height="18" rx="4" fill="var(--pt1)" transform="rotate(-16 357 215)" />
+    </g>
+
+    {/* ---- stage 3: one challenge ---- */}
+    <g data-stage="3">
+      <rect x="134" y="228" width="152" height="52" rx="9" fill="var(--accent)" />
+      <rect x="150" y="242" width="52" height="7" rx="3.5" fill="var(--pbg)" opacity="0.85" />
+      <rect x="150" y="257" width="104" height="6" rx="3" fill="var(--pbg)" opacity="0.6" />
+    </g>
+
+    {/* ---- stage 4: the four lenses coming off it ---- */}
+    <g data-stage="4">
+      <path d="M210 284v22M210 306H66v14M210 306h144v14M162 306v14M258 306v14" stroke="var(--pt3)" stroke-width="2.5" fill="none" stroke-linecap="round" />
+      <rect x="40" y="322" width="52" height="40" rx="7" fill="var(--pt4)" />
+      <rect x="136" y="322" width="52" height="40" rx="7" fill="var(--pt4)" />
+      <rect x="232" y="322" width="52" height="40" rx="7" fill="var(--pt4)" />
+      <rect x="328" y="322" width="52" height="40" rx="7" fill="var(--pt4)" />
+      <rect x="50" y="334" width="24" height="5" rx="2.5" fill="var(--pbg)" opacity="0.7" />
+      <rect x="146" y="334" width="24" height="5" rx="2.5" fill="var(--pbg)" opacity="0.7" />
+      <rect x="242" y="334" width="24" height="5" rx="2.5" fill="var(--pbg)" opacity="0.7" />
+      <rect x="338" y="334" width="24" height="5" rx="2.5" fill="var(--pbg)" opacity="0.7" />
+    </g>
+  </svg>
+</div>
+
+<style>
+  .pipe {
+    --pbg: var(--m-surface-container-highest);
+    --pt1: color-mix(in oklab, var(--m-on-surface) 10%, var(--pbg));
+    --pt2: color-mix(in oklab, var(--m-on-surface) 22%, var(--pbg));
+    --pt3: color-mix(in oklab, var(--m-on-surface) 38%, var(--pbg));
+    --pt4: color-mix(in oklab, var(--m-on-surface) 58%, var(--pbg));
+    --pink: color-mix(in oklab, var(--m-on-surface) 80%, var(--pbg));
+
+    padding: var(--space-lg);
+    border-radius: var(--shape-xxl);
+    background: var(--pbg);
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /*
+   * Static by default and complete: all four stages at full strength. That
+   * is the reduced-motion rendering and it is also what anyone sees before
+   * the loop's first cycle, so the diagram is never mid-thought.
+   */
+  [data-stage] {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /*
+     * Six seconds, four stages, each one arriving and staying. Only opacity
+     * and translate move, so this is one composited property per stage and
+     * the loop costs nothing on the main thread.
+     */
+    [data-stage] {
+      animation: pipe-in 6s var(--spatial-slow) infinite both;
+    }
+
+    [data-stage='1'] { animation-delay: 0s; }
+    [data-stage='2'] { animation-delay: 0.9s; }
+    [data-stage='3'] { animation-delay: 1.8s; }
+    [data-stage='4'] { animation-delay: 2.7s; }
+
+    .pipe:hover [data-stage],
+    .pipe:focus-within [data-stage] {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes pipe-in {
+    0% {
+      opacity: 0;
+      translate: 0 10px;
+    }
+    12%,
+    88% {
+      opacity: 1;
+      translate: 0 0;
+    }
+    100% {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+  }
+</style>
