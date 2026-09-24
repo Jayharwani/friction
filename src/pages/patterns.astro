@@ -68,6 +68,7 @@ const written = getPatternLenses();
                         limitation={written[pattern.category]!.lenses[lens].limitation}
                         writtenBy={written[pattern.category]!.writtenBy}
                         writtenAt={written[pattern.category]!.writtenAt}
+                        group={`pattern-${pattern.category}`}
                       />
                     </div>
                   ))}
@@ -204,11 +205,6 @@ const written = getPatternLenses();
     }
   }
 
-  @media (min-width: 80rem) {
-    .lens-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
 
   .empty {
     display: flex;

@@ -1,0 +1,228 @@
+---
+/**
+ * The four lens scenes: the person each lens is for, at work.
+ *
+ * The card has to answer "is this one for me" before a word of it is read,
+ * and a person at a desk does that in a way a geometric mark cannot. A
+ * founder at a whiteboard and a researcher at a notebook are two different
+ * jobs at a glance; a shoot and a magnifying glass are two abstractions you
+ * have to decode.
+ *
+ * Every figure is the same construction — same head, same torso, same
+ * proportions, seen from three-quarters behind so there is no face to draw
+ * and none to get wrong. What changes is the posture and what is in front of
+ * them. Art direction and the tone scale are in Scene.astro.
+ *
+ * One accent per scene, and it is the lens's own tone via --lens: the
+ * dragged component, the sticky note, the chart, the line being written.
+ * That element is also the one that moves on hover.
+ */
+import Scene from './Scene.astro';
+
+export type Lens = 'build' | 'start' | 'study' | 'write';
+
+interface Props {
+  lens: Lens;
+  class?: string;
+}
+
+const { lens, class: klass } = Astro.props;
+
+const LABEL: Record<Lens, string> = {
+  build:
+    'A designer at a screen showing a wireframe, with a component being dragged into place from a panel beside it.',
+  start:
+    'A founder at a whiteboard with a three-step diagram and a sticky note, an empty chair beside them.',
+  study:
+    'A researcher at a desk with an open notebook, a chart pinned above and a stack of printed pages.',
+  write:
+    'A writer at a laptop with a draft on screen, a coffee and a page of notes to one side.',
+};
+---
+
+<Scene label={LABEL[lens]} width={320} height={200} class={klass}>
+  <rect width="320" height="200" fill="var(--ill-bg)" />
+
+  {/* The floor every scene stands on. One line, never a grid. */}
+  <rect x="0" y="168" width="320" height="2" fill="var(--t1)" />
+
+  {
+    lens === 'build' && (
+      <>
+        <ellipse cx="96" cy="170" rx="46" ry="6" fill="var(--shade)" />
+
+        {/* the screen, with a wireframe on it */}
+        <rect x="140" y="44" width="132" height="94" rx="6" fill="var(--t3)" />
+        <rect x="147" y="51" width="118" height="80" rx="3" fill="var(--ill-bg)" />
+        <rect x="155" y="59" width="44" height="7" rx="2" fill="var(--t2)" />
+        <rect x="155" y="72" width="102" height="22" rx="3" fill="var(--t1)" />
+        <rect x="155" y="100" width="48" height="22" rx="3" fill="var(--t1)" />
+        <rect x="209" y="100" width="48" height="22" rx="3" fill="var(--t1)" />
+        <rect x="196" y="138" width="20" height="18" fill="var(--t3)" />
+        <rect x="178" y="156" width="56" height="5" rx="2.5" fill="var(--t3)" />
+
+        {/* the component panel it is being dragged out of */}
+        <rect x="282" y="58" width="30" height="80" rx="4" fill="var(--t2)" />
+        <rect x="288" y="66" width="18" height="12" rx="2" fill="var(--t3)" />
+        <rect x="288" y="84" width="18" height="12" rx="2" fill="var(--t3)" />
+        <rect x="288" y="102" width="18" height="12" rx="2" fill="var(--t3)" />
+
+        {/* the one in the air. This is the element that moves on hover. */}
+        <g data-lively>
+          <rect x="252" y="76" width="44" height="20" rx="3" fill="var(--lens, var(--accent))" />
+        </g>
+
+        {/* the figure, three-quarters from behind */}
+        <g>
+          <rect x="74" y="98" width="44" height="58" rx="14" fill="var(--t4)" />
+          <rect x="112" y="108" width="34" height="11" rx="5.5" fill="var(--t4)" />
+          <circle cx="96" cy="80" r="17" fill="var(--t3)" />
+          <path d="M79 80a17 17 0 0 1 34 0z" fill="var(--ink)" />
+        </g>
+      </>
+    )
+  }
+
+  {
+    lens === 'start' && (
+      <>
+        <ellipse cx="88" cy="170" rx="40" ry="6" fill="var(--shade)" />
+
+        {/* the whiteboard, and three boxes with two arrows */}
+        <rect x="150" y="30" width="150" height="104" rx="4" fill="var(--t2)" />
+        <rect x="157" y="37" width="136" height="90" rx="2" fill="var(--ill-bg)" />
+        <rect x="168" y="62" width="30" height="22" rx="3" fill="var(--t3)" />
+        <rect x="209" y="62" width="30" height="22" rx="3" fill="var(--t3)" />
+        <rect x="250" y="62" width="30" height="22" rx="3" fill="var(--t3)" />
+        <rect x="200" y="72" width="8" height="2" fill="var(--t3)" />
+        <rect x="241" y="72" width="8" height="2" fill="var(--t3)" />
+        <rect x="168" y="100" width="70" height="5" rx="2.5" fill="var(--t2)" />
+        <rect x="168" y="111" width="48" height="5" rx="2.5" fill="var(--t2)" />
+
+        {/* the sticky note. This is the element that moves on hover. */}
+        <g data-lively>
+          <rect x="256" y="96" width="30" height="28" rx="2" fill="var(--lens, var(--accent))" />
+        </g>
+
+        {/* the empty chair: the co-founder who is not there yet */}
+        <rect x="18" y="116" width="40" height="7" rx="3" fill="var(--t2)" />
+        <rect x="18" y="84" width="7" height="34" rx="3" fill="var(--t2)" />
+        <rect x="22" y="123" width="4" height="42" fill="var(--t2)" />
+        <rect x="50" y="123" width="4" height="42" fill="var(--t2)" />
+        <ellipse cx="38" cy="168" rx="26" ry="4" fill="var(--shade)" />
+
+        {/* the figure, standing, one arm up to the board */}
+        <g>
+          <rect x="70" y="96" width="38" height="64" rx="13" fill="var(--t4)" />
+          <rect x="104" y="80" width="11" height="34" rx="5.5" fill="var(--t4)" transform="rotate(28 109 97)" />
+          <circle cx="89" cy="78" r="16" fill="var(--t3)" />
+          <path d="M73 78a16 16 0 0 1 32 0z" fill="var(--ink)" />
+        </g>
+      </>
+    )
+  }
+
+  {
+    lens === 'study' && (
+      <>
+        <ellipse cx="160" cy="170" rx="66" ry="6" fill="var(--shade)" />
+
+        {/* the chart pinned above */}
+        <g data-lively>
+          <rect x="196" y="24" width="94" height="62" rx="4" fill="var(--t2)" />
+          <rect x="204" y="70" width="12" height="10" fill="var(--t4)" />
+          <rect x="220" y="58" width="12" height="22" fill="var(--t4)" />
+          <rect x="236" y="44" width="12" height="36" fill="var(--lens, var(--accent))" />
+          <rect x="252" y="52" width="12" height="28" fill="var(--t4)" />
+          <rect x="268" y="64" width="12" height="16" fill="var(--t4)" />
+        </g>
+
+        {/* the desk */}
+        <rect x="88" y="136" width="188" height="6" rx="3" fill="var(--t3)" />
+        <rect x="96" y="142" width="4" height="26" fill="var(--t2)" />
+        <rect x="264" y="142" width="4" height="26" fill="var(--t2)" />
+
+        {/* the open notebook */}
+        <path d="M118 136l18-20h34l-4 20z" fill="var(--t1)" />
+        <path d="M170 136l4-20h34l18 20z" fill="var(--t1)" />
+        <rect x="140" y="121" width="22" height="3" rx="1.5" fill="var(--t3)" />
+        <rect x="140" y="128" width="16" height="3" rx="1.5" fill="var(--t3)" />
+        <rect x="182" y="121" width="22" height="3" rx="1.5" fill="var(--t3)" />
+        <rect x="182" y="128" width="16" height="3" rx="1.5" fill="var(--t3)" />
+
+        {/* the stack of printed pages */}
+        <rect x="234" y="120" width="36" height="4" rx="1" fill="var(--t2)" />
+        <rect x="232" y="125" width="40" height="4" rx="1" fill="var(--t3)" />
+        <rect x="235" y="130" width="34" height="4" rx="1" fill="var(--t2)" />
+
+        {/* the figure, seated, seen from behind */}
+        <g>
+          <rect x="136" y="92" width="44" height="52" rx="14" fill="var(--t4)" />
+          <circle cx="158" cy="74" r="17" fill="var(--t3)" />
+          <path d="M141 74a17 17 0 0 1 34 0z" fill="var(--ink)" />
+        </g>
+      </>
+    )
+  }
+
+  {
+    lens === 'write' && (
+      <>
+        <ellipse cx="128" cy="170" rx="58" ry="6" fill="var(--shade)" />
+
+        {/* the desk */}
+        <rect x="70" y="140" width="220" height="6" rx="3" fill="var(--t3)" />
+        <rect x="78" y="146" width="4" height="22" fill="var(--t2)" />
+        <rect x="278" y="146" width="4" height="22" fill="var(--t2)" />
+
+        {/* the laptop, open, a draft on the screen */}
+        <path d="M150 140l10-62h84l10 62z" fill="var(--t2)" />
+        <rect x="158" y="66" width="86" height="60" rx="4" fill="var(--t3)" />
+        <rect x="164" y="72" width="74" height="48" rx="2" fill="var(--ill-bg)" />
+        <rect x="171" y="80" width="46" height="4" rx="2" fill="var(--t3)" />
+        <rect x="171" y="90" width="60" height="3" rx="1.5" fill="var(--t2)" />
+        <rect x="171" y="98" width="52" height="3" rx="1.5" fill="var(--t2)" />
+
+        {/* the line being written. This is the element that moves on hover. */}
+        <g data-lively>
+          <rect x="171" y="106" width="44" height="4" rx="2" fill="var(--lens, var(--accent))" />
+        </g>
+
+        {/* the coffee */}
+        <rect x="258" y="118" width="22" height="22" rx="3" fill="var(--t3)" />
+        <rect x="280" y="124" width="8" height="9" rx="4" fill="var(--t3)" />
+
+        {/* the page of notes */}
+        <rect x="70" y="126" width="40" height="14" rx="2" fill="var(--t1)" transform="rotate(-7 90 133)" />
+        <rect x="78" y="130" width="24" height="2.5" rx="1.25" fill="var(--t3)" transform="rotate(-7 90 133)" />
+        <rect x="78" y="135" width="18" height="2.5" rx="1.25" fill="var(--t3)" transform="rotate(-7 90 133)" />
+
+        {/* the figure, seated at the near side */}
+        <g>
+          <rect x="106" y="96" width="42" height="50" rx="14" fill="var(--t4)" />
+          <rect x="142" y="112" width="30" height="10" rx="5" fill="var(--t4)" />
+          <circle cx="127" cy="78" r="16" fill="var(--t3)" />
+          <path d="M111 78a16 16 0 0 1 32 0z" fill="var(--ink)" />
+        </g>
+      </>
+    )
+  }
+</Scene>
+
+<style>
+  /*
+   * One element inside an otherwise still scene moves under the pointer.
+   * It is four pixels and it is the whole difference between a picture and
+   * something that feels made — and it costs one transform on one group.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.lens:hover) [data-lively],
+    :global(.lens:focus-within) [data-lively] {
+      translate: 0 -4px;
+    }
+
+    [data-lively] {
+      transition: translate var(--dur-spatial-fast) var(--spatial-fast);
+    }
+  }
+</style>

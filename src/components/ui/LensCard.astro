@@ -2,16 +2,22 @@
 /**
  * One of the four things you could do with a challenge.
  *
- * Every card carries the same "written" badge the gap block uses, because
- * these four are the only written content on the site and the labelling is
- * the point rather than a disclaimer.
+ * Four of these used to stand side by side with everything open: about
+ * seventy words each, 280 at once, and nowhere for the eye to land. The card
+ * is a door now, not a document. Collapsed it is a picture, a label, a
+ * proposition and one link — about fifteen words — and the rest is one click
+ * away.
  *
- * The limitation is not a footnote. It sits on its own, under a rule, in the
- * same size as the rest — a card that names why it might fail is the one a
- * reader believes, and burying that line would waste the only thing that
- * separates these from every other generated idea list.
+ * Not a word of the writing changed. The specifics and the limitation are
+ * exactly as they were; they are behind a summary instead of above the fold.
+ *
+ * The accordion is `<details name>`, which the browser makes exclusive on its
+ * own: opening one closes the others with no JavaScript at all. Where that is
+ * not supported the four open independently, which is the old behaviour and a
+ * perfectly good fallback.
  */
-import LensMark, { type Lens } from './art/LensMark.astro';
+import LensScene, { type Lens } from './art/LensScene.astro';
+import Chip from './Chip.astro';
 
 interface Props {
   lens: Lens;
@@ -20,88 +26,97 @@ interface Props {
   limitation: string;
   writtenBy: string;
   writtenAt: string;
+  /** Cards sharing a group are mutually exclusive. One per page section. */
+  group?: string;
 }
 
-const { lens, proposition, specifics, limitation, writtenBy, writtenAt } = Astro.props;
+const {
+  lens,
+  proposition,
+  specifics,
+  limitation,
+  writtenBy,
+  writtenAt,
+  group = 'lens',
+} = Astro.props;
 
-const TITLE: Record<Lens, string> = {
+const LABEL: Record<Lens, string> = {
   build: 'Build it',
   start: 'Start it',
   study: 'Study it',
   write: 'Write it',
 };
-
-const FOR: Record<Lens, string> = {
-  build: 'For designers, PMs and engineers',
-  start: 'For founders',
-  study: 'For students and researchers',
-  write: 'For writers',
-};
 ---
 
 <article class="lens written-text" data-lens={lens}>
-  <header>
-    <LensMark lens={lens} size={40} />
-    <div>
-      <h3>{TITLE[lens]}</h3>
-      <p class="who">{FOR[lens]}</p>
-    </div>
-    <span class="written" title={`Written by ${writtenBy} on ${writtenAt}`}>written</span>
-  </header>
+  <div class="art">
+    <LensScene lens={lens} />
+    <span class="badge">
+      <Chip kind="badge" title={`Written by ${writtenBy} on ${writtenAt}`}>written</Chip>
+    </span>
+  </div>
 
-  <p class="prop">{proposition}</p>
+  <div class="body">
+    <p class="label">{LABEL[lens].toUpperCase()}</p>
+    <p class="prop">{proposition}</p>
 
-  <ul class="specifics">
-    {specifics.map((s) => <li>{s}</li>)}
-  </ul>
+    <details name={group} class="more">
+      <summary>
+        <span class="see">See how</span>
+        <span class="n num">{specifics.length} points</span>
+      </summary>
 
-  <p class="limit">
-    <span class="l-label">Why it might not work</span>
-    {limitation}
-  </p>
+      <div class="inner">
+        <ul class="specifics">
+          {specifics.map((s) => <li>{s}</li>)}
+        </ul>
+
+        <p class="limit">
+          <span class="l-label">Why it might not work</span>
+          {limitation}
+        </p>
+      </div>
+    </details>
+  </div>
 </article>
 
 <style>
   .lens {
     display: grid;
     align-content: start;
-    gap: var(--space-sm);
-    padding: var(--space-xl);
+    overflow: hidden;
     border-radius: var(--shape-xl);
     background: var(--m-surface-container-high);
   }
 
-  header {
+  /* The picture gets the top of the card, edge to edge. */
+  .art {
+    position: relative;
+  }
+
+  /*
+   * Positioned by a wrapper this component owns rather than by a class
+   * handed to the Chip: a scoped rule does not reliably reach the root of
+   * another component, and the badge landed top-left instead of top-right.
+   */
+  .badge {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    display: inline-flex;
+  }
+
+  .body {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: var(--space-sm);
+    align-content: start;
+    gap: var(--space-2xs);
+    padding: var(--space-lg);
   }
 
-  h3 {
-    font-size: var(--title-md);
-    font-weight: var(--weight-emphasis);
-    letter-spacing: var(--track-emphasis);
-    line-height: var(--line-title);
-  }
-
-  .who {
-    margin-top: 2px;
-    font-size: var(--text-xs);
-    color: var(--color-muted);
-  }
-
-  /* The same badge the gap block carries. Kept exactly as it is. */
-  .written {
-    align-self: start;
-    font-size: var(--text-xs);
-    font-weight: 500;
-    line-height: 1;
-    padding: 0.25em 0.5em;
-    border-radius: var(--r-pill);
-    border: var(--rule-hair) solid color-mix(in oklab, var(--lens) 55%, transparent);
-    color: var(--color-muted);
-    cursor: help;
+  .label {
+    font-size: var(--label-sm);
+    letter-spacing: 0.08em;
+    color: var(--m-on-surface-variant);
   }
 
   .prop {
@@ -109,6 +124,65 @@ const FOR: Record<Lens, string> = {
     font-weight: 500;
     line-height: var(--line-title);
     text-wrap: pretty;
+  }
+
+  /* ---- the door ---- */
+
+  summary {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: var(--tap);
+    margin-top: var(--space-2xs);
+    font-size: var(--label-lg);
+    font-weight: var(--weight-emphasis);
+    letter-spacing: var(--track-emphasis);
+    color: var(--m-primary);
+    cursor: pointer;
+    list-style: none;
+    width: fit-content;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:hover .see {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  summary:focus-visible {
+    outline: 3px solid var(--m-primary);
+    outline-offset: 2px;
+    border-radius: var(--shape-xs);
+  }
+
+  .n {
+    font-weight: 400;
+    color: var(--m-on-surface-variant);
+  }
+
+  .n::before {
+    content: '· ';
+  }
+
+  .more[open] .see::after {
+    content: ' less';
+  }
+
+  .more[open] .see {
+    font-size: 0;
+  }
+
+  .more[open] .see::after {
+    font-size: var(--label-lg);
+  }
+
+  .inner {
+    display: grid;
+    gap: var(--space-sm);
+    padding-top: var(--space-sm);
   }
 
   .specifics {
@@ -125,7 +199,7 @@ const FOR: Record<Lens, string> = {
     gap: var(--space-xs);
     font-size: var(--body-md);
     line-height: var(--line-body);
-    color: var(--color-muted);
+    color: var(--m-on-surface-variant);
   }
 
   .specifics li::before {
@@ -138,22 +212,18 @@ const FOR: Record<Lens, string> = {
   }
 
   /*
-   * The honest half. On its own, above a rule, at full size — not a
-   * footnote and not smaller than the proposition it qualifies.
-   */
-  /*
    * The honest half, on the brightest surface in the card. Brightest means
-   * most important, and on a card whose job is to propose something, the
-   * reason it might not work is the most important thing on it.
+   * most important in this system, and on a card whose job is to propose
+   * something, the reason it might not work is the most important thing on
+   * it. Not a footnote and not smaller than what it qualifies.
    */
   .limit {
-    margin-top: var(--space-xs);
     padding: var(--space-md);
     border-radius: var(--shape-lg);
     background: var(--m-surface-container-highest);
-    font-size: var(--text-sm);
-    line-height: 1.45;
-    color: var(--color-muted);
+    font-size: var(--body-md);
+    line-height: var(--line-body);
+    color: var(--m-on-surface-variant);
     text-wrap: pretty;
   }
 
@@ -168,14 +238,29 @@ const FOR: Record<Lens, string> = {
 
   @media (prefers-reduced-motion: no-preference) {
     .lens {
-      transition:
-        translate var(--dur-spatial-fast) var(--spatial-fast),
-        background-color var(--dur-effects-fast) var(--effects-fast);
+      transition: background-color var(--dur-effects-fast) var(--effects-fast);
     }
 
     .lens:hover {
-      translate: 0 -2px;
       background: var(--m-surface-container-highest);
+    }
+
+    @supports (interpolate-size: allow-keywords) and (selector(::details-content)) {
+      .more {
+        interpolate-size: allow-keywords;
+      }
+
+      .more::details-content {
+        block-size: 0;
+        overflow: hidden;
+        transition:
+          block-size var(--dur-spatial-default) var(--spatial-default),
+          content-visibility var(--dur-spatial-default) allow-discrete;
+      }
+
+      .more[open]::details-content {
+        block-size: auto;
+      }
     }
   }
 </style>

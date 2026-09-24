@@ -22,6 +22,7 @@ import AppIdentity from '../components/ui/AppIdentity.astro';
 import PatternCard from '../components/ui/PatternCard.astro';
 import CategoryScene from '../components/ui/art/CategoryScene.astro';
 import ExplainerScene from '../components/ui/art/ExplainerScene.astro';
+import LensScene from '../components/ui/art/LensScene.astro';
 import LensMark from '../components/ui/art/LensMark.astro';
 import EmptyMark from '../components/ui/art/EmptyMark.astro';
 import { getChallenge, getGaps, getProblems, getProducts } from '../lib/data';
@@ -210,6 +211,23 @@ const BUTTON_STATES = [
     </section>
 
     <section class="bleed">
+      <h2>14b · Lens scenes — the person each lens is for</h2>
+      <p class="note">320 × 200. One accent per scene, from that lens's own tone.</p>
+      <div class="grid4">
+        {
+          LENSES.map((lens) => (
+            <div class="lens" style={`--lens:${LENS_HUE[lens]}`}>
+              <LensScene lens={lens} />
+              <p class="ex-label" style="padding: var(--space-sm) var(--space-md)">
+                {LENS_LABEL[lens].toUpperCase()}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="bleed">
       <h2>14 · Illustration — eight scenes, four lens marks, six empty marks</h2>
       <div class="scenes">
         {FAMILIES.map((family) => <CategoryScene family={family} />)}
@@ -307,12 +325,22 @@ const BUTTON_STATES = [
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   }
 
+  /* Two by two, never four across: four columns of dense cards is the
+     crowding this pass exists to fix. */
   .grid4 {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    max-width: 58rem;
   }
 
   .grid4 > div {
     display: grid;
+  }
+
+  .grid4 > .lens {
+    align-content: start;
+    overflow: hidden;
+    border-radius: var(--shape-lg);
+    background: var(--m-surface-container);
   }
 
   .scenes {
