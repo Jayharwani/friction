@@ -21,6 +21,7 @@ import QuoteBlock from '../components/ui/QuoteBlock.astro';
 import AppIdentity from '../components/ui/AppIdentity.astro';
 import PatternCard from '../components/ui/PatternCard.astro';
 import CategoryScene from '../components/ui/art/CategoryScene.astro';
+import ExplainerScene from '../components/ui/art/ExplainerScene.astro';
 import LensMark from '../components/ui/art/LensMark.astro';
 import EmptyMark from '../components/ui/art/EmptyMark.astro';
 import { getChallenge, getGaps, getProblems, getProducts } from '../lib/data';
@@ -189,6 +190,26 @@ const BUTTON_STATES = [
     </section>
 
     <section class="bleed">
+      <h2>14a · Explainer scene — first draft, against the reference</h2>
+      <p class="note">
+        480 × 300, flat, mostly neutral, literal. The card it sits in is the card it will ship in.
+      </p>
+      <div class="grid2">
+        <article class="ex-card">
+          <ExplainerScene scene="sources" />
+          <div class="ex-body">
+            <p class="ex-label">WHERE IT COMES FROM</p>
+            <h3>Two public review feeds</h3>
+            <p class="ex-note">
+              Both app stores publish reviews without credentials or an agreement. Friction reads
+              ten thousand of them a week and keeps what repeats.
+            </p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="bleed">
       <h2>14 · Illustration — eight scenes, four lens marks, six empty marks</h2>
       <div class="scenes">
         {FAMILIES.map((family) => <CategoryScene family={family} />)}
@@ -296,5 +317,36 @@ const BUTTON_STATES = [
 
   .scenes {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  }
+
+  /* Google's card anatomy: illustration at 60% of the height, then a small
+     tracked label, a short headline, and three lines of body. */
+  .ex-card {
+    overflow: hidden;
+    border-radius: var(--shape-lg);
+    background: var(--m-surface-container);
+  }
+
+  .ex-body {
+    padding: var(--space-lg);
+  }
+
+  .ex-label {
+    font-size: var(--label-sm);
+    letter-spacing: 0.08em;
+    color: var(--m-on-surface-variant);
+  }
+
+  .ex-card h3 {
+    margin-top: var(--space-2xs);
+    font-size: var(--title-lg);
+    font-weight: 500;
+  }
+
+  .ex-note {
+    margin-top: var(--space-xs);
+    font-size: var(--body-md);
+    line-height: var(--line-body);
+    color: var(--m-on-surface-variant);
   }
 </style>

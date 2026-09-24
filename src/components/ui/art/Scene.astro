@@ -1,0 +1,88 @@
+---
+/**
+ * The frame every illustration on this site is drawn inside.
+ *
+ * The art direction, taken from Google's Search illustrations rather than
+ * from memory — I opened them and read the construction off the page:
+ *
+ *   · Flat fills. No gradients, no outlines on shapes. Depth comes from a
+ *     step in lightness, never from shading.
+ *   · Mostly neutral. Their library scene is grey except for three book
+ *     spines; the ratio is roughly nine parts neutral to one part colour,
+ *     and colour is how the eye is told where to look.
+ *   · Generous internal whitespace. The subject occupies about half the
+ *     frame and the edges are empty.
+ *   · Literal and concrete. "The world's largest library" is drawn as an
+ *     actual library with shelves, not as a book icon.
+ *   · A slight three-quarter tilt on objects, never a full isometric grid.
+ *   · Soft shadows beneath objects only, tinted rather than grey-black.
+ *   · Real interface drawn as real interface — they draw an actual search
+ *     box with a real mic and lens in it.
+ *
+ * The one thing theirs cannot do is themes: Google's are PNGs baked light.
+ * These are SVG built from the surface roles, so a scene is drawn once and
+ * holds in both. The tone scale below is the surface ramp continued upward
+ * into the drawing: --t1 is the farthest and palest, --t4 the nearest.
+ */
+interface Props {
+  /** What the picture shows, in a sentence. Never "illustration". */
+  label: string;
+  width?: number;
+  height?: number;
+  /** Fills the card it sits in, edge to edge, the way Google's do. */
+  class?: string;
+}
+
+const { label, width = 480, height = 300, class: klass } = Astro.props;
+---
+
+<svg
+  class:list={['scene', klass]}
+  viewBox={`0 0 ${width} ${height}`}
+  role="img"
+  aria-label={label}
+  data-chart
+>
+  <slot />
+</svg>
+
+<style>
+  .scene {
+    display: block;
+    width: 100%;
+    height: auto;
+
+    /*
+     * The panel is one step further up the container ramp than the card it
+     * sits in — highest against the card's default. That is one rule rather
+     * than two: in dark it lands lighter than the card, in light it lands
+     * slightly darker, and in both the drawing has a ground to step away
+     * from. The first draft used surface-bright, which is lighter in both
+     * themes and put a white panel on a grey card in light mode, so the
+     * illustration looked like it was floating beside the card rather than
+     * being the top of it.
+     *
+     * The first draft before that used a dark panel on a dark card, and
+     * every shape landed within a few per cent of its neighbours. Flat
+     * illustration needs a wide spread or it reads as mud.
+     */
+    --ill-bg: var(--m-surface-container-highest);
+
+    /*
+     * Five steps, spanning a real range. The reference gets its separation
+     * from a wide spread between ground and ink; a narrow spread is what
+     * makes a flat illustration look unfinished rather than flat.
+     */
+    --t1: color-mix(in oklab, var(--m-on-surface) 10%, var(--ill-bg));
+    --t2: color-mix(in oklab, var(--m-on-surface) 22%, var(--ill-bg));
+    --t3: color-mix(in oklab, var(--m-on-surface) 38%, var(--ill-bg));
+    --t4: color-mix(in oklab, var(--m-on-surface) 58%, var(--ill-bg));
+    --ink: color-mix(in oklab, var(--m-on-surface) 80%, var(--ill-bg));
+
+    --accent: var(--m-primary);
+    --warm: var(--m-tertiary);
+
+    /* Beneath objects only, tinted to the ground rather than to black. */
+    --shade: color-mix(in oklab, var(--m-on-surface) 9%, transparent);
+  }
+</style>

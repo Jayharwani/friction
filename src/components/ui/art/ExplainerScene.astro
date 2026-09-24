@@ -1,0 +1,134 @@
+---
+/**
+ * The four scenes that carry How it works.
+ *
+ * Each is a place or a thing, drawn literally. "Where it comes from" is two
+ * phones with reviews on them and the reviews coming off them — not an arrow,
+ * not a cloud, not a database cylinder.
+ *
+ * Art direction and the tone scale live in Scene.astro.
+ */
+import Scene from './Scene.astro';
+
+export type Explainer = 'sources' | 'filter' | 'model' | 'written';
+
+interface Props {
+  scene: Explainer;
+  class?: string;
+}
+
+const { scene, class: klass } = Astro.props;
+
+const LABEL: Record<Explainer, string> = {
+  sources:
+    'Two phones showing app store reviews, with a stream of review cards coming off them.',
+  filter: 'A wide stream of review cards entering a funnel and a thin stream leaving it.',
+  model: 'Scattered cards gathered into one stack, beside a column of numbers struck through.',
+  written: 'A card of three printed lines and one handwritten line that is visibly different.',
+};
+
+/** Five stars in a row, from x,y, at 11px. `on` of them carry the warm tone. */
+function stars(x: number, y: number, on: number, size = 11): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < 5; i++) {
+    const cx = x + i * (size + 3);
+    /* A five-point star, built once and translated, so every star in the
+       whole set is exactly the same shape. */
+    const r = size / 2;
+    const pts: string[] = [];
+    for (let p = 0; p < 10; p++) {
+      const rad = p % 2 === 0 ? r : r * 0.44;
+      const a = (Math.PI / 5) * p - Math.PI / 2;
+      pts.push(`${(cx + r + Math.cos(a) * rad).toFixed(1)},${(y + r + Math.sin(a) * rad).toFixed(1)}`);
+    }
+    out.push(pts.join(' '));
+  }
+  return out.map((p, i) => (i < on ? `W${p}` : `N${p}`));
+}
+---
+
+<Scene label={LABEL[scene]} class={klass}>
+  <rect width="480" height="300" rx="0" fill="var(--ill-bg)" />
+
+  {
+    scene === 'sources' && (
+      <>
+        {/* the ground the phones stand on */}
+        <ellipse cx="150" cy="256" rx="96" ry="10" fill="var(--shade)" />
+
+        {/* phone behind, tilted back a little */}
+        <g transform="rotate(-5 118 150)">
+          <rect x="70" y="62" width="96" height="182" rx="13" fill="var(--t2)" />
+          <rect x="80" y="76" width="76" height="8" rx="4" fill="var(--t3)" />
+          <rect x="80" y="96" width="76" height="46" rx="6" fill="var(--t1)" />
+          <rect x="80" y="152" width="76" height="46" rx="6" fill="var(--t1)" />
+        </g>
+
+        {/* phone in front, with a review on it drawn as a review */}
+        <g transform="rotate(4 196 158)">
+          <rect x="146" y="66" width="106" height="196" rx="15" fill="var(--t3)" />
+          <rect x="156" y="80" width="86" height="168" rx="8" fill="var(--ill-bg)" />
+
+          <rect x="166" y="92" width="44" height="7" rx="3.5" fill="var(--t3)" />
+          {stars(166, 104, 5, 13).map((p) => (
+            <polygon points={p.slice(1)} fill={p[0] === 'W' ? 'var(--warm)' : 'var(--t2)'} />
+          ))}
+          <rect x="166" y="128" width="66" height="6" rx="3" fill="var(--t2)" />
+          <rect x="166" y="140" width="52" height="6" rx="3" fill="var(--t2)" />
+
+          <rect x="166" y="164" width="38" height="7" rx="3.5" fill="var(--t3)" />
+          {stars(166, 176, 2, 13).map((p) => (
+            <polygon points={p.slice(1)} fill={p[0] === 'W' ? 'var(--warm)' : 'var(--t2)'} />
+          ))}
+          <rect x="166" y="198" width="66" height="6" rx="3" fill="var(--t2)" />
+          <rect x="166" y="210" width="44" height="6" rx="3" fill="var(--t2)" />
+        </g>
+
+        {/*
+          The stream. Five cards on a shallow arc, each a step paler and a
+          step smaller than the one before it, so the depth is in the tone
+          rather than in a perspective grid.
+        */}
+        <g data-stream>
+          <g transform="translate(286 176)">
+            <rect width="96" height="52" rx="9" fill="var(--t3)" />
+            <rect x="12" y="13" width="30" height="6" rx="3" fill="var(--ink)" />
+            <rect x="12" y="27" width="66" height="5" rx="2.5" fill="var(--t4)" />
+            <rect x="12" y="37" width="48" height="5" rx="2.5" fill="var(--t4)" />
+          </g>
+
+          <g transform="translate(300 116)">
+            <rect width="88" height="48" rx="8" fill="var(--t2)" />
+            <rect x="11" y="12" width="26" height="5" rx="2.5" fill="var(--t4)" />
+            <rect x="11" y="25" width="60" height="5" rx="2.5" fill="var(--t3)" />
+            <rect x="11" y="34" width="42" height="5" rx="2.5" fill="var(--t3)" />
+          </g>
+
+          <g transform="translate(330 66)">
+            <rect width="78" height="42" rx="8" fill="var(--t2)" />
+            <rect x="10" y="11" width="22" height="5" rx="2.5" fill="var(--t3)" />
+            <rect x="10" y="23" width="52" height="4" rx="2" fill="var(--t3)" />
+            <rect x="10" y="31" width="36" height="4" rx="2" fill="var(--t3)" />
+          </g>
+
+          <g transform="translate(384 128)">
+            <rect width="66" height="36" rx="7" fill="var(--t1)" />
+            <rect x="9" y="10" width="18" height="4" rx="2" fill="var(--t2)" />
+            <rect x="9" y="20" width="44" height="4" rx="2" fill="var(--t2)" />
+          </g>
+
+          <g transform="translate(400 196)">
+            <rect width="54" height="30" rx="6" fill="var(--t1)" />
+            <rect x="8" y="9" width="16" height="4" rx="2" fill="var(--t2)" />
+            <rect x="8" y="17" width="34" height="4" rx="2" fill="var(--t2)" />
+          </g>
+        </g>
+
+        {/* three dots, the only thing saying "and it keeps coming" */}
+        <circle cx="268" cy="150" r="4" fill="var(--t3)" />
+        <circle cx="282" cy="150" r="3" fill="var(--t2)" />
+        <circle cx="294" cy="150" r="2.5" fill="var(--t2)" />
+      </>
+    )
+  }
+</Scene>
