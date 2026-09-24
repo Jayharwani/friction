@@ -18,9 +18,14 @@ import { url } from '../../lib/url';
 
 interface Props {
   variant?: 'filled' | 'tonal' | 'text';
+  /**
+   * An internal route, run through url(). Named `to` rather than `href` so
+   * that `grep -rn 'href="/' src/` stays a meaningful check: the only raw
+   * root-relative hrefs in the source should be ones that are wrong.
+   */
+  to?: string;
+  /** An absolute or external URL, passed through untouched. */
   href?: string;
-  /** Pass an absolute or external URL through untouched. */
-  external?: boolean;
   type?: 'button' | 'submit';
   disabled?: boolean;
   /** 'loading' | 'error' | 'success' — shown in place of the label's tail. */
@@ -31,8 +36,8 @@ interface Props {
 
 const {
   variant = 'filled',
+  to,
   href,
-  external = false,
   type = 'button',
   disabled = false,
   state = 'idle',
@@ -40,19 +45,19 @@ const {
   id,
 } = Astro.props;
 
-const Tag = href ? 'a' : 'button';
-const to = href && !external ? url(href) : href;
+const link = to ? url(to) : href;
+const Tag = link ? 'a' : 'button';
 ---
 
 <Tag
   class:list={['btn', `v-${variant}`, klass]}
   id={id}
-  href={to}
-  type={href ? undefined : type}
+  href={link}
+  type={link ? undefined : type}
   data-state={state === 'idle' ? undefined : state}
-  aria-disabled={disabled && href ? 'true' : undefined}
+  aria-disabled={disabled && link ? 'true' : undefined}
   aria-busy={state === 'loading' ? 'true' : undefined}
-  disabled={!href && disabled ? true : undefined}
+  disabled={!link && disabled ? true : undefined}
 >
   {state === 'loading' && <span class="spin" aria-hidden="true"></span>}
   <span class="label"><slot /></span>
