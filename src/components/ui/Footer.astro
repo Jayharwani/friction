@@ -2,16 +2,9 @@
 /**
  * Ft5 · Statement.
  *
- * One display sentence closing the argument the page makes, then the
- * provenance line beneath it. No link columns, no sitemap.
- *
- * The commit link is a small but real trust signal: the numbers on screen
- * trace to a specific revision, not to "trust us".
+ * One display sentence closing the argument the page makes, and nothing else.
+ * No provenance line, no link columns, no sitemap.
  */
-import { formatDate, getDataCommit, getLatestRun } from '../../lib/data';
-
-const run = getLatestRun();
-const commit = getDataCommit();
 ---
 
 <footer class="foot">
@@ -20,27 +13,6 @@ const commit = getDataCommit();
       A complaint is only worth acting on once it has happened to enough people, enough times, for
       long enough.
     </p>
-
-    <div class="meta">
-      <p class="num">
-        {
-          run && (
-            <>
-              Last scan <time datetime={run.date}>{formatDate(run.date)}</time>.{' '}
-            </>
-          )
-        }
-        Built from{' '}
-        <a href={commit.url} rel="noopener noreferrer">
-          {commit.sha ? `commit ${commit.sha}` : 'the data history'}
-        </a>.
-      </p>
-
-      <p>
-        Non-commercial. No ads, accounts or payments. Not affiliated with any app it tracks.{' '}
-        <a href="https://github.com/Jayharwani/friction" rel="noopener noreferrer">Source</a>.
-      </p>
-    </div>
   </div>
 </footer>
 
@@ -52,8 +24,6 @@ const commit = getDataCommit();
 
   .foot-inner {
     padding: var(--space-3xl) var(--page-gutter) var(--space-2xl);
-    display: grid;
-    gap: var(--space-xl);
   }
 
   /* The closing sentence, at display size. Roman, never italic. */
@@ -68,17 +38,5 @@ const commit = getDataCommit();
        arrived. em tracks the same clamped display size without that. */
     max-width: 17.23em;
     text-wrap: balance;
-  }
-
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-sm) var(--space-xl);
-    align-items: baseline;
-    padding-top: var(--space-md);
-    background: var(--m-surface-container-lowest);
-    font-size: var(--text-sm);
-    color: var(--color-muted);
   }
 </style>
