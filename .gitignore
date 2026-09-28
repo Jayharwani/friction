@@ -38,3 +38,11 @@ scratch/
 # editing; CLAUDE.md is the design authority the code actually answers to.
 .agents/
 .claude/skills/
+
+# launch videos, made with the brag skill
+# Marketing output for LinkedIn, not part of the site. The folders carry
+# third-party licensed assets too — the ende.app music, the Geist and
+# Newsreader font files, the Kenney SFX — which a public repo should not
+# redistribute. The files stay on disk; they are just not committed.
+brag-output/
+brag-output-*/
